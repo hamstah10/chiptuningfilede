@@ -1,0 +1,116 @@
+{
+  "theme": "dark",
+  "archetype": "THE PERFORMANCE PRO",
+  "typography": {
+    "heading": {
+      "family": "Exo 2",
+      "weights": ["600", "800", "900"],
+      "usage": "Use for all page titles, metrics numbers, and bold claims. Needs tracking-tight for titles.",
+      "import": "@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@600;800;900&display=swap');"
+    },
+    "body": {
+      "family": "IBM Plex Sans",
+      "weights": ["400", "500", "600"],
+      "usage": "Use for all standard text, dashboard data, table rows. Provides technical precision.",
+      "import": "@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap');"
+    }
+  },
+  "colors": {
+    "css_variables_override": {
+      "--background": "0 0% 2%",
+      "--foreground": "0 0% 100%",
+      "--card": "0 0% 7%",
+      "--card-foreground": "0 0% 100%",
+      "--popover": "0 0% 7%",
+      "--popover-foreground": "0 0% 100%",
+      "--primary": "356 78% 56%",
+      "--primary-foreground": "0 0% 100%",
+      "--secondary": "0 0% 15%",
+      "--secondary-foreground": "0 0% 100%",
+      "--muted": "0 0% 15%",
+      "--muted-foreground": "0 0% 65%",
+      "--accent": "356 78% 56%",
+      "--accent-foreground": "0 0% 100%",
+      "--destructive": "356 78% 56%",
+      "--destructive-foreground": "0 0% 100%",
+      "--border": "0 0% 15%",
+      "--input": "0 0% 15%",
+      "--ring": "356 78% 56%",
+      "--radius": "0.125rem"
+    },
+    "description": "Obsidian black base with pure white for data and Electric Blaze (#E63946) for kinetic triggers."
+  },
+  "visual_enhancers": {
+    "surface_strategy": "GRID BORDERS & NEUMORPHISM (Tactile Variant)",
+    "borders": "1px solid rgba(255,255,255,0.1) on all cards. Use 'border-collapse' for grids.",
+    "shadows": "Replace soft shadows with 1px solid strokes or 2px 'inner glow' highlights.",
+    "textures": "Carbon fiber subtle overlays on the sidebar and login backgrounds."
+  },
+  "component_rules": {
+    "cards": "Go cardless or use sharp edges (rounded-sm max). Flat backgrounds, 1px subtle border.",
+    "buttons": "Sharp buttons. Use primary red for CTAs only. Add a subtle inner glow on hover.",
+    "inputs": "Shadcn inputs customized with dark backgrounds, white text, red focus rings.",
+    "tables": "Dense, technical feel. Use IBM Plex Sans for tabular data."
+  },
+  "grids": {
+    "layout": "High Density Grid (For Dashboards / Analytics). Tight gap-4 or gap-6. Every pixel utilized. Override default stretch behavior with align-items: start where needed.",
+    "sidebar": "Fixed width, dark carbon texture background, red active states."
+  },
+  "motion": {
+    "hover": "Hover states must lighten the background (e.g. bg-white/5 to bg-white/10).",
+    "transitions": "Use specific properties (transition-colors duration-200), NO transition-all."
+  },
+  "accessibility": {
+    "contrast": "Ensure pure white text on dark grey/black background for APCA compliance.",
+    "focus": "focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-black"
+  },
+  "media": {
+    "icons": "Use Phosphor Icons (@phosphor-icons/react) for a dense, developer/technical look.",
+    "3d_libraries": "Framer Motion for simple micro-interactions and staggered list reveals. No heavy 3D needed unless for the configurator (optional)."
+  },
+  "image_urls": [
+    {
+      "url": "https://images.unsplash.com/photo-1759166499946-9ab9e7776d41?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTZ8MHwxfHNlYXJjaHwxfHxzcG9ydHMlMjBjYXIlMjBkYXJrJTIwc3R1ZGlvfGVufDB8fHx8MTc3NDIxNTA3NXww&ixlib=rb-4.1.0&q=85",
+      "category": "Login/Auth Background",
+      "description": "Red sports car doors open in garage. Perfect dramatic background for the login portal."
+    },
+    {
+      "url": "https://images.pexels.com/photos/596815/pexels-photo-596815.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "category": "Sidebar/Header Texture",
+      "description": "Detailed view of carbon fiber texture. Use as a subtle background pattern with low opacity (10-15%)."
+    },
+    {
+      "url": "https://images.pexels.com/photos/261985/pexels-photo-261985.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "category": "Dashboard Hero/Configurator",
+      "description": "Black luxury car in studio with sleek design and chrome accents. Good for empty states or configurator banner."
+    }
+  ],
+  "instructions_to_main_agent": [
+    "CRITICAL: Use .js and .jsx extensions exclusively. Do NOT use .ts or .tsx.",
+    "Force dark mode by adding the 'dark' class to the html/body elements in index.html or top-level component.",
+    "Override default shadcn styles in index.css to match the CSS variables provided above.",
+    "Implement a Language Toggle (German/English) in the header as required by constraints.",
+    "Use Phosphor icons. Install with: yarn add @phosphor-icons/react",
+    "For the dashboard, use a High Density Grid approach. Make cards stretch to match heights.",
+    "Include 'data-testid' on all interactive elements.",
+    "Do not use complete transparent backgrounds for the sidebar/header; use solid black or dark grey."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "You tend to converge toward generic, 'on distribution' outputs. In frontend design, this creates what users call the 'AI slop' aesthetic. Avoid this: make creative, distinctive frontends that surprise and delight.",
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur) only where necessary, avoiding muddy grays.",
+    "You MUST NOT apply universal transition. Eg: transition: all. This results in breaking transforms. Always add transitions for specific interactive elements like button, input excluding transforms.",
+    "You MUST NOT center align the app container, ie do not add .App { text-align: center; } in the css file. This disrupts the human natural reading flow of text.",
+    "Always use modern button styles like sharp, technical buttons with interaction animations & color relevant to the app style.",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯📚🎭🎬🎪🎉🎊🎁🎀🎂🍰🎈🎨🎰💰💵💳🏦💎🪙💸🤑📊📈📉💹🔢🏆🥇 etc for icons.",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations. Static = dead.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations: separates good from extraordinary.",
+    "Main agent relies on these image URLs. Missing categories = main agent will use placeholder text which is FORBIDDEN.",
+    "Components MUST use named exports (export const ComponentName = ...)",
+    "Pages MUST use default exports (export default function PageName() {...})",
+    "Use sonner for toasts. Sonner component are located in /app/src/components/ui/sonner.jsx"
+  ]
+}
