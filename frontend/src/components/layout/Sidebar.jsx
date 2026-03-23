@@ -75,8 +75,8 @@ export const Sidebar = () => {
           "flex items-center gap-3 px-4 py-2.5 rounded-sm font-medium text-sm transition-colors duration-200",
           indent && "ml-4",
           isActive 
-            ? "bg-primary text-white" 
-            : "text-muted-foreground hover:text-white hover:bg-white/5"
+            ? "btn-gradient text-white" 
+            : "text-muted-foreground hover:text-foreground hover:bg-secondary"
         )}
       >
         <Icon weight={isActive ? "fill" : "regular"} className="w-5 h-5" />
@@ -95,8 +95,8 @@ export const Sidebar = () => {
           className={cn(
             "flex items-center justify-between w-full px-4 py-2.5 rounded-sm font-medium text-sm transition-colors duration-200",
             hasActiveChild 
-              ? "text-white" 
-              : "text-muted-foreground hover:text-white hover:bg-white/5"
+              ? "text-foreground" 
+              : "text-muted-foreground hover:text-foreground hover:bg-secondary"
           )}
         >
           <span className="flex items-center gap-3">
@@ -120,18 +120,18 @@ export const Sidebar = () => {
 
   // Separator component
   const Separator = () => (
-    <div className="my-3 mx-4 h-px bg-white/10" />
+    <div className="my-3 mx-4 h-px bg-border" />
   );
 
   return (
     <aside 
-      className="fixed left-0 top-0 h-screen w-64 bg-black border-r border-white/10 flex flex-col z-50"
+      className="fixed left-0 top-0 h-screen w-64 bg-card border-r border-border flex flex-col z-50"
       data-testid="sidebar"
     >
       {/* Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-white/10">
-        <h1 className="font-heading font-bold text-xl tracking-tight text-white">
-          Chiptuningfile<span className="text-primary">.de</span>
+      <div className="h-16 flex items-center px-6 border-b border-border">
+        <h1 className="font-heading font-bold text-xl tracking-tight text-foreground">
+          Chiptuningfile<span className="text-gradient">.de</span>
         </h1>
       </div>
 
@@ -184,10 +184,10 @@ export const Sidebar = () => {
       </nav>
 
       {/* Footer */}
-      <div className="p-3 border-t border-white/10">
+      <div className="p-3 border-t border-border">
         <button
           data-testid="logout-btn"
-          className="flex items-center gap-3 px-4 py-2.5 w-full rounded-sm font-medium text-sm text-muted-foreground hover:text-white hover:bg-white/5 transition-colors duration-200"
+          className="flex items-center gap-3 px-4 py-2.5 w-full rounded-sm font-medium text-sm text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors duration-200"
         >
           <SignOut weight="regular" className="w-5 h-5" />
           {t('logout')}

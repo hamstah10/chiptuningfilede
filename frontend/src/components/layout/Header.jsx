@@ -1,6 +1,7 @@
 import { useLanguage } from '../../context/LanguageContext';
+import { useTheme } from '../../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
-import { Bell, MagnifyingGlass, GlobeSimple, FilePlus, CurrencyCircleDollar } from '@phosphor-icons/react';
+import { Bell, MagnifyingGlass, GlobeSimple, FilePlus, CurrencyCircleDollar, Sun, Moon } from '@phosphor-icons/react';
 import { Button } from '../ui/button';
 import {
   DropdownMenu,
@@ -13,6 +14,7 @@ import { Badge } from '../ui/badge';
 
 export const Header = () => {
   const { language, setLanguage, t } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const orderText = language === 'de' ? 'Auftrag' : 'Order';
@@ -20,7 +22,7 @@ export const Header = () => {
 
   return (
     <header 
-      className="h-16 bg-black/50 backdrop-blur-sm border-b border-white/10 flex items-center justify-between px-6 sticky top-0 z-40"
+      className="h-16 bg-card/50 backdrop-blur-sm border-b border-border flex items-center justify-between px-6 sticky top-0 z-40"
       data-testid="header"
     >
       {/* Left Section - Search */}
@@ -30,7 +32,7 @@ export const Header = () => {
           <Input
             type="search"
             placeholder={t('search')}
-            className="w-72 pl-9 bg-secondary border-white/10 text-sm"
+            className="w-72 pl-9 bg-secondary border-border text-sm"
             data-testid="search-input"
           />
         </div>
@@ -40,7 +42,7 @@ export const Header = () => {
       <div className="flex items-center gap-3">
         {/* New Order Button */}
         <Button
-          className="bg-primary hover:bg-primary/90 text-white font-semibold"
+          className="btn-gradient text-white font-semibold"
           onClick={() => navigate('/file-wizard')}
           data-testid="header-new-order-btn"
         >
@@ -51,7 +53,7 @@ export const Header = () => {
         {/* Buy Credits Button */}
         <Button
           variant="outline"
-          className="border-white/10 hover:bg-white/5 hover:border-white/20 font-semibold"
+          className="border-border hover:bg-secondary font-semibold"
           onClick={() => navigate('/credits')}
           data-testid="header-buy-credits-btn"
         >
@@ -59,16 +61,31 @@ export const Header = () => {
           {creditsText}
         </Button>
 
+        {/* Theme Toggle */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-muted-foreground hover:text-foreground hover:bg-secondary"
+          onClick={toggleTheme}
+          data-testid="theme-toggle"
+        >
+          {theme === 'dark' ? (
+            <Sun weight="regular" className="w-5 h-5" />
+          ) : (
+            <Moon weight="regular" className="w-5 h-5" />
+          )}
+        </Button>
+
         {/* Notifications */}
         <Button
           variant="ghost"
           size="icon"
-          className="relative text-muted-foreground hover:text-white hover:bg-white/5"
+          className="relative text-muted-foreground hover:text-foreground hover:bg-secondary"
           data-testid="notifications-btn"
         >
           <Bell weight="regular" className="w-5 h-5" />
           <Badge 
-            className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center bg-primary text-[10px] font-bold"
+            className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center badge-gradient text-white text-[10px] font-bold border-0"
           >
             3
           </Badge>
@@ -80,14 +97,14 @@ export const Header = () => {
             <Button
               variant="ghost"
               size="sm"
-              className="gap-2 text-muted-foreground hover:text-white hover:bg-white/5"
+              className="gap-2 text-muted-foreground hover:text-foreground hover:bg-secondary"
               data-testid="language-switcher"
             >
               <GlobeSimple weight="regular" className="w-5 h-5" />
               <span className="uppercase text-xs font-semibold">{language}</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-card border-white/10">
+          <DropdownMenuContent align="end" className="bg-card border-border">
             <DropdownMenuItem 
               onClick={() => setLanguage('de')}
               className={language === 'de' ? 'bg-primary/20 text-primary' : ''}
@@ -107,10 +124,10 @@ export const Header = () => {
 
         {/* User Avatar */}
         <div 
-          className="w-9 h-9 rounded-sm bg-secondary border border-white/10 flex items-center justify-center"
+          className="w-9 h-9 rounded-sm bg-secondary border border-border flex items-center justify-center"
           data-testid="user-avatar"
         >
-          <span className="text-sm font-semibold text-white">JD</span>
+          <span className="text-sm font-semibold text-foreground">JD</span>
         </div>
       </div>
     </header>
