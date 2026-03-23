@@ -4,17 +4,10 @@ import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
-import { Separator } from '../components/ui/separator';
 import { 
   ArrowLeft,
   CarProfile,
-  Engine,
-  Gauge,
-  CalendarBlank,
-  Clock,
   CheckCircle,
-  Spinner,
-  XCircle,
   Download,
   FileArrowUp,
   FileArrowDown,
@@ -22,19 +15,46 @@ import {
   Wrench,
   Note,
   Copy,
-  Info
+  Info,
+  Package
 } from '@phosphor-icons/react';
 import { mockOrders } from './OrdersNew';
+
+// Progress steps configuration
+const progressSteps = {
+  en: [
+    { key: 'received', label: 'Request Received' },
+    { key: 'analysis', label: 'File Analysis' },
+    { key: 'processing', label: 'Processing' },
+    { key: 'quality', label: 'Quality Check' },
+    { key: 'completed', label: 'Completed' },
+  ],
+  de: [
+    { key: 'received', label: 'Anfrage eingegangen' },
+    { key: 'analysis', label: 'Datei-Analyse' },
+    { key: 'processing', label: 'In Bearbeitung' },
+    { key: 'quality', label: 'Qualitätsprüfung' },
+    { key: 'completed', label: 'Abgeschlossen' },
+  ]
+};
+
+// Map order status to progress step index
+const statusToProgress = {
+  pending: 0,      // Just received
+  processing: 2,   // Processing
+  completed: 5,    // Completed (all steps done)
+  cancelled: -1,   // Cancelled (special case)
+};
 
 // Translations
 const pageTranslations = {
   en: {
     backToOrders: 'Back to Orders',
     orderDetails: 'Order Details',
+    orderStatus: 'Order Status',
     vehicleInfo: 'Vehicle Information',
     tuningInfo: 'Tuning Configuration',
     filesInfo: 'Files',
-    timeline: 'Timeline',
     notes: 'Notes',
     manufacturer: 'Manufacturer',
     model: 'Model',
@@ -50,9 +70,6 @@ const pageTranslations = {
     modifiedFile: 'Modified File',
     downloadFile: 'Download',
     noFile: 'Not available yet',
-    orderCreated: 'Order Created',
-    lastUpdated: 'Last Updated',
-    status: 'Status',
     pending: 'Pending',
     processing: 'Processing',
     completed: 'Completed',
@@ -60,14 +77,15 @@ const pageTranslations = {
     noNotes: 'No notes for this order.',
     copyOrderId: 'Copy Order ID',
     orderNotFound: 'Order not found',
+    orderCancelled: 'Order Cancelled',
   },
   de: {
     backToOrders: 'Zurück zu Aufträgen',
     orderDetails: 'Auftragsdetails',
+    orderStatus: 'Auftragsstatus',
     vehicleInfo: 'Fahrzeuginformationen',
     tuningInfo: 'Tuning-Konfiguration',
     filesInfo: 'Dateien',
-    timeline: 'Zeitverlauf',
     notes: 'Notizen',
     manufacturer: 'Hersteller',
     model: 'Modell',
@@ -83,9 +101,6 @@ const pageTranslations = {
     modifiedFile: 'Modifizierte Datei',
     downloadFile: 'Herunterladen',
     noFile: 'Noch nicht verfügbar',
-    orderCreated: 'Auftrag erstellt',
-    lastUpdated: 'Zuletzt aktualisiert',
-    status: 'Status',
     pending: 'Wartend',
     processing: 'In Bearbeitung',
     completed: 'Abgeschlossen',
@@ -93,7 +108,110 @@ const pageTranslations = {
     noNotes: 'Keine Notizen für diesen Auftrag.',
     copyOrderId: 'Auftragsnummer kopieren',
     orderNotFound: 'Auftrag nicht gefunden',
+    orderCancelled: 'Auftrag storniert',
   }
+};
+
+// Progress Timeline Component
+const ProgressTimeline = ({ order, language, t }) => {
+  const steps = progressSteps[language] || progressSteps.en;
+  const currentStepIndex = statusToProgress[order.status];
+  const isCancelled = order.status === 'cancelled';
+
+  // Generate mock dates for each completed step
+  const getStepDate = (index) => {
+    if (index > currentStepIndex && !isCancelled) return null;
+    const baseDate = new Date(order.createdAt);
+    baseDate.setHours(baseDate.getHours() + (index * 2)); // Add 2 hours per step
+    return new Intl.DateTimeFormat(language === 'de' ? 'de-DE' : 'en-US', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(baseDate);
+  };
+
+  return (
+    <Card className="bg-card border-white/10" data-testid="order-status-card">
+      <CardHeader className="border-b border-white/10 pb-4">
+        <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2 uppercase tracking-wider">
+          <Package weight="fill" className="w-5 h-5 text-primary" />
+          {t('orderStatus')}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-6">
+        {/* Vehicle & Order Info */}
+        <div className="mb-6">
+          <h3 className="font-heading font-bold text-xl text-white">
+            {order.vehicle.manufacturer} {order.vehicle.model} {order.vehicle.series} — {order.tuning.type}
+          </h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Auftrag #{order.id}
+          </p>
+        </div>
+
+        {/* Progress Steps */}
+        <div className="relative">
+          {steps.map((step, index) => {
+            const isCompleted = !isCancelled && index < currentStepIndex;
+            const isCurrent = !isCancelled && index === currentStepIndex;
+            const isPending = !isCancelled && index > currentStepIndex;
+            const stepDate = getStepDate(index);
+
+            return (
+              <div key={step.key} className="relative">
+                {/* Connector Line */}
+                {index < steps.length - 1 && (
+                  <div 
+                    className={`absolute left-[15px] top-[32px] w-[2px] h-[48px] ${
+                      isCompleted ? 'bg-green-500' : 'bg-white/10'
+                    }`}
+                  />
+                )}
+                
+                {/* Step */}
+                <div className="flex items-start gap-4 pb-6">
+                  {/* Circle Indicator */}
+                  <div className="relative z-10">
+                    {isCompleted ? (
+                      <div className="w-8 h-8 rounded-full bg-green-500/20 border-2 border-green-500 flex items-center justify-center">
+                        <CheckCircle weight="fill" className="w-5 h-5 text-green-500" />
+                      </div>
+                    ) : isCurrent ? (
+                      <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                        <div className="w-3 h-3 rounded-full bg-white" />
+                      </div>
+                    ) : (
+                      <div className="w-8 h-8 rounded-full border-2 border-white/20 bg-transparent" />
+                    )}
+                  </div>
+                  
+                  {/* Step Content */}
+                  <div className="flex-1 pt-1">
+                    <p className={`font-semibold ${
+                      isCurrent ? 'text-primary' : isCompleted ? 'text-white' : 'text-muted-foreground'
+                    }`}>
+                      {step.label}
+                    </p>
+                    {stepDate && (
+                      <p className="text-sm text-muted-foreground mt-0.5">{stepDate}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Cancelled State */}
+          {isCancelled && (
+            <div className="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-sm">
+              <p className="text-red-400 font-semibold">{t('orderCancelled')}</p>
+              <p className="text-sm text-muted-foreground mt-1">{order.notes}</p>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
 };
 
 export default function OrderDetail() {
@@ -123,53 +241,6 @@ export default function OrderDetail() {
       </DashboardLayout>
     );
   }
-
-  const getStatusConfig = (status) => {
-    const configs = {
-      pending: { 
-        bg: 'bg-yellow-500/20', 
-        text: 'text-yellow-400', 
-        border: 'border-yellow-500/30', 
-        icon: Clock,
-        label: t('pending')
-      },
-      processing: { 
-        bg: 'bg-blue-500/20', 
-        text: 'text-blue-400', 
-        border: 'border-blue-500/30', 
-        icon: Spinner,
-        label: t('processing')
-      },
-      completed: { 
-        bg: 'bg-green-500/20', 
-        text: 'text-green-400', 
-        border: 'border-green-500/30', 
-        icon: CheckCircle,
-        label: t('completed')
-      },
-      cancelled: { 
-        bg: 'bg-red-500/20', 
-        text: 'text-red-400', 
-        border: 'border-red-500/30', 
-        icon: XCircle,
-        label: t('cancelled')
-      },
-    };
-    return configs[status] || configs.pending;
-  };
-
-  const formatDateTime = (dateStr) => {
-    return new Intl.DateTimeFormat(language === 'de' ? 'de-DE' : 'en-US', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(new Date(dateStr));
-  };
-
-  const statusConfig = getStatusConfig(order.status);
-  const StatusIcon = statusConfig.icon;
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
@@ -210,10 +281,6 @@ export default function OrderDetail() {
           </div>
           
           <div className="flex items-center gap-3">
-            <Badge variant="outline" className={`${statusConfig.bg} ${statusConfig.text} border ${statusConfig.border} gap-1 px-3 py-1.5`}>
-              <StatusIcon weight="fill" className="w-4 h-4" />
-              {statusConfig.label}
-            </Badge>
             {order.status === 'completed' && order.files.modified && (
               <Button className="bg-primary hover:bg-primary/90" data-testid="download-modified-btn">
                 <Download weight="bold" className="w-4 h-4 mr-2" />
@@ -377,59 +444,25 @@ export default function OrderDetail() {
             </Card>
           </div>
 
-          {/* Sidebar */}
+          {/* Sidebar - Order Status Progress */}
           <div className="space-y-6">
-            {/* Timeline */}
-            <Card className="bg-card border-white/10" data-testid="timeline-card">
-              <CardHeader className="border-b border-white/10 pb-4">
-                <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
-                  <CalendarBlank weight="fill" className="w-5 h-5 text-primary" />
-                  {t('timeline')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Clock weight="fill" className="w-4 h-4 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">{t('orderCreated')}</p>
-                      <p className="text-sm text-white font-medium">{formatDateTime(order.createdAt)}</p>
-                    </div>
-                  </div>
-                  
-                  <Separator className="bg-white/10" />
-                  
-                  <div className="flex items-start gap-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${statusConfig.bg}`}>
-                      <StatusIcon weight="fill" className={`w-4 h-4 ${statusConfig.text}`} />
-                    </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">{t('lastUpdated')}</p>
-                      <p className="text-sm text-white font-medium">{formatDateTime(order.updatedAt)}</p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Progress Timeline */}
+            <ProgressTimeline order={order} language={language} t={t} />
 
             {/* Notes */}
-            <Card className="bg-card border-white/10" data-testid="notes-card">
-              <CardHeader className="border-b border-white/10 pb-4">
-                <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
-                  <Note weight="fill" className="w-5 h-5 text-primary" />
-                  {t('notes')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                {order.notes ? (
+            {order.notes && order.status !== 'cancelled' && (
+              <Card className="bg-card border-white/10" data-testid="notes-card">
+                <CardHeader className="border-b border-white/10 pb-4">
+                  <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
+                    <Note weight="fill" className="w-5 h-5 text-primary" />
+                    {t('notes')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
                   <p className="text-sm text-muted-foreground leading-relaxed">{order.notes}</p>
-                ) : (
-                  <p className="text-sm text-muted-foreground italic">{t('noNotes')}</p>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>
