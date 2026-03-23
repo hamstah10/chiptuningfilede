@@ -8,10 +8,8 @@ import {
   ClockCounterClockwise, 
   CheckCircle, 
   Wallet,
-  Plus,
   ArrowRight,
   CarProfile,
-  Lightning,
   Package,
   Clock,
   Ticket,
@@ -385,18 +383,8 @@ export default function Dashboard() {
   };
 
   return (
-    <DashboardLayout title={t('dashboard')}>
+    <DashboardLayout>
       <div className="space-y-6">
-        {/* Welcome */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="font-heading font-bold text-2xl tracking-tight text-white">
-              {t('welcome')}, {mockUser.name}
-            </h1>
-            <p className="text-muted-foreground mt-1">{t('overview')}</p>
-          </div>
-        </div>
-
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" data-testid="stats-grid">
           {stats.map((stat, index) => {
@@ -445,8 +433,8 @@ export default function Dashboard() {
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent Activity */}
-          <Card className="lg:col-span-2 bg-card border-white/10" data-testid="recent-activity-card">
+          {/* Recent Activity - full width */}
+          <Card className="lg:col-span-3 bg-card border-white/10" data-testid="recent-activity-card">
             <CardHeader className="border-b border-white/10 pb-4">
               <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                 <ClockCounterClockwise weight="fill" className="w-5 h-5 text-primary" />
@@ -501,85 +489,7 @@ export default function Dashboard() {
               )}
             </CardContent>
           </Card>
-
-          {/* Quick Actions */}
-          <Card className="bg-card border-white/10" data-testid="quick-actions-card">
-            <CardHeader className="border-b border-white/10 pb-4">
-              <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
-                <Lightning weight="fill" className="w-5 h-5 text-primary" />
-                {t('quickActions')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 space-y-3">
-              <Button 
-                className="w-full justify-between bg-primary hover:bg-primary/90 text-white font-semibold"
-                onClick={() => navigate('/file-wizard')}
-                data-testid="new-request-btn"
-              >
-                <span className="flex items-center gap-2">
-                  <Plus weight="bold" className="w-4 h-4" />
-                  {t('newRequest')}
-                </span>
-                <ArrowRight weight="bold" className="w-4 h-4" />
-              </Button>
-              
-              <Button 
-                variant="outline"
-                className="w-full justify-between border-white/10 hover:bg-white/5 hover:border-white/20 font-semibold"
-                onClick={() => navigate('/credits')}
-                data-testid="buy-credits-btn"
-              >
-                <span className="flex items-center gap-2">
-                  <CurrencyCircleDollar weight="bold" className="w-4 h-4" />
-                  {t('buyCredits')}
-                </span>
-                <ArrowRight weight="bold" className="w-4 h-4" />
-              </Button>
-              
-              <Button 
-                variant="outline"
-                className="w-full justify-between border-white/10 hover:bg-white/5 hover:border-white/20 font-semibold"
-                onClick={() => navigate('/orders')}
-                data-testid="view-orders-btn"
-              >
-                <span className="flex items-center gap-2">
-                  <ClockCounterClockwise weight="bold" className="w-4 h-4" />
-                  {t('viewOrders')}
-                </span>
-                <ArrowRight weight="bold" className="w-4 h-4" />
-              </Button>
-            </CardContent>
-          </Card>
         </div>
-
-        {/* Hero Banner */}
-        <Card className="relative overflow-hidden bg-card border-white/10" data-testid="hero-banner">
-          <div 
-            className="absolute inset-0 bg-cover bg-center opacity-20"
-            style={{ 
-              backgroundImage: `url('https://images.pexels.com/photos/261985/pexels-photo-261985.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940')` 
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
-          <CardContent className="relative p-8">
-            <div className="max-w-lg">
-              <h3 className="font-heading font-bold text-2xl text-white mb-2">
-                {t('configuratorTitle')}
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Configure your vehicle tuning with our advanced configurator. Get instant price estimates and submit your request.
-              </p>
-              <Button 
-                className="bg-primary hover:bg-primary/90"
-                onClick={() => navigate('/configurator')}
-                data-testid="go-configurator-btn"
-              >
-                {t('configurator')}
-                <ArrowRight weight="bold" className="w-4 h-4 ml-2" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </DashboardLayout>
   );

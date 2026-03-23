@@ -1,5 +1,6 @@
 import { useLanguage } from '../../context/LanguageContext';
-import { Bell, MagnifyingGlass, GlobeSimple } from '@phosphor-icons/react';
+import { useNavigate } from 'react-router-dom';
+import { Bell, MagnifyingGlass, GlobeSimple, Plus, CurrencyCircleDollar } from '@phosphor-icons/react';
 import { Button } from '../ui/button';
 import {
   DropdownMenu,
@@ -10,31 +11,50 @@ import {
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 
-export const Header = ({ title }) => {
+export const Header = () => {
   const { language, setLanguage, t } = useLanguage();
+  const navigate = useNavigate();
 
   return (
     <header 
       className="h-16 bg-black/50 backdrop-blur-sm border-b border-white/10 flex items-center justify-between px-6 sticky top-0 z-40"
       data-testid="header"
     >
-      {/* Title */}
-      <h2 className="font-heading font-semibold text-xl tracking-tight text-white">
-        {title}
-      </h2>
-
-      {/* Right Section */}
+      {/* Left Section - Search */}
       <div className="flex items-center gap-4">
-        {/* Search */}
-        <div className="relative hidden md:block">
+        <div className="relative">
           <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             type="search"
             placeholder={t('search')}
-            className="w-64 pl-9 bg-secondary border-white/10 text-sm"
+            className="w-72 pl-9 bg-secondary border-white/10 text-sm"
             data-testid="search-input"
           />
         </div>
+      </div>
+
+      {/* Right Section */}
+      <div className="flex items-center gap-3">
+        {/* New Order Button */}
+        <Button
+          className="bg-primary hover:bg-primary/90 text-white font-semibold"
+          onClick={() => navigate('/file-wizard')}
+          data-testid="header-new-order-btn"
+        >
+          <Plus weight="bold" className="w-4 h-4 mr-2" />
+          {t('newRequest')}
+        </Button>
+
+        {/* Buy Credits Button */}
+        <Button
+          variant="outline"
+          className="border-white/10 hover:bg-white/5 hover:border-white/20 font-semibold"
+          onClick={() => navigate('/credits')}
+          data-testid="header-buy-credits-btn"
+        >
+          <CurrencyCircleDollar weight="bold" className="w-4 h-4 mr-2" />
+          {t('buyCredits')}
+        </Button>
 
         {/* Notifications */}
         <Button
