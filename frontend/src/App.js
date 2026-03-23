@@ -8,7 +8,8 @@ import Dashboard from "./pages/Dashboard";
 import FileWizard from "./pages/FileWizard";
 import Configurator from "./pages/Configurator";
 import Credits from "./pages/Credits";
-import Orders from "./pages/Orders";
+import OrdersNew from "./pages/OrdersNew";
+import OrderDetail from "./pages/OrderDetail";
 import Profile from "./pages/Profile";
 import Invoices from "./pages/Invoices";
 
@@ -21,7 +22,8 @@ function App() {
           <Route path="/file-wizard" element={<FileWizard />} />
           <Route path="/configurator" element={<Configurator />} />
           <Route path="/credits" element={<Credits />} />
-          <Route path="/orders" element={<Orders />} />
+          <Route path="/orders" element={<OrdersNew />} />
+          <Route path="/orders/:id" element={<OrderDetail />} />
           <Route path="/invoices" element={<Invoices />} />
           <Route path="/profile" element={<Profile />} />
         </Routes>
