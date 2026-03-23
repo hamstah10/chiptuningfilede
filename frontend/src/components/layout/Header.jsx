@@ -1,6 +1,6 @@
 import { useLanguage } from '../../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
-import { Bell, MagnifyingGlass, GlobeSimple, Plus, CurrencyCircleDollar } from '@phosphor-icons/react';
+import { Bell, MagnifyingGlass, GlobeSimple, FilePlus, CurrencyCircleDollar } from '@phosphor-icons/react';
 import { Button } from '../ui/button';
 import {
   DropdownMenu,
@@ -14,6 +14,9 @@ import { Badge } from '../ui/badge';
 export const Header = () => {
   const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
+
+  const orderText = language === 'de' ? 'Auftrag' : 'Order';
+  const creditsText = language === 'de' ? 'Credits kaufen' : 'Buy Credits';
 
   return (
     <header 
@@ -41,8 +44,8 @@ export const Header = () => {
           onClick={() => navigate('/file-wizard')}
           data-testid="header-new-order-btn"
         >
-          <Plus weight="bold" className="w-4 h-4 mr-2" />
-          {t('newRequest')}
+          <FilePlus weight="bold" className="w-4 h-4 mr-2" />
+          {orderText}
         </Button>
 
         {/* Buy Credits Button */}
@@ -53,7 +56,7 @@ export const Header = () => {
           data-testid="header-buy-credits-btn"
         >
           <CurrencyCircleDollar weight="bold" className="w-4 h-4 mr-2" />
-          {t('buyCredits')}
+          {creditsText}
         </Button>
 
         {/* Notifications */}

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -14,7 +15,11 @@ import {
   Clock,
   Ticket,
   Warning,
-  ChatCircle
+  ChatCircle,
+  Newspaper,
+  CaretLeft,
+  CaretRight,
+  Circle
 } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
 import { mockOrders } from './OrdersNew';
@@ -34,6 +39,49 @@ const mockActivity = [
   { id: 2, type: 'credits', amount: 500, date: '2025-01-14' },
   { id: 3, type: 'file', vehicle: 'Audi A4 2.0 TDI', status: 'processing', date: '2025-01-14', credits: 85 },
   { id: 4, type: 'file', vehicle: 'VW Golf 7 GTI', status: 'completed', date: '2025-01-13', credits: 65 },
+];
+
+// Mock news data
+const mockNews = [
+  {
+    id: 1,
+    title: {
+      de: 'Neue Stage 2 Lösungen verfügbar',
+      en: 'New Stage 2 Solutions Available'
+    },
+    content: {
+      de: 'Ab sofort bieten wir erweiterte Stage 2 Tuning-Lösungen für BMW G-Serie und Mercedes W213 an. Inklusive optimierter DPF- und EGR-Lösungen.',
+      en: 'We now offer extended Stage 2 tuning solutions for BMW G-Series and Mercedes W213. Including optimized DPF and EGR solutions.'
+    },
+    date: '2025-01-15',
+    type: 'product'
+  },
+  {
+    id: 2,
+    title: {
+      de: 'Wartungsarbeiten am 20. Januar',
+      en: 'Maintenance on January 20th'
+    },
+    content: {
+      de: 'Am 20. Januar zwischen 02:00 und 04:00 Uhr werden Wartungsarbeiten durchgeführt. Das Portal ist in dieser Zeit nicht erreichbar.',
+      en: 'On January 20th between 02:00 and 04:00, maintenance work will be carried out. The portal will not be accessible during this time.'
+    },
+    date: '2025-01-14',
+    type: 'maintenance'
+  },
+  {
+    id: 3,
+    title: {
+      de: 'Credit-Aktion: 10% Bonus',
+      en: 'Credit Promotion: 10% Bonus'
+    },
+    content: {
+      de: 'Nur diese Woche: Bei jedem Credit-Kauf ab 250 Credits erhalten Sie 10% Bonus-Credits geschenkt!',
+      en: 'This week only: Get 10% bonus credits free with every credit purchase of 250 credits or more!'
+    },
+    date: '2025-01-13',
+    type: 'promotion'
+  },
 ];
 
 // Progress steps for horizontal display
@@ -145,6 +193,117 @@ const OpeningHoursCard = ({ language }) => {
               {closedText}
             </span>
           </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// News Carousel Component
+const NewsCarousel = ({ language }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
+  const newsTitle = language === 'de' ? 'News' : 'News';
+  
+  // Auto-advance carousel
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % mockNews.length);
+    }, 8000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const goToNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % mockNews.length);
+  };
+
+  const goToPrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + mockNews.length) % mockNews.length);
+  };
+
+  const currentNews = mockNews[currentIndex];
+
+  const getTypeColor = (type) => {
+    const colors = {
+      product: 'bg-green-500/20 text-green-400 border-green-500/30',
+      maintenance: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+      promotion: 'bg-primary/20 text-primary border-primary/30',
+    };
+    return colors[type] || colors.product;
+  };
+
+  const getTypeLabel = (type) => {
+    const labels = {
+      product: language === 'de' ? 'Produkt' : 'Product',
+      maintenance: language === 'de' ? 'Wartung' : 'Maintenance',
+      promotion: language === 'de' ? 'Aktion' : 'Promotion',
+    };
+    return labels[type] || type;
+  };
+
+  return (
+    <Card className="bg-card border-white/10 h-full" data-testid="news-carousel">
+      <CardHeader className="border-b border-white/10 pb-4">
+        <div className="flex items-center justify-between">
+          <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
+            <Newspaper weight="fill" className="w-5 h-5 text-primary" />
+            {newsTitle}
+          </CardTitle>
+          <div className="flex items-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="h-7 w-7 text-muted-foreground hover:text-white hover:bg-white/5"
+              onClick={goToPrev}
+              data-testid="news-prev-btn"
+            >
+              <CaretLeft weight="bold" className="w-4 h-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="h-7 w-7 text-muted-foreground hover:text-white hover:bg-white/5"
+              onClick={goToNext}
+              data-testid="news-next-btn"
+            >
+              <CaretRight weight="bold" className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="p-4">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <Badge variant="outline" className={getTypeColor(currentNews.type)}>
+              {getTypeLabel(currentNews.type)}
+            </Badge>
+            <span className="text-xs text-muted-foreground">{currentNews.date}</span>
+          </div>
+          <h4 className="font-semibold text-white">
+            {currentNews.title[language]}
+          </h4>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {currentNews.content[language]}
+          </p>
+        </div>
+        
+        {/* Dots Indicator */}
+        <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-white/5">
+          {mockNews.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              className="p-1"
+              data-testid={`news-dot-${index}`}
+            >
+              <Circle 
+                weight={index === currentIndex ? 'fill' : 'regular'} 
+                className={`w-2 h-2 transition-colors ${
+                  index === currentIndex ? 'text-primary' : 'text-muted-foreground'
+                }`} 
+              />
+            </button>
+          ))}
         </div>
       </CardContent>
     </Card>
@@ -431,10 +590,10 @@ export default function Dashboard() {
           <OpeningHoursCard language={language} />
         </div>
 
-        {/* Main Content Grid */}
+        {/* Main Content Grid - Activity + News */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent Activity - full width */}
-          <Card className="lg:col-span-3 bg-card border-white/10" data-testid="recent-activity-card">
+          {/* Recent Activity - 2/3 width */}
+          <Card className="lg:col-span-2 bg-card border-white/10" data-testid="recent-activity-card">
             <CardHeader className="border-b border-white/10 pb-4">
               <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                 <ClockCounterClockwise weight="fill" className="w-5 h-5 text-primary" />
@@ -489,6 +648,9 @@ export default function Dashboard() {
               )}
             </CardContent>
           </Card>
+
+          {/* News Carousel - 1/3 width */}
+          <NewsCarousel language={language} />
         </div>
       </div>
     </DashboardLayout>
