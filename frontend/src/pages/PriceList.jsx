@@ -145,7 +145,7 @@ const OptionCard = ({ option, language, t }) => {
             {t('included')}
           </Badge>
         ) : (
-          <Badge variant="outline" className="mt-2 bg-secondary border-white/10 font-mono text-xs">
+          <Badge className="mt-2 bg-primary/20 text-primary border border-primary/30 font-mono text-xs">
             +{option.credits}
           </Badge>
         )}
