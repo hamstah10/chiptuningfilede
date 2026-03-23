@@ -8,7 +8,6 @@ import {
   ClockCounterClockwise, 
   User,
   SignOut,
-  Gauge,
   Receipt,
   Ticket
 } from '@phosphor-icons/react';
@@ -36,17 +35,9 @@ export const Sidebar = () => {
     >
       {/* Logo */}
       <div className="h-16 flex items-center px-6 border-b border-white/10">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-sm bg-primary flex items-center justify-center">
-            <Gauge weight="bold" className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="font-heading font-bold text-lg tracking-tight text-white">
-              Chiptuningfile
-            </h1>
-            <p className="text-[10px] text-muted-foreground tracking-widest uppercase">.de</p>
-          </div>
-        </div>
+        <h1 className="font-heading font-bold text-xl tracking-tight text-white">
+          Chiptuningfile<span className="text-primary">.de</span>
+        </h1>
       </div>
 
       {/* Navigation */}
