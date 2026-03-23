@@ -20,23 +20,34 @@ import {
   Leaf,
   Lightning,
   Warning,
-  Plus
+  Plus,
+  Drop,
+  Prohibit,
+  Gauge,
+  Power,
+  Fire,
+  RocketLaunch,
+  Fan,
+  Exhaust,
+  Thermometer,
+  CheckCircle,
+  SpeedometerIcon
 } from '@phosphor-icons/react';
 
-// Tuning Options with prices
+// Tuning Options with prices and icons
 const tuningOptions = [
-  { id: 'dpf', name: { de: 'DPF-Off', en: 'DPF-Off' }, credits: 40, description: { de: 'Partikelfilter Deaktivierung', en: 'Particle Filter Deactivation' } },
-  { id: 'egr', name: { de: 'EGR-Off', en: 'EGR-Off' }, credits: 30, description: { de: 'AGR Deaktivierung', en: 'EGR Deactivation' } },
-  { id: 'adblue', name: { de: 'AdBlue-Off', en: 'AdBlue-Off' }, credits: 45, description: { de: 'SCR System Deaktivierung', en: 'SCR System Deactivation' } },
-  { id: 'dtc', name: { de: 'DTC-Off', en: 'DTC-Off' }, credits: 25, description: { de: 'Fehlercode Unterdrückung', en: 'Error Code Suppression' } },
-  { id: 'vmax', name: { de: 'Vmax-Off', en: 'Vmax-Off' }, credits: 50, description: { de: 'Geschwindigkeitsbegrenzung aufheben', en: 'Speed Limiter Removal' } },
-  { id: 'startstop', name: { de: 'Start-Stop-Off', en: 'Start-Stop-Off' }, credits: 20, description: { de: 'Start-Stop Deaktivierung', en: 'Start-Stop Deactivation' } },
-  { id: 'pops', name: { de: 'Pops & Bangs', en: 'Pops & Bangs' }, credits: 45, description: { de: 'Auspuff Knallen', en: 'Exhaust Crackle' } },
-  { id: 'launch', name: { de: 'Launch Control', en: 'Launch Control' }, credits: 55, description: { de: 'Launch Control Aktivierung', en: 'Launch Control Activation' } },
-  { id: 'swirl', name: { de: 'Swirl Flaps-Off', en: 'Swirl Flaps-Off' }, credits: 30, description: { de: 'Drallklappen Deaktivierung', en: 'Swirl Flaps Deactivation' } },
-  { id: 'cat', name: { de: 'Kat-Off', en: 'Cat-Off' }, credits: 35, description: { de: 'Katalysator Deaktivierung', en: 'Catalyst Deactivation' } },
-  { id: 'o2', name: { de: 'O2-Off', en: 'O2-Off' }, credits: 25, description: { de: 'Lambdasonde Deaktivierung', en: 'O2 Sensor Deactivation' } },
-  { id: 'hotstart', name: { de: 'Hot Start Fix', en: 'Hot Start Fix' }, credits: 30, description: { de: 'Heißstart Korrektur', en: 'Hot Start Correction' } },
+  { id: 'dpf', name: { de: 'DPF-Off', en: 'DPF-Off' }, credits: 0, included: true, icon: 'drop', description: { de: 'Partikelfilter', en: 'Particle Filter' } },
+  { id: 'egr', name: { de: 'EGR-Off', en: 'EGR-Off' }, credits: 0, included: true, icon: 'fan', description: { de: 'AGR Ventil', en: 'EGR Valve' } },
+  { id: 'adblue', name: { de: 'AdBlue-Off', en: 'AdBlue-Off' }, credits: 0, included: true, icon: 'drop', description: { de: 'SCR System', en: 'SCR System' } },
+  { id: 'vmax', name: { de: 'Vmax-Off', en: 'Vmax-Off' }, credits: 0, included: true, icon: 'gauge', description: { de: 'Geschwindigkeit', en: 'Speed Limiter' } },
+  { id: 'dtc', name: { de: 'DTC-Off', en: 'DTC-Off' }, credits: 25, included: false, icon: 'warning', description: { de: 'Fehlercode', en: 'Error Code' } },
+  { id: 'startstop', name: { de: 'Start-Stop-Off', en: 'Start-Stop-Off' }, credits: 20, included: false, icon: 'power', description: { de: 'Start-Stop', en: 'Start-Stop' } },
+  { id: 'pops', name: { de: 'Pops & Bangs', en: 'Pops & Bangs' }, credits: 45, included: false, icon: 'fire', description: { de: 'Auspuff Knallen', en: 'Exhaust Crackle' } },
+  { id: 'launch', name: { de: 'Launch Control', en: 'Launch Control' }, credits: 55, included: false, icon: 'rocket', description: { de: 'Rennstart', en: 'Race Start' } },
+  { id: 'swirl', name: { de: 'Swirl Flaps-Off', en: 'Swirl Flaps-Off' }, credits: 30, included: false, icon: 'fan', description: { de: 'Drallklappen', en: 'Swirl Flaps' } },
+  { id: 'cat', name: { de: 'Kat-Off', en: 'Cat-Off' }, credits: 35, included: false, icon: 'prohibit', description: { de: 'Katalysator', en: 'Catalyst' } },
+  { id: 'o2', name: { de: 'O2-Off', en: 'O2-Off' }, credits: 25, included: false, icon: 'thermometer', description: { de: 'Lambdasonde', en: 'O2 Sensor' } },
+  { id: 'hotstart', name: { de: 'Hot Start Fix', en: 'Hot Start Fix' }, credits: 30, included: false, icon: 'thermometer', description: { de: 'Heißstart', en: 'Hot Start' } },
 ];
 
 // Translations
@@ -56,7 +67,8 @@ const pageTranslations = {
     option: 'Option',
     credits: 'Credits',
     description: 'Description',
-    includedOptions: 'Available Options (Additional)',
+    availableOptions: 'Available Options',
+    included: 'Included',
     gearboxNote: 'Only available for VW, Audi, Seat, Cupra, Skoda and BMW',
     allOptions: 'All Tuning Options',
     note: 'Prices may vary depending on vehicle and ECU type.',
@@ -76,11 +88,81 @@ const pageTranslations = {
     option: 'Option',
     credits: 'Credits',
     description: 'Beschreibung',
-    includedOptions: 'Verfügbare Optionen (Zusätzlich)',
+    availableOptions: 'Verfügbare Optionen',
+    included: 'Inklusive',
     gearboxNote: 'Nur bei VW, Audi, Seat, Cupra, Skoda und BMW möglich',
     allOptions: 'Alle Tuning-Optionen',
     note: 'Preise können je nach Fahrzeug und Steuergerät variieren.',
   }
+};
+
+// Option Icon Component
+const OptionIcon = ({ iconType, className }) => {
+  const iconProps = { weight: "fill", className: className || "w-6 h-6" };
+  
+  switch(iconType) {
+    case 'drop': return <Drop {...iconProps} />;
+    case 'fan': return <Fan {...iconProps} />;
+    case 'gauge': return <Gauge {...iconProps} />;
+    case 'warning': return <Warning {...iconProps} />;
+    case 'power': return <Power {...iconProps} />;
+    case 'fire': return <Fire {...iconProps} />;
+    case 'rocket': return <RocketLaunch {...iconProps} />;
+    case 'prohibit': return <Prohibit {...iconProps} />;
+    case 'thermometer': return <Thermometer {...iconProps} />;
+    default: return <Gear {...iconProps} />;
+  }
+};
+
+// Option Card Component
+const OptionCard = ({ option, language, t }) => {
+  const isIncluded = option.included;
+  
+  return (
+    <div 
+      className={`p-3 rounded-sm border transition-colors ${
+        isIncluded 
+          ? 'bg-green-500/10 border-green-500/30' 
+          : 'bg-secondary border-white/10 hover:border-white/20'
+      }`}
+    >
+      <div className="flex flex-col items-center text-center">
+        <div className={`w-10 h-10 rounded-sm flex items-center justify-center mb-2 ${
+          isIncluded ? 'bg-green-500/20' : 'bg-white/5'
+        }`}>
+          <OptionIcon 
+            iconType={option.icon} 
+            className={`w-5 h-5 ${isIncluded ? 'text-green-400' : 'text-muted-foreground'}`} 
+          />
+        </div>
+        <p className={`text-sm font-semibold ${isIncluded ? 'text-green-400' : 'text-white'}`}>
+          {option.name[language]}
+        </p>
+        <p className="text-xs text-muted-foreground mt-0.5">{option.description[language]}</p>
+        {isIncluded ? (
+          <Badge className="mt-2 bg-green-500/20 text-green-400 border border-green-500/30 text-xs">
+            <CheckCircle weight="fill" className="w-3 h-3 mr-1" />
+            {t('included')}
+          </Badge>
+        ) : (
+          <Badge variant="outline" className="mt-2 bg-secondary border-white/10 font-mono text-xs">
+            +{option.credits}
+          </Badge>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Options Grid Component
+const OptionsGrid = ({ options, language, t }) => {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      {options.map((option) => (
+        <OptionCard key={option.id} option={option} language={language} t={t} />
+      ))}
+    </div>
+  );
 };
 
 // PKW Stage Card Component
@@ -99,32 +181,8 @@ const StageCard = ({ title, basePrice, icon: Icon, language, t }) => {
         </div>
       </CardHeader>
       <CardContent className="p-4">
-        <p className="text-sm text-muted-foreground mb-3">{t('includedOptions')}</p>
-        <Table>
-          <TableHeader>
-            <TableRow className="border-white/10 hover:bg-transparent">
-              <TableHead className="text-muted-foreground font-semibold">{t('option')}</TableHead>
-              <TableHead className="text-muted-foreground font-semibold text-right">+ {t('credits')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {tuningOptions.map((option) => (
-              <TableRow key={option.id} className="border-white/5 hover:bg-white/[0.02]">
-                <TableCell>
-                  <div>
-                    <p className="font-medium text-white">{option.name[language]}</p>
-                    <p className="text-xs text-muted-foreground">{option.description[language]}</p>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right">
-                  <Badge variant="outline" className="bg-secondary border-white/10 font-mono">
-                    +{option.credits}
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <p className="text-sm text-muted-foreground mb-4">{t('availableOptions')}</p>
+        <OptionsGrid options={tuningOptions} language={language} t={t} />
       </CardContent>
     </Card>
   );
@@ -153,33 +211,30 @@ const GearboxCard = ({ language, t }) => {
           <p className="text-sm text-yellow-400">{t('gearboxNote')}</p>
         </div>
         
-        <Table>
-          <TableHeader>
-            <TableRow className="border-white/10 hover:bg-transparent">
-              <TableHead className="text-muted-foreground font-semibold">Stage</TableHead>
-              <TableHead className="text-muted-foreground font-semibold text-right">{t('credits')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {gearboxPrices.map((item) => (
-              <TableRow key={item.stage} className="border-white/5 hover:bg-white/[0.02]">
-                <TableCell className="font-medium text-white">{item.stage}</TableCell>
-                <TableCell className="text-right">
-                  <Badge className="bg-primary/20 text-primary border border-primary/30 font-heading font-bold">
-                    {item.credits}
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {gearboxPrices.map((item) => (
+            <div key={item.stage} className="p-4 bg-secondary rounded-sm border border-white/10 text-center">
+              <p className="font-semibold text-white text-lg">{item.stage}</p>
+              <Badge className="mt-2 bg-primary/20 text-primary border border-primary/30 font-heading font-bold text-lg px-3 py-1">
+                {item.credits} Credits
+              </Badge>
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
 };
 
-// Single Options Card Component
+// Single Options Card Component - now with grid
 const SingleOptionsCard = ({ language, t }) => {
+  // All options with their actual prices for single purchase
+  const singleOptions = tuningOptions.map(opt => ({
+    ...opt,
+    credits: opt.included ? 40 : opt.credits, // Set price for "included" options when bought separately
+    included: false
+  }));
+
   return (
     <Card className="bg-card border-white/10">
       <CardHeader className="border-b border-white/10 pb-4">
@@ -189,42 +244,47 @@ const SingleOptionsCard = ({ language, t }) => {
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-white/10 hover:bg-transparent">
-              <TableHead className="text-muted-foreground font-semibold">{t('option')}</TableHead>
-              <TableHead className="text-muted-foreground font-semibold">{t('description')}</TableHead>
-              <TableHead className="text-muted-foreground font-semibold text-right">{t('credits')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {tuningOptions.map((option) => (
-              <TableRow key={option.id} className="border-white/5 hover:bg-white/[0.02]">
-                <TableCell className="font-medium text-white">{option.name[language]}</TableCell>
-                <TableCell className="text-muted-foreground">{option.description[language]}</TableCell>
-                <TableCell className="text-right">
-                  <Badge className="bg-primary/20 text-primary border border-primary/30 font-heading font-bold">
-                    {option.credits}
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          {singleOptions.map((option) => (
+            <div 
+              key={option.id}
+              className="p-3 rounded-sm border bg-secondary border-white/10 hover:border-white/20 transition-colors"
+            >
+              <div className="flex flex-col items-center text-center">
+                <div className="w-10 h-10 rounded-sm bg-white/5 flex items-center justify-center mb-2">
+                  <OptionIcon iconType={option.icon} className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <p className="text-sm font-semibold text-white">{option.name[language]}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{option.description[language]}</p>
+                <Badge className="mt-2 bg-primary/20 text-primary border border-primary/30 font-mono text-xs">
+                  {option.credits}
+                </Badge>
+              </div>
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
 };
 
+// LKW Options
+const lkwOptions = [
+  { id: 'dpf', name: { de: 'DPF-Off', en: 'DPF-Off' }, credits: 0, included: true, icon: 'drop', description: { de: 'Partikelfilter', en: 'Particle Filter' } },
+  { id: 'egr', name: { de: 'EGR-Off', en: 'EGR-Off' }, credits: 0, included: true, icon: 'fan', description: { de: 'AGR Ventil', en: 'EGR Valve' } },
+  { id: 'adblue', name: { de: 'AdBlue-Off', en: 'AdBlue-Off' }, credits: 0, included: true, icon: 'drop', description: { de: 'SCR System', en: 'SCR System' } },
+  { id: 'vmax', name: { de: 'Vmax-Off', en: 'Vmax-Off' }, credits: 0, included: true, icon: 'gauge', description: { de: 'Geschwindigkeit', en: 'Speed Limiter' } },
+  { id: 'dtc', name: { de: 'DTC-Off', en: 'DTC-Off' }, credits: 35, included: false, icon: 'warning', description: { de: 'Fehlercode', en: 'Error Code' } },
+  { id: 'nox', name: { de: 'NOx-Off', en: 'NOx-Off' }, credits: 50, included: false, icon: 'prohibit', description: { de: 'NOx Sensor', en: 'NOx Sensor' } },
+];
+
 // LKW Section Component
 const LkwSection = ({ language, t }) => {
-  const lkwEcoOptions = [
-    { id: 'dpf', name: { de: 'DPF-Off', en: 'DPF-Off' }, credits: 55 },
-    { id: 'egr', name: { de: 'EGR-Off', en: 'EGR-Off' }, credits: 45 },
-    { id: 'adblue', name: { de: 'AdBlue-Off', en: 'AdBlue-Off' }, credits: 60 },
-    { id: 'dtc', name: { de: 'DTC-Off', en: 'DTC-Off' }, credits: 35 },
-    { id: 'vmax', name: { de: 'Vmax-Off', en: 'Vmax-Off' }, credits: 65 },
-  ];
+  const lkwSingleOptions = lkwOptions.map(opt => ({
+    ...opt,
+    credits: opt.included ? 55 : opt.credits,
+    included: false
+  }));
 
   return (
     <div className="space-y-6">
@@ -242,27 +302,8 @@ const LkwSection = ({ language, t }) => {
           </div>
         </CardHeader>
         <CardContent className="p-4">
-          <p className="text-sm text-muted-foreground mb-3">{t('includedOptions')}</p>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-white/10 hover:bg-transparent">
-                <TableHead className="text-muted-foreground font-semibold">{t('option')}</TableHead>
-                <TableHead className="text-muted-foreground font-semibold text-right">+ {t('credits')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {lkwEcoOptions.map((option) => (
-                <TableRow key={option.id} className="border-white/5 hover:bg-white/[0.02]">
-                  <TableCell className="font-medium text-white">{option.name[language]}</TableCell>
-                  <TableCell className="text-right">
-                    <Badge variant="outline" className="bg-secondary border-white/10 font-mono">
-                      +{option.credits}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <p className="text-sm text-muted-foreground mb-4">{t('availableOptions')}</p>
+          <OptionsGrid options={lkwOptions} language={language} t={t} />
         </CardContent>
       </Card>
 
@@ -280,27 +321,8 @@ const LkwSection = ({ language, t }) => {
           </div>
         </CardHeader>
         <CardContent className="p-4">
-          <p className="text-sm text-muted-foreground mb-3">{t('includedOptions')}</p>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-white/10 hover:bg-transparent">
-                <TableHead className="text-muted-foreground font-semibold">{t('option')}</TableHead>
-                <TableHead className="text-muted-foreground font-semibold text-right">+ {t('credits')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {lkwEcoOptions.map((option) => (
-                <TableRow key={option.id} className="border-white/5 hover:bg-white/[0.02]">
-                  <TableCell className="font-medium text-white">{option.name[language]}</TableCell>
-                  <TableCell className="text-right">
-                    <Badge variant="outline" className="bg-secondary border-white/10 font-mono">
-                      +{option.credits}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <p className="text-sm text-muted-foreground mb-4">{t('availableOptions')}</p>
+          <OptionsGrid options={lkwOptions} language={language} t={t} />
         </CardContent>
       </Card>
 
@@ -313,26 +335,25 @@ const LkwSection = ({ language, t }) => {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-4">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-white/10 hover:bg-transparent">
-                <TableHead className="text-muted-foreground font-semibold">{t('option')}</TableHead>
-                <TableHead className="text-muted-foreground font-semibold text-right">{t('credits')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {lkwEcoOptions.map((option) => (
-                <TableRow key={option.id} className="border-white/5 hover:bg-white/[0.02]">
-                  <TableCell className="font-medium text-white">{option.name[language]}</TableCell>
-                  <TableCell className="text-right">
-                    <Badge className="bg-primary/20 text-primary border border-primary/30 font-heading font-bold">
-                      {option.credits}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {lkwSingleOptions.map((option) => (
+              <div 
+                key={option.id}
+                className="p-3 rounded-sm border bg-secondary border-white/10 hover:border-white/20 transition-colors"
+              >
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-10 h-10 rounded-sm bg-white/5 flex items-center justify-center mb-2">
+                    <OptionIcon iconType={option.icon} className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm font-semibold text-white">{option.name[language]}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{option.description[language]}</p>
+                  <Badge className="mt-2 bg-primary/20 text-primary border border-primary/30 font-mono text-xs">
+                    {option.credits}
+                  </Badge>
+                </div>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>
