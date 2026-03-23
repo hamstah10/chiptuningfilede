@@ -11,9 +11,11 @@ import {
   Plus,
   ArrowRight,
   CarProfile,
-  Lightning
+  Lightning,
+  Package
 } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
+import { mockOrders } from './OrdersNew';
 
 // Mock user data - will come from API
 const mockUser = {
@@ -31,9 +33,139 @@ const mockActivity = [
   { id: 4, type: 'file', vehicle: 'VW Golf 7 GTI', status: 'completed', date: '2025-01-13', credits: 65 },
 ];
 
+// Progress steps for horizontal display
+const progressSteps = {
+  en: [
+    { key: 'received', label: 'Received' },
+    { key: 'analysis', label: 'Analysis' },
+    { key: 'processing', label: 'Processing' },
+    { key: 'quality', label: 'Quality Check' },
+    { key: 'completed', label: 'Completed' },
+  ],
+  de: [
+    { key: 'received', label: 'Eingegangen' },
+    { key: 'analysis', label: 'Analyse' },
+    { key: 'processing', label: 'Bearbeitung' },
+    { key: 'quality', label: 'Prüfung' },
+    { key: 'completed', label: 'Fertig' },
+  ]
+};
+
+const statusToProgress = {
+  pending: 0,
+  processing: 2,
+  completed: 5,
+  cancelled: -1,
+};
+
+// Horizontal Progress Component
+const HorizontalOrderProgress = ({ order, language, navigate }) => {
+  const steps = progressSteps[language] || progressSteps.en;
+  const currentStepIndex = statusToProgress[order.status];
+  const isCancelled = order.status === 'cancelled';
+
+  if (isCancelled) return null;
+
+  return (
+    <Card className="bg-card border-white/10" data-testid="current-order-progress">
+      <CardHeader className="border-b border-white/10 pb-4">
+        <div className="flex items-center justify-between">
+          <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
+            <Package weight="fill" className="w-5 h-5 text-primary" />
+            {language === 'de' ? 'Aktueller Auftrag' : 'Current Order'}
+          </CardTitle>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="text-muted-foreground hover:text-white"
+            onClick={() => navigate(`/orders/${order.id}`)}
+          >
+            {language === 'de' ? 'Details' : 'Details'}
+            <ArrowRight weight="bold" className="w-4 h-4 ml-1" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="p-6">
+        {/* Order Info */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-sm bg-primary/10 flex items-center justify-center">
+              <CarProfile weight="fill" className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h4 className="font-heading font-bold text-lg text-white">
+                {order.vehicle.manufacturer} {order.vehicle.model} {order.vehicle.series}
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                {order.id} · {order.tuning.type}
+              </p>
+            </div>
+          </div>
+          <Badge className="bg-primary/20 text-primary border border-primary/30">
+            {order.credits} Credits
+          </Badge>
+        </div>
+
+        {/* Horizontal Progress Steps */}
+        <div className="relative">
+          {/* Progress Line Background */}
+          <div className="absolute top-4 left-0 right-0 h-0.5 bg-white/10" />
+          
+          {/* Progress Line Active */}
+          <div 
+            className="absolute top-4 left-0 h-0.5 bg-green-500 transition-all duration-500"
+            style={{ 
+              width: `${Math.min((currentStepIndex / (steps.length - 1)) * 100, 100)}%` 
+            }}
+          />
+
+          {/* Steps */}
+          <div className="relative flex justify-between">
+            {steps.map((step, index) => {
+              const isCompleted = index < currentStepIndex;
+              const isCurrent = index === currentStepIndex;
+              const isPending = index > currentStepIndex;
+
+              return (
+                <div key={step.key} className="flex flex-col items-center" style={{ width: '20%' }}>
+                  {/* Circle */}
+                  <div className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 ${
+                    isCompleted 
+                      ? 'bg-green-500' 
+                      : isCurrent 
+                        ? 'bg-primary' 
+                        : 'bg-secondary border-2 border-white/20'
+                  }`}>
+                    {isCompleted ? (
+                      <CheckCircle weight="fill" className="w-5 h-5 text-white" />
+                    ) : isCurrent ? (
+                      <div className="w-2.5 h-2.5 rounded-full bg-white" />
+                    ) : null}
+                  </div>
+                  
+                  {/* Label */}
+                  <span className={`mt-3 text-xs font-medium text-center ${
+                    isCurrent ? 'text-primary' : isCompleted ? 'text-white' : 'text-muted-foreground'
+                  }`}>
+                    {step.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 export default function Dashboard() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
+
+  // Get the most recent non-cancelled order
+  const latestOrder = mockOrders.find(o => o.status !== 'cancelled' && o.status !== 'completed');
+  const latestActiveOrder = latestOrder || mockOrders.find(o => o.status === 'completed');
 
   const stats = [
     { 
@@ -115,6 +247,15 @@ export default function Dashboard() {
             );
           })}
         </div>
+
+        {/* Current Order Progress - Horizontal */}
+        {latestActiveOrder && (
+          <HorizontalOrderProgress 
+            order={latestActiveOrder} 
+            language={language} 
+            navigate={navigate}
+          />
+        )}
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
