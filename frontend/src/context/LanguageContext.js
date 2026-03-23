@@ -9,6 +9,7 @@ const translations = {
     credits: 'Credits',
     orders: 'Orders',
     invoices: 'Invoices',
+    tickets: 'Tickets',
     profile: 'Profile',
     logout: 'Logout',
     
@@ -84,6 +85,7 @@ const translations = {
     credits: 'Guthaben',
     orders: 'Bestellungen',
     invoices: 'Rechnungen',
+    tickets: 'Tickets',
     profile: 'Profil',
     logout: 'Abmelden',
     

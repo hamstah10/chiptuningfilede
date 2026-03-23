@@ -9,7 +9,8 @@ import {
   User,
   SignOut,
   Gauge,
-  Receipt
+  Receipt,
+  Ticket
 } from '@phosphor-icons/react';
 import { cn } from '../../lib/utils';
 
@@ -24,6 +25,7 @@ export const Sidebar = () => {
     { path: '/credits', icon: CurrencyCircleDollar, label: t('credits') },
     { path: '/orders', icon: ClockCounterClockwise, label: t('orders') },
     { path: '/invoices', icon: Receipt, label: t('invoices') },
+    { path: '/tickets', icon: Ticket, label: t('tickets') },
     { path: '/profile', icon: User, label: t('profile') },
   ];
 

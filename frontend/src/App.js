@@ -12,6 +12,8 @@ import OrdersNew from "./pages/OrdersNew";
 import OrderDetail from "./pages/OrderDetail";
 import Profile from "./pages/Profile";
 import Invoices from "./pages/Invoices";
+import Tickets from "./pages/Tickets";
+import TicketDetail from "./pages/TicketDetail";
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
           <Route path="/orders" element={<OrdersNew />} />
           <Route path="/orders/:id" element={<OrderDetail />} />
           <Route path="/invoices" element={<Invoices />} />
+          <Route path="/tickets" element={<Tickets />} />
+          <Route path="/tickets/:id" element={<TicketDetail />} />
           <Route path="/profile" element={<Profile />} />
         </Routes>
       </BrowserRouter>
