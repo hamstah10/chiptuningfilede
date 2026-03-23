@@ -99,10 +99,10 @@ export default function TicketDetail() {
       <DashboardLayout title={t('ticketDetails')}>
         <div className="flex flex-col items-center justify-center py-20">
           <Info weight="fill" className="w-16 h-16 text-muted-foreground mb-4" />
-          <h2 className="font-heading font-semibold text-xl text-white">{t('ticketNotFound')}</h2>
+          <h2 className="font-heading font-semibold text-xl text-foreground">{t('ticketNotFound')}</h2>
           <Button 
             variant="outline" 
-            className="mt-4 border-white/10"
+            className="mt-4 border-border"
             onClick={() => navigate('/tickets')}
           >
             <ArrowLeft weight="bold" className="w-4 h-4 mr-2" />
@@ -132,7 +132,7 @@ export default function TicketDetail() {
       closed: { 
         bg: 'bg-muted', 
         text: 'text-muted-foreground', 
-        border: 'border-white/10',
+        border: 'border-border',
         icon: CheckCircle,
         label: t('closed')
       },
@@ -144,7 +144,7 @@ export default function TicketDetail() {
     const configs = {
       high: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/30', label: t('high') },
       normal: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/30', label: t('normal') },
-      low: { bg: 'bg-muted', text: 'text-muted-foreground', border: 'border-white/10', label: t('low') },
+      low: { bg: 'bg-muted', text: 'text-muted-foreground', border: 'border-border', label: t('low') },
     };
     return configs[priority] || configs.normal;
   };
@@ -190,7 +190,7 @@ export default function TicketDetail() {
             <Button 
               variant="ghost" 
               size="icon"
-              className="text-muted-foreground hover:text-white hover:bg-white/5"
+              className="text-muted-foreground hover:text-foreground hover:bg-secondary"
               onClick={() => navigate('/tickets')}
               data-testid="back-btn"
             >
@@ -198,7 +198,7 @@ export default function TicketDetail() {
             </Button>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="font-heading font-bold text-xl text-white">{ticket.id}</h1>
+                <h1 className="font-heading font-bold text-xl text-foreground">{ticket.id}</h1>
                 <Badge variant="outline" className={`${statusConfig.bg} ${statusConfig.text} border ${statusConfig.border} gap-1`}>
                   <StatusIcon weight="fill" className="w-3 h-3" />
                   {statusConfig.label}
@@ -216,12 +216,12 @@ export default function TicketDetail() {
           
           <div className="flex items-center gap-3">
             {ticket.status !== 'closed' ? (
-              <Button variant="outline" className="border-white/10 hover:bg-white/5">
+              <Button variant="outline" className="border-border hover:bg-secondary">
                 <CheckCircle weight="bold" className="w-4 h-4 mr-2" />
                 {t('closeTicket')}
               </Button>
             ) : (
-              <Button variant="outline" className="border-white/10 hover:bg-white/5">
+              <Button variant="outline" className="border-border hover:bg-secondary">
                 <Clock weight="bold" className="w-4 h-4 mr-2" />
                 {t('reopenTicket')}
               </Button>
@@ -232,8 +232,8 @@ export default function TicketDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Conversation */}
           <div className="lg:col-span-2 space-y-4">
-            <Card className="bg-card border-white/10" data-testid="conversation-card">
-              <CardHeader className="border-b border-white/10 pb-4">
+            <Card className="bg-card border-border" data-testid="conversation-card">
+              <CardHeader className="border-b border-border pb-4">
                 <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                   <ChatCircle weight="fill" className="w-5 h-5 text-primary" />
                   {t('conversation')}
@@ -270,7 +270,7 @@ export default function TicketDetail() {
                               <p className="text-xs text-muted-foreground mb-1">
                                 {isCustomer ? t('you') : t('support')}
                               </p>
-                              <p className="text-sm text-white">{message.message}</p>
+                              <p className="text-sm text-foreground">{message.message}</p>
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">
                               {formatDateTime(message.timestamp)}
@@ -284,13 +284,13 @@ export default function TicketDetail() {
                 
                 {/* Reply Box */}
                 {ticket.status !== 'closed' && (
-                  <div className="border-t border-white/10 p-4">
+                  <div className="border-t border-border p-4">
                     <div className="flex gap-3">
                       <Textarea
                         placeholder={t('replyPlaceholder')}
                         value={replyMessage}
                         onChange={(e) => setReplyMessage(e.target.value)}
-                        className="bg-secondary border-white/10 min-h-[80px] resize-none"
+                        className="bg-secondary border-border min-h-[80px] resize-none"
                         data-testid="reply-input"
                       />
                     </div>
@@ -313,8 +313,8 @@ export default function TicketDetail() {
 
           {/* Ticket Info Sidebar */}
           <div className="space-y-6">
-            <Card className="bg-card border-white/10" data-testid="ticket-info-card">
-              <CardHeader className="border-b border-white/10 pb-4">
+            <Card className="bg-card border-border" data-testid="ticket-info-card">
+              <CardHeader className="border-b border-border pb-4">
                 <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                   <Ticket weight="fill" className="w-5 h-5 text-primary" />
                   {t('ticketInfo')}
@@ -337,17 +337,17 @@ export default function TicketDetail() {
                 
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('category')}</p>
-                  <p className="text-sm text-white mt-1">{getCategoryLabel(ticket.category)}</p>
+                  <p className="text-sm text-foreground mt-1">{getCategoryLabel(ticket.category)}</p>
                 </div>
                 
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('created')}</p>
-                  <p className="text-sm text-white mt-1">{formatDateTime(ticket.createdAt)}</p>
+                  <p className="text-sm text-foreground mt-1">{formatDateTime(ticket.createdAt)}</p>
                 </div>
                 
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('lastUpdate')}</p>
-                  <p className="text-sm text-white mt-1">{formatDateTime(ticket.updatedAt)}</p>
+                  <p className="text-sm text-foreground mt-1">{formatDateTime(ticket.updatedAt)}</p>
                 </div>
                 
                 {ticket.relatedOrder && (

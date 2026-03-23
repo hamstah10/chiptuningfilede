@@ -213,12 +213,12 @@ export default function Invoices() {
       <div className="space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4" data-testid="invoices-stats">
-          <Card className="bg-card border-white/10">
+          <Card className="bg-card border-border">
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">{t('totalPurchases')}</p>
-                  <p className="font-heading font-bold text-3xl text-white mt-2">
+                  <p className="font-heading font-bold text-3xl text-foreground mt-2">
                     {paidInvoices.length}
                   </p>
                 </div>
@@ -229,7 +229,7 @@ export default function Invoices() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-white/10">
+          <Card className="bg-card border-border">
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
                 <div>
@@ -245,12 +245,12 @@ export default function Invoices() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-white/10">
+          <Card className="bg-card border-border">
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">{t('totalSpent')}</p>
-                  <p className="font-heading font-bold text-3xl text-white mt-2">
+                  <p className="font-heading font-bold text-3xl text-foreground mt-2">
                     {formatCurrency(totalSpent)}
                   </p>
                 </div>
@@ -261,7 +261,7 @@ export default function Invoices() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-white/10">
+          <Card className="bg-card border-border">
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
                 <div>
@@ -279,8 +279,8 @@ export default function Invoices() {
         </div>
 
         {/* Filters & Invoice Table */}
-        <Card className="bg-card border-white/10" data-testid="invoices-table-card">
-          <CardHeader className="border-b border-white/10 pb-4">
+        <Card className="bg-card border-border" data-testid="invoices-table-card">
+          <CardHeader className="border-b border-border pb-4">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                 <Receipt weight="fill" className="w-5 h-5 text-primary" />
@@ -290,10 +290,10 @@ export default function Invoices() {
               <div className="flex items-center gap-3">
                 <FunnelSimple weight="bold" className="w-4 h-4 text-muted-foreground" />
                 <Select value={yearFilter} onValueChange={setYearFilter}>
-                  <SelectTrigger className="w-32 bg-secondary border-white/10" data-testid="year-filter">
+                  <SelectTrigger className="w-32 bg-secondary border-border" data-testid="year-filter">
                     <SelectValue placeholder={t('filterByYear')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-card border-white/10">
+                  <SelectContent className="bg-card border-border">
                     <SelectItem value="all">{t('allYears')}</SelectItem>
                     <SelectItem value="2025">2025</SelectItem>
                     <SelectItem value="2024">2024</SelectItem>
@@ -301,10 +301,10 @@ export default function Invoices() {
                 </Select>
                 
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-36 bg-secondary border-white/10" data-testid="status-filter">
+                  <SelectTrigger className="w-36 bg-secondary border-border" data-testid="status-filter">
                     <SelectValue placeholder={t('filterByStatus')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-card border-white/10">
+                  <SelectContent className="bg-card border-border">
                     <SelectItem value="all">{t('allStatus')}</SelectItem>
                     <SelectItem value="paid">{t('paid')}</SelectItem>
                     <SelectItem value="pending">{t('pending')}</SelectItem>
@@ -318,7 +318,7 @@ export default function Invoices() {
             {filteredInvoices.length > 0 ? (
               <Table>
                 <TableHeader>
-                  <TableRow className="border-white/10 hover:bg-transparent">
+                  <TableRow className="border-border hover:bg-transparent">
                     <TableHead className="text-muted-foreground font-semibold">{t('invoiceNumber')}</TableHead>
                     <TableHead className="text-muted-foreground font-semibold">{t('date')}</TableHead>
                     <TableHead className="text-muted-foreground font-semibold">{t('credits')}</TableHead>
@@ -334,10 +334,10 @@ export default function Invoices() {
                   {filteredInvoices.map((invoice) => (
                     <TableRow 
                       key={invoice.id} 
-                      className="border-white/5 hover:bg-white/[0.02]"
+                      className="border-white/5 hover:bg-secondary/50"
                       data-testid={`invoice-row-${invoice.id}`}
                     >
-                      <TableCell className="font-mono text-sm text-white">{invoice.id}</TableCell>
+                      <TableCell className="font-mono text-sm text-foreground">{invoice.id}</TableCell>
                       <TableCell className="text-muted-foreground">
                         <div className="flex items-center gap-2">
                           <CalendarBlank weight="regular" className="w-4 h-4" />
@@ -350,11 +350,11 @@ export default function Invoices() {
                           <span className="font-heading font-semibold text-primary">{invoice.credits}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right text-white">{formatCurrency(invoice.amount)}</TableCell>
+                      <TableCell className="text-right text-foreground">{formatCurrency(invoice.amount)}</TableCell>
                       <TableCell className="text-right text-muted-foreground">{formatCurrency(invoice.tax)}</TableCell>
-                      <TableCell className="text-right font-semibold text-white">{formatCurrency(invoice.total)}</TableCell>
+                      <TableCell className="text-right font-semibold text-foreground">{formatCurrency(invoice.total)}</TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="bg-secondary border-white/10">
+                        <Badge variant="outline" className="bg-secondary border-border">
                           {invoice.paymentMethod}
                         </Badge>
                       </TableCell>
@@ -364,7 +364,7 @@ export default function Invoices() {
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-8 w-8 text-muted-foreground hover:text-white hover:bg-white/5"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-secondary"
                             data-testid={`view-invoice-${invoice.id}`}
                           >
                             <Eye weight="regular" className="w-4 h-4" />

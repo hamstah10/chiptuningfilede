@@ -42,10 +42,10 @@ export default function Profile() {
     <DashboardLayout title={t('profileTitle')}>
       <div className="max-w-4xl">
         <Tabs defaultValue="personal" className="space-y-6">
-          <TabsList className="bg-secondary border border-white/10 p-1">
+          <TabsList className="bg-secondary border border-border p-1">
             <TabsTrigger 
               value="personal" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white"
+              className="data-[state=active]:bg-primary data-[state=active]:text-foreground"
               data-testid="tab-personal"
             >
               <User weight="bold" className="w-4 h-4 mr-2" />
@@ -53,7 +53,7 @@ export default function Profile() {
             </TabsTrigger>
             <TabsTrigger 
               value="company" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white"
+              className="data-[state=active]:bg-primary data-[state=active]:text-foreground"
               data-testid="tab-company"
             >
               <Buildings weight="bold" className="w-4 h-4 mr-2" />
@@ -61,7 +61,7 @@ export default function Profile() {
             </TabsTrigger>
             <TabsTrigger 
               value="api" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white"
+              className="data-[state=active]:bg-primary data-[state=active]:text-foreground"
               data-testid="tab-api"
             >
               <Key weight="bold" className="w-4 h-4 mr-2" />
@@ -71,8 +71,8 @@ export default function Profile() {
 
           {/* Personal Info */}
           <TabsContent value="personal">
-            <Card className="bg-card border-white/10" data-testid="personal-info-card">
-              <CardHeader className="border-b border-white/10 pb-4">
+            <Card className="bg-card border-border" data-testid="personal-info-card">
+              <CardHeader className="border-b border-border pb-4">
                 <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                   <User weight="fill" className="w-5 h-5 text-primary" />
                   {t('personalInfo')}
@@ -85,7 +85,7 @@ export default function Profile() {
                     <Input 
                       id="firstName"
                       defaultValue={mockUser.firstName}
-                      className="bg-secondary border-white/10"
+                      className="bg-secondary border-border"
                       data-testid="input-firstname"
                     />
                   </div>
@@ -94,7 +94,7 @@ export default function Profile() {
                     <Input 
                       id="lastName"
                       defaultValue={mockUser.lastName}
-                      className="bg-secondary border-white/10"
+                      className="bg-secondary border-border"
                       data-testid="input-lastname"
                     />
                   </div>
@@ -104,7 +104,7 @@ export default function Profile() {
                       id="email"
                       type="email"
                       defaultValue={mockUser.email}
-                      className="bg-secondary border-white/10"
+                      className="bg-secondary border-border"
                       data-testid="input-email"
                     />
                   </div>
@@ -113,7 +113,7 @@ export default function Profile() {
                     <Input 
                       id="phone"
                       defaultValue={mockUser.phone}
-                      className="bg-secondary border-white/10"
+                      className="bg-secondary border-border"
                       data-testid="input-phone"
                     />
                   </div>
@@ -127,8 +127,8 @@ export default function Profile() {
 
           {/* Company Info */}
           <TabsContent value="company">
-            <Card className="bg-card border-white/10" data-testid="company-info-card">
-              <CardHeader className="border-b border-white/10 pb-4">
+            <Card className="bg-card border-border" data-testid="company-info-card">
+              <CardHeader className="border-b border-border pb-4">
                 <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                   <Buildings weight="fill" className="w-5 h-5 text-primary" />
                   {t('companyInfo')}
@@ -141,7 +141,7 @@ export default function Profile() {
                     <Input 
                       id="company"
                       defaultValue={mockUser.company}
-                      className="bg-secondary border-white/10"
+                      className="bg-secondary border-border"
                       data-testid="input-company"
                     />
                   </div>
@@ -150,7 +150,7 @@ export default function Profile() {
                     <Input 
                       id="street"
                       defaultValue={mockUser.street}
-                      className="bg-secondary border-white/10"
+                      className="bg-secondary border-border"
                       data-testid="input-street"
                     />
                   </div>
@@ -159,7 +159,7 @@ export default function Profile() {
                     <Input 
                       id="zip"
                       defaultValue={mockUser.zip}
-                      className="bg-secondary border-white/10"
+                      className="bg-secondary border-border"
                       data-testid="input-zip"
                     />
                   </div>
@@ -168,7 +168,7 @@ export default function Profile() {
                     <Input 
                       id="city"
                       defaultValue={mockUser.city}
-                      className="bg-secondary border-white/10"
+                      className="bg-secondary border-border"
                       data-testid="input-city"
                     />
                   </div>
@@ -177,7 +177,7 @@ export default function Profile() {
                     <Input 
                       id="country"
                       defaultValue={mockUser.country}
-                      className="bg-secondary border-white/10"
+                      className="bg-secondary border-border"
                       data-testid="input-country"
                     />
                   </div>
@@ -186,7 +186,7 @@ export default function Profile() {
                     <Input 
                       id="vatId"
                       defaultValue={mockUser.vatId}
-                      className="bg-secondary border-white/10"
+                      className="bg-secondary border-border"
                       data-testid="input-vatid"
                     />
                   </div>
@@ -200,8 +200,8 @@ export default function Profile() {
 
           {/* API Access */}
           <TabsContent value="api">
-            <Card className="bg-card border-white/10" data-testid="api-access-card">
-              <CardHeader className="border-b border-white/10 pb-4">
+            <Card className="bg-card border-border" data-testid="api-access-card">
+              <CardHeader className="border-b border-border pb-4">
                 <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                   <Key weight="fill" className="w-5 h-5 text-primary" />
                   {t('apiAccess')}
@@ -212,14 +212,14 @@ export default function Profile() {
                   <div>
                     <Label className="text-muted-foreground">API Key</Label>
                     <div className="mt-2 flex items-center gap-2">
-                      <div className="flex-1 p-3 bg-secondary rounded-sm border border-white/10 font-mono text-sm">
+                      <div className="flex-1 p-3 bg-secondary rounded-sm border border-border font-mono text-sm">
                         {showApiKey ? mockUser.apiKey : '•'.repeat(40)}
                       </div>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => setShowApiKey(!showApiKey)}
-                        className="text-muted-foreground hover:text-white hover:bg-white/5"
+                        className="text-muted-foreground hover:text-foreground hover:bg-secondary"
                         data-testid="toggle-api-key"
                       >
                         {showApiKey ? (
@@ -232,7 +232,7 @@ export default function Profile() {
                         variant="ghost"
                         size="icon"
                         onClick={() => copyToClipboard(mockUser.apiKey)}
-                        className="text-muted-foreground hover:text-white hover:bg-white/5"
+                        className="text-muted-foreground hover:text-foreground hover:bg-secondary"
                         data-testid="copy-api-key"
                       >
                         <Copy weight="regular" className="w-5 h-5" />
@@ -240,15 +240,15 @@ export default function Profile() {
                     </div>
                   </div>
 
-                  <div className="p-4 bg-secondary rounded-sm border border-white/10">
-                    <h4 className="font-semibold text-white mb-2">API Documentation</h4>
+                  <div className="p-4 bg-secondary rounded-sm border border-border">
+                    <h4 className="font-semibold text-foreground mb-2">API Documentation</h4>
                     <p className="text-sm text-muted-foreground">
                       Use this API key to integrate with the Chiptuningfile.de API. 
                       Your API key is managed by your super admin portal.
                     </p>
                     <Button 
                       variant="outline" 
-                      className="mt-4 border-white/10 hover:bg-white/5"
+                      className="mt-4 border-border hover:bg-secondary"
                       data-testid="view-docs-btn"
                     >
                       View Documentation

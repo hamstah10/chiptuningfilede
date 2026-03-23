@@ -123,19 +123,19 @@ const OptionCard = ({ option, language, t }) => {
       className={`p-3 rounded-sm border transition-colors ${
         isIncluded 
           ? 'bg-green-500/10 border-green-500/30' 
-          : 'bg-secondary border-white/10 hover:border-white/20'
+          : 'bg-secondary border-border hover:border-white/20'
       }`}
     >
       <div className="flex flex-col items-center text-center">
         <div className={`w-10 h-10 rounded-sm flex items-center justify-center mb-2 ${
-          isIncluded ? 'bg-green-500/20' : 'bg-white/5'
+          isIncluded ? 'bg-green-500/20' : 'bg-secondary'
         }`}>
           <OptionIcon 
             iconType={option.icon} 
             className={`w-5 h-5 ${isIncluded ? 'text-green-400' : 'text-muted-foreground'}`} 
           />
         </div>
-        <p className={`text-sm font-semibold ${isIncluded ? 'text-green-400' : 'text-white'}`}>
+        <p className={`text-sm font-semibold ${isIncluded ? 'text-green-400' : 'text-foreground'}`}>
           {option.name[language]}
         </p>
         <p className="text-xs text-muted-foreground mt-0.5">{option.description[language]}</p>
@@ -168,8 +168,8 @@ const OptionsGrid = ({ options, language, t }) => {
 // PKW Stage Card Component
 const StageCard = ({ title, basePrice, icon: Icon, language, t }) => {
   return (
-    <Card className="bg-card border-white/10">
-      <CardHeader className="border-b border-white/10 pb-4">
+    <Card className="bg-card border-border">
+      <CardHeader className="border-b border-border pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
             <Icon weight="fill" className="w-5 h-5 text-primary" />
@@ -197,8 +197,8 @@ const GearboxCard = ({ language, t }) => {
   ];
 
   return (
-    <Card className="bg-card border-white/10">
-      <CardHeader className="border-b border-white/10 pb-4">
+    <Card className="bg-card border-border">
+      <CardHeader className="border-b border-border pb-4">
         <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
           <Gear weight="fill" className="w-5 h-5 text-primary" />
           {t('gearbox')}
@@ -213,8 +213,8 @@ const GearboxCard = ({ language, t }) => {
         
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {gearboxPrices.map((item) => (
-            <div key={item.stage} className="p-4 bg-secondary rounded-sm border border-white/10 text-center">
-              <p className="font-semibold text-white text-lg">{item.stage}</p>
+            <div key={item.stage} className="p-4 bg-secondary rounded-sm border border-border text-center">
+              <p className="font-semibold text-foreground text-lg">{item.stage}</p>
               <Badge className="mt-2 bg-primary/20 text-primary border border-primary/30 font-heading font-bold text-lg px-3 py-1">
                 {item.credits} Credits
               </Badge>
@@ -236,8 +236,8 @@ const SingleOptionsCard = ({ language, t }) => {
   }));
 
   return (
-    <Card className="bg-card border-white/10">
-      <CardHeader className="border-b border-white/10 pb-4">
+    <Card className="bg-card border-border">
+      <CardHeader className="border-b border-border pb-4">
         <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
           <Plus weight="fill" className="w-5 h-5 text-primary" />
           {t('allOptions')}
@@ -248,13 +248,13 @@ const SingleOptionsCard = ({ language, t }) => {
           {singleOptions.map((option) => (
             <div 
               key={option.id}
-              className="p-3 rounded-sm border bg-secondary border-white/10 hover:border-white/20 transition-colors"
+              className="p-3 rounded-sm border bg-secondary border-border hover:border-white/20 transition-colors"
             >
               <div className="flex flex-col items-center text-center">
-                <div className="w-10 h-10 rounded-sm bg-white/5 flex items-center justify-center mb-2">
+                <div className="w-10 h-10 rounded-sm bg-secondary flex items-center justify-center mb-2">
                   <OptionIcon iconType={option.icon} className="w-5 h-5 text-muted-foreground" />
                 </div>
-                <p className="text-sm font-semibold text-white">{option.name[language]}</p>
+                <p className="text-sm font-semibold text-foreground">{option.name[language]}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">{option.description[language]}</p>
                 <Badge className="mt-2 bg-primary/20 text-primary border border-primary/30 font-mono text-xs">
                   {option.credits}
@@ -289,8 +289,8 @@ const LkwSection = ({ language, t }) => {
   return (
     <div className="space-y-6">
       {/* Eco with Options */}
-      <Card className="bg-card border-white/10">
-        <CardHeader className="border-b border-white/10 pb-4">
+      <Card className="bg-card border-border">
+        <CardHeader className="border-b border-border pb-4">
           <div className="flex items-center justify-between">
             <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
               <Leaf weight="fill" className="w-5 h-5 text-green-500" />
@@ -308,8 +308,8 @@ const LkwSection = ({ language, t }) => {
       </Card>
 
       {/* Tuning */}
-      <Card className="bg-card border-white/10">
-        <CardHeader className="border-b border-white/10 pb-4">
+      <Card className="bg-card border-border">
+        <CardHeader className="border-b border-border pb-4">
           <div className="flex items-center justify-between">
             <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
               <Lightning weight="fill" className="w-5 h-5 text-primary" />
@@ -327,8 +327,8 @@ const LkwSection = ({ language, t }) => {
       </Card>
 
       {/* Options Only */}
-      <Card className="bg-card border-white/10">
-        <CardHeader className="border-b border-white/10 pb-4">
+      <Card className="bg-card border-border">
+        <CardHeader className="border-b border-border pb-4">
           <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
             <Plus weight="fill" className="w-5 h-5 text-primary" />
             {t('optionsOnly')}
@@ -339,13 +339,13 @@ const LkwSection = ({ language, t }) => {
             {lkwSingleOptions.map((option) => (
               <div 
                 key={option.id}
-                className="p-3 rounded-sm border bg-secondary border-white/10 hover:border-white/20 transition-colors"
+                className="p-3 rounded-sm border bg-secondary border-border hover:border-white/20 transition-colors"
               >
                 <div className="flex flex-col items-center text-center">
-                  <div className="w-10 h-10 rounded-sm bg-white/5 flex items-center justify-center mb-2">
+                  <div className="w-10 h-10 rounded-sm bg-secondary flex items-center justify-center mb-2">
                     <OptionIcon iconType={option.icon} className="w-5 h-5 text-muted-foreground" />
                   </div>
-                  <p className="text-sm font-semibold text-white">{option.name[language]}</p>
+                  <p className="text-sm font-semibold text-foreground">{option.name[language]}</p>
                   <p className="text-xs text-muted-foreground mt-0.5">{option.description[language]}</p>
                   <Badge className="mt-2 bg-primary/20 text-primary border border-primary/30 font-mono text-xs">
                     {option.credits}
@@ -371,7 +371,7 @@ export default function PriceList() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="font-heading font-bold text-2xl tracking-tight text-white flex items-center gap-3">
+          <h1 className="font-heading font-bold text-2xl tracking-tight text-foreground flex items-center gap-3">
             <ListBullets weight="fill" className="w-7 h-7 text-primary" />
             {t('pageTitle')}
           </h1>
@@ -379,17 +379,17 @@ export default function PriceList() {
 
         {/* Main Category Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="bg-secondary border border-white/10 p-1 w-full justify-start">
+          <TabsList className="bg-secondary border border-border p-1 w-full justify-start">
             <TabsTrigger 
               value="pkw" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white flex items-center gap-2 px-6"
+              className="data-[state=active]:bg-primary data-[state=active]:text-foreground flex items-center gap-2 px-6"
             >
               <CarProfile weight="bold" className="w-5 h-5" />
               {t('pkw')}
             </TabsTrigger>
             <TabsTrigger 
               value="lkw" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-white flex items-center gap-2 px-6"
+              className="data-[state=active]:bg-primary data-[state=active]:text-foreground flex items-center gap-2 px-6"
             >
               <Truck weight="bold" className="w-5 h-5" />
               {t('lkw')}
@@ -399,34 +399,34 @@ export default function PriceList() {
           {/* PKW Content */}
           <TabsContent value="pkw" className="mt-6">
             <Tabs value={pkwSubTab} onValueChange={setPkwSubTab}>
-              <TabsList className="bg-card border border-white/10 p-1 flex-wrap h-auto gap-1">
+              <TabsList className="bg-card border border-border p-1 flex-wrap h-auto gap-1">
                 <TabsTrigger 
                   value="stage1" 
-                  className="data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                  className="data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
                 >
                   {t('stage1')}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="stage2" 
-                  className="data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                  className="data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
                 >
                   {t('stage2')}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="eco" 
-                  className="data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                  className="data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
                 >
                   {t('eco')}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="gearbox" 
-                  className="data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                  className="data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
                 >
                   {t('gearbox')}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="options" 
-                  className="data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                  className="data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
                 >
                   {t('optionsSingle')}
                 </TabsTrigger>

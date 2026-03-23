@@ -39,7 +39,7 @@ export default function Credits() {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Current Balance */}
-          <Card className="bg-card border-white/10" data-testid="balance-card">
+          <Card className="bg-card border-border" data-testid="balance-card">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -59,8 +59,8 @@ export default function Credits() {
           </Card>
 
           {/* Purchase Packages */}
-          <Card className="bg-card border-white/10" data-testid="packages-card">
-            <CardHeader className="border-b border-white/10 pb-4">
+          <Card className="bg-card border-border" data-testid="packages-card">
+            <CardHeader className="border-b border-border pb-4">
               <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                 <Plus weight="bold" className="w-5 h-5 text-primary" />
                 {t('purchaseCredits')}
@@ -75,21 +75,21 @@ export default function Credits() {
                     className={`relative p-4 rounded-sm border text-center transition-colors duration-200 ${
                       selectedPackage === pkg.id
                         ? 'border-primary bg-primary/10'
-                        : 'border-white/10 bg-secondary hover:border-white/20'
+                        : 'border-border bg-secondary hover:border-white/20'
                     }`}
                     data-testid={`package-${pkg.id}`}
                   >
                     {pkg.popular && (
-                      <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px]">
+                      <Badge className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-foreground text-[10px]">
                         Popular
                       </Badge>
                     )}
                     {selectedPackage === pkg.id && (
                       <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                        <Check weight="bold" className="w-3 h-3 text-white" />
+                        <Check weight="bold" className="w-3 h-3 text-foreground" />
                       </div>
                     )}
-                    <p className="font-heading font-bold text-2xl text-white">{pkg.credits}</p>
+                    <p className="font-heading font-bold text-2xl text-foreground">{pkg.credits}</p>
                     <p className="text-xs text-muted-foreground">Credits</p>
                     <p className="font-semibold text-primary mt-3">€{pkg.price}</p>
                   </button>
@@ -107,18 +107,18 @@ export default function Credits() {
           </Card>
 
           {/* Transaction History */}
-          <Card className="bg-card border-white/10" data-testid="transactions-card">
-            <CardHeader className="border-b border-white/10 pb-4">
+          <Card className="bg-card border-border" data-testid="transactions-card">
+            <CardHeader className="border-b border-border pb-4">
               <CardTitle className="font-heading font-semibold text-lg">
                 {t('transactionHistory')}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-border">
                 {transactions.map((tx) => (
                   <div 
                     key={tx.id} 
-                    className="p-4 flex items-center justify-between hover:bg-white/[0.02] transition-colors duration-200"
+                    className="p-4 flex items-center justify-between hover:bg-secondary/50 transition-colors duration-200"
                   >
                     <div className="flex items-center gap-4">
                       <div className={`w-10 h-10 rounded-sm flex items-center justify-center ${
@@ -131,7 +131,7 @@ export default function Credits() {
                         )}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-white">{tx.description}</p>
+                        <p className="text-sm font-medium text-foreground">{tx.description}</p>
                         <p className="text-xs text-muted-foreground mt-1">{tx.date}</p>
                       </div>
                     </div>
@@ -149,8 +149,8 @@ export default function Credits() {
 
         {/* Sidebar Info */}
         <div className="space-y-6">
-          <Card className="bg-card border-white/10" data-testid="info-card">
-            <CardHeader className="border-b border-white/10 pb-4">
+          <Card className="bg-card border-border" data-testid="info-card">
+            <CardHeader className="border-b border-border pb-4">
               <CardTitle className="font-heading font-semibold text-lg">
                 Credit Info
               </CardTitle>

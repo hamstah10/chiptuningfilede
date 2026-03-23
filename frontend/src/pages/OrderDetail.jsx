@@ -131,8 +131,8 @@ const ProgressTimeline = ({ order, language, t }) => {
   };
 
   return (
-    <Card className="bg-card border-white/10" data-testid="order-status-card">
-      <CardHeader className="border-b border-white/10 pb-4">
+    <Card className="bg-card border-border" data-testid="order-status-card">
+      <CardHeader className="border-b border-border pb-4">
         <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2 uppercase tracking-wider">
           <Package weight="fill" className="w-5 h-5 text-primary" />
           {t('orderStatus')}
@@ -141,7 +141,7 @@ const ProgressTimeline = ({ order, language, t }) => {
       <CardContent className="p-6">
         {/* Vehicle & Order Info */}
         <div className="mb-6">
-          <h3 className="font-heading font-bold text-xl text-white">
+          <h3 className="font-heading font-bold text-xl text-foreground">
             {order.vehicle.manufacturer} {order.vehicle.model} {order.vehicle.series} — {order.tuning.type}
           </h3>
           <p className="text-sm text-muted-foreground mt-1">
@@ -188,7 +188,7 @@ const ProgressTimeline = ({ order, language, t }) => {
                   {/* Step Content */}
                   <div className="flex-1 pt-1">
                     <p className={`font-semibold ${
-                      isCurrent ? 'text-primary' : isCompleted ? 'text-white' : 'text-muted-foreground'
+                      isCurrent ? 'text-primary' : isCompleted ? 'text-foreground' : 'text-muted-foreground'
                     }`}>
                       {step.label}
                     </p>
@@ -228,10 +228,10 @@ export default function OrderDetail() {
       <DashboardLayout title={t('orderDetails')}>
         <div className="flex flex-col items-center justify-center py-20">
           <Info weight="fill" className="w-16 h-16 text-muted-foreground mb-4" />
-          <h2 className="font-heading font-semibold text-xl text-white">{t('orderNotFound')}</h2>
+          <h2 className="font-heading font-semibold text-xl text-foreground">{t('orderNotFound')}</h2>
           <Button 
             variant="outline" 
-            className="mt-4 border-white/10"
+            className="mt-4 border-border"
             onClick={() => navigate('/orders')}
           >
             <ArrowLeft weight="bold" className="w-4 h-4 mr-2" />
@@ -255,7 +255,7 @@ export default function OrderDetail() {
             <Button 
               variant="ghost" 
               size="icon"
-              className="text-muted-foreground hover:text-white hover:bg-white/5"
+              className="text-muted-foreground hover:text-foreground hover:bg-secondary"
               onClick={() => navigate('/orders')}
               data-testid="back-btn"
             >
@@ -263,11 +263,11 @@ export default function OrderDetail() {
             </Button>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="font-heading font-bold text-2xl text-white">{order.id}</h1>
+                <h1 className="font-heading font-bold text-2xl text-foreground">{order.id}</h1>
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-white hover:bg-white/5"
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-secondary"
                   onClick={() => copyToClipboard(order.id)}
                   data-testid="copy-order-id"
                 >
@@ -294,8 +294,8 @@ export default function OrderDetail() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Vehicle Info */}
-            <Card className="bg-card border-white/10" data-testid="vehicle-info-card">
-              <CardHeader className="border-b border-white/10 pb-4">
+            <Card className="bg-card border-border" data-testid="vehicle-info-card">
+              <CardHeader className="border-b border-border pb-4">
                 <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                   <CarProfile weight="fill" className="w-5 h-5 text-primary" />
                   {t('vehicleInfo')}
@@ -305,39 +305,39 @@ export default function OrderDetail() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   <div>
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('manufacturer')}</p>
-                    <p className="font-semibold text-white mt-1">{order.vehicle.manufacturer}</p>
+                    <p className="font-semibold text-foreground mt-1">{order.vehicle.manufacturer}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('model')}</p>
-                    <p className="font-semibold text-white mt-1">{order.vehicle.model}</p>
+                    <p className="font-semibold text-foreground mt-1">{order.vehicle.model}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('series')}</p>
-                    <p className="font-semibold text-white mt-1">{order.vehicle.series}</p>
+                    <p className="font-semibold text-foreground mt-1">{order.vehicle.series}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('year')}</p>
-                    <p className="font-semibold text-white mt-1">{order.vehicle.year}</p>
+                    <p className="font-semibold text-foreground mt-1">{order.vehicle.year}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('engine')}</p>
-                    <p className="font-semibold text-white mt-1">{order.vehicle.engine}</p>
+                    <p className="font-semibold text-foreground mt-1">{order.vehicle.engine}</p>
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('power')}</p>
-                    <p className="font-semibold text-white mt-1">{order.vehicle.power}</p>
+                    <p className="font-semibold text-foreground mt-1">{order.vehicle.power}</p>
                   </div>
                   <div className="md:col-span-2">
                     <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('ecu')}</p>
-                    <p className="font-semibold text-white mt-1 font-mono">{order.vehicle.ecu}</p>
+                    <p className="font-semibold text-foreground mt-1 font-mono">{order.vehicle.ecu}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Tuning Info */}
-            <Card className="bg-card border-white/10" data-testid="tuning-info-card">
-              <CardHeader className="border-b border-white/10 pb-4">
+            <Card className="bg-card border-border" data-testid="tuning-info-card">
+              <CardHeader className="border-b border-border pb-4">
                 <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                   <Wrench weight="fill" className="w-5 h-5 text-primary" />
                   {t('tuningInfo')}
@@ -363,7 +363,7 @@ export default function OrderDetail() {
                       <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">{t('options')}</p>
                       <div className="flex flex-wrap gap-2">
                         {order.tuning.options.map((opt, idx) => (
-                          <Badge key={idx} variant="outline" className="bg-secondary border-white/10">
+                          <Badge key={idx} variant="outline" className="bg-secondary border-border">
                             {opt}
                           </Badge>
                         ))}
@@ -375,8 +375,8 @@ export default function OrderDetail() {
             </Card>
 
             {/* Files */}
-            <Card className="bg-card border-white/10" data-testid="files-info-card">
-              <CardHeader className="border-b border-white/10 pb-4">
+            <Card className="bg-card border-border" data-testid="files-info-card">
+              <CardHeader className="border-b border-border pb-4">
                 <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                   <FileArrowUp weight="fill" className="w-5 h-5 text-primary" />
                   {t('filesInfo')}
@@ -385,20 +385,20 @@ export default function OrderDetail() {
               <CardContent className="p-6">
                 <div className="space-y-4">
                   {/* Original File */}
-                  <div className="flex items-center justify-between p-4 bg-secondary rounded-sm border border-white/10">
+                  <div className="flex items-center justify-between p-4 bg-secondary rounded-sm border border-border">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-sm bg-white/5 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-sm bg-secondary flex items-center justify-center">
                         <FileArrowUp weight="fill" className="w-5 h-5 text-muted-foreground" />
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('originalFile')}</p>
-                        <p className="font-mono text-sm text-white mt-0.5">{order.files.original}</p>
+                        <p className="font-mono text-sm text-foreground mt-0.5">{order.files.original}</p>
                       </div>
                     </div>
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      className="text-muted-foreground hover:text-white hover:bg-white/5"
+                      className="text-muted-foreground hover:text-foreground hover:bg-secondary"
                       data-testid="download-original"
                     >
                       <Download weight="regular" className="w-4 h-4 mr-2" />
@@ -410,11 +410,11 @@ export default function OrderDetail() {
                   <div className={`flex items-center justify-between p-4 rounded-sm border ${
                     order.files.modified 
                       ? 'bg-green-500/5 border-green-500/20' 
-                      : 'bg-secondary border-white/10'
+                      : 'bg-secondary border-border'
                   }`}>
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-sm flex items-center justify-center ${
-                        order.files.modified ? 'bg-green-500/10' : 'bg-white/5'
+                        order.files.modified ? 'bg-green-500/10' : 'bg-secondary'
                       }`}>
                         <FileArrowDown weight="fill" className={`w-5 h-5 ${
                           order.files.modified ? 'text-green-500' : 'text-muted-foreground'
@@ -423,7 +423,7 @@ export default function OrderDetail() {
                       <div>
                         <p className="text-xs text-muted-foreground uppercase tracking-wider">{t('modifiedFile')}</p>
                         <p className={`font-mono text-sm mt-0.5 ${
-                          order.files.modified ? 'text-white' : 'text-muted-foreground'
+                          order.files.modified ? 'text-foreground' : 'text-muted-foreground'
                         }`}>
                           {order.files.modified || t('noFile')}
                         </p>
@@ -451,8 +451,8 @@ export default function OrderDetail() {
 
             {/* Notes */}
             {order.notes && order.status !== 'cancelled' && (
-              <Card className="bg-card border-white/10" data-testid="notes-card">
-                <CardHeader className="border-b border-white/10 pb-4">
+              <Card className="bg-card border-border" data-testid="notes-card">
+                <CardHeader className="border-b border-border pb-4">
                   <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                     <Note weight="fill" className="w-5 h-5 text-primary" />
                     {t('notes')}

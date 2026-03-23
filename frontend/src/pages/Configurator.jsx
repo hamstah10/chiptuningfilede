@@ -52,8 +52,8 @@ export default function Configurator() {
         {/* Configuration Panel */}
         <div className="lg:col-span-2 space-y-6">
           {/* Vehicle Selection */}
-          <Card className="bg-card border-white/10" data-testid="vehicle-selection-card">
-            <CardHeader className="border-b border-white/10 pb-4">
+          <Card className="bg-card border-border" data-testid="vehicle-selection-card">
+            <CardHeader className="border-b border-border pb-4">
               <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                 <CarProfile weight="fill" className="w-5 h-5 text-primary" />
                 {t('selectVehicle')}
@@ -66,10 +66,10 @@ export default function Configurator() {
                     {t('selectManufacturer')}
                   </label>
                   <Select value={manufacturer} onValueChange={(val) => { setManufacturer(val); setModel(''); }}>
-                    <SelectTrigger className="bg-secondary border-white/10" data-testid="manufacturer-select">
+                    <SelectTrigger className="bg-secondary border-border" data-testid="manufacturer-select">
                       <SelectValue placeholder={t('selectManufacturer')} />
                     </SelectTrigger>
-                    <SelectContent className="bg-card border-white/10">
+                    <SelectContent className="bg-card border-border">
                       {manufacturers.map((m) => (
                         <SelectItem key={m} value={m}>{m}</SelectItem>
                       ))}
@@ -82,10 +82,10 @@ export default function Configurator() {
                     {t('selectModel')}
                   </label>
                   <Select value={model} onValueChange={setModel} disabled={!manufacturer}>
-                    <SelectTrigger className="bg-secondary border-white/10" data-testid="model-select">
+                    <SelectTrigger className="bg-secondary border-border" data-testid="model-select">
                       <SelectValue placeholder={t('selectModel')} />
                     </SelectTrigger>
-                    <SelectContent className="bg-card border-white/10">
+                    <SelectContent className="bg-card border-border">
                       {availableModels.map((m) => (
                         <SelectItem key={m} value={m}>{m}</SelectItem>
                       ))}
@@ -98,10 +98,10 @@ export default function Configurator() {
                     {t('selectEngine')}
                   </label>
                   <Select value={engine} onValueChange={setEngine} disabled={!model}>
-                    <SelectTrigger className="bg-secondary border-white/10" data-testid="engine-select">
+                    <SelectTrigger className="bg-secondary border-border" data-testid="engine-select">
                       <SelectValue placeholder={t('selectEngine')} />
                     </SelectTrigger>
-                    <SelectContent className="bg-card border-white/10">
+                    <SelectContent className="bg-card border-border">
                       {engines.map((e) => (
                         <SelectItem key={e} value={e}>{e}</SelectItem>
                       ))}
@@ -113,8 +113,8 @@ export default function Configurator() {
           </Card>
 
           {/* Tuning Type Selection */}
-          <Card className="bg-card border-white/10" data-testid="tuning-selection-card">
-            <CardHeader className="border-b border-white/10 pb-4">
+          <Card className="bg-card border-border" data-testid="tuning-selection-card">
+            <CardHeader className="border-b border-border pb-4">
               <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                 <Engine weight="fill" className="w-5 h-5 text-primary" />
                 {t('selectTuningType')}
@@ -129,18 +129,18 @@ export default function Configurator() {
                     className={`p-4 rounded-sm border text-left transition-colors duration-200 ${
                       selectedTuning === tuning.id
                         ? 'border-primary bg-primary/10'
-                        : 'border-white/10 bg-secondary hover:border-white/20'
+                        : 'border-border bg-secondary hover:border-white/20'
                     }`}
                     data-testid={`tuning-${tuning.id}`}
                   >
                     <div className="flex items-start justify-between">
                       <div>
-                        <h4 className="font-semibold text-white">{tuning.name}</h4>
+                        <h4 className="font-semibold text-foreground">{tuning.name}</h4>
                         <p className="text-sm text-muted-foreground mt-1">{tuning.description}</p>
                       </div>
                       {selectedTuning === tuning.id && (
                         <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                          <Check weight="bold" className="w-4 h-4 text-white" />
+                          <Check weight="bold" className="w-4 h-4 text-foreground" />
                         </div>
                       )}
                     </div>
@@ -158,8 +158,8 @@ export default function Configurator() {
 
         {/* Summary Panel */}
         <div className="space-y-6">
-          <Card className="bg-card border-white/10 sticky top-24" data-testid="summary-card">
-            <CardHeader className="border-b border-white/10 pb-4">
+          <Card className="bg-card border-border sticky top-24" data-testid="summary-card">
+            <CardHeader className="border-b border-border pb-4">
               <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                 <Lightning weight="fill" className="w-5 h-5 text-primary" />
                 {t('estimatedPrice')}
@@ -168,10 +168,10 @@ export default function Configurator() {
             <CardContent className="p-6">
               <div className="space-y-4">
                 {/* Selected Vehicle */}
-                <div className="p-4 bg-secondary rounded-sm border border-white/10">
+                <div className="p-4 bg-secondary rounded-sm border border-border">
                   <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">{t('vehicle')}</p>
                   {manufacturer && model ? (
-                    <p className="font-semibold text-white">
+                    <p className="font-semibold text-foreground">
                       {manufacturer} {model}
                       {engine && <span className="text-muted-foreground font-normal ml-2">({engine})</span>}
                     </p>
@@ -181,7 +181,7 @@ export default function Configurator() {
                 </div>
 
                 {/* Selected Tuning */}
-                <div className="p-4 bg-secondary rounded-sm border border-white/10">
+                <div className="p-4 bg-secondary rounded-sm border border-border">
                   <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">{t('type')}</p>
                   {selectedTuning ? (
                     <Badge className="bg-primary/20 text-primary border border-primary/30">

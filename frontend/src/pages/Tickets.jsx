@@ -260,7 +260,7 @@ export default function Tickets() {
       closed: { 
         bg: 'bg-muted', 
         text: 'text-muted-foreground', 
-        border: 'border-white/10',
+        border: 'border-border',
         icon: CheckCircle,
         label: t('closed')
       },
@@ -272,7 +272,7 @@ export default function Tickets() {
     const configs = {
       high: { bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/30', label: t('high') },
       normal: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/30', label: t('normal') },
-      low: { bg: 'bg-muted', text: 'text-muted-foreground', border: 'border-white/10', label: t('low') },
+      low: { bg: 'bg-muted', text: 'text-muted-foreground', border: 'border-border', label: t('low') },
     };
     return configs[priority] || configs.normal;
   };
@@ -302,12 +302,12 @@ export default function Tickets() {
       <div className="space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4" data-testid="tickets-stats">
-          <Card className="bg-card border-white/10">
+          <Card className="bg-card border-border">
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">{t('totalTickets')}</p>
-                  <p className="font-heading font-bold text-3xl text-white mt-2">{stats.total}</p>
+                  <p className="font-heading font-bold text-3xl text-foreground mt-2">{stats.total}</p>
                 </div>
                 <div className="w-12 h-12 rounded-sm bg-primary/10 flex items-center justify-center">
                   <Ticket weight="fill" className="w-6 h-6 text-primary" />
@@ -316,7 +316,7 @@ export default function Tickets() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-white/10">
+          <Card className="bg-card border-border">
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
                 <div>
@@ -330,7 +330,7 @@ export default function Tickets() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-white/10">
+          <Card className="bg-card border-border">
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
                 <div>
@@ -346,8 +346,8 @@ export default function Tickets() {
         </div>
 
         {/* Tickets List */}
-        <Card className="bg-card border-white/10" data-testid="tickets-list-card">
-          <CardHeader className="border-b border-white/10 pb-4">
+        <Card className="bg-card border-border" data-testid="tickets-list-card">
+          <CardHeader className="border-b border-border pb-4">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                 <Ticket weight="fill" className="w-5 h-5 text-primary" />
@@ -363,7 +363,7 @@ export default function Tickets() {
                     placeholder={t('searchPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-48 pl-9 bg-secondary border-white/10"
+                    className="w-48 pl-9 bg-secondary border-border"
                     data-testid="tickets-search"
                   />
                 </div>
@@ -371,10 +371,10 @@ export default function Tickets() {
                 {/* Status Filter */}
                 <FunnelSimple weight="bold" className="w-4 h-4 text-muted-foreground" />
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-36 bg-secondary border-white/10" data-testid="status-filter">
+                  <SelectTrigger className="w-36 bg-secondary border-border" data-testid="status-filter">
                     <SelectValue placeholder={t('filterByStatus')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-card border-white/10">
+                  <SelectContent className="bg-card border-border">
                     <SelectItem value="all">{t('allStatus')}</SelectItem>
                     <SelectItem value="open">{t('open')}</SelectItem>
                     <SelectItem value="answered">{t('answered')}</SelectItem>
@@ -390,7 +390,7 @@ export default function Tickets() {
                       {t('newTicket')}
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="bg-card border-white/10 max-w-lg">
+                  <DialogContent className="bg-card border-border max-w-lg">
                     <DialogHeader>
                       <DialogTitle className="font-heading text-xl">{t('createTicket')}</DialogTitle>
                     </DialogHeader>
@@ -399,7 +399,7 @@ export default function Tickets() {
                         <Label>{t('ticketSubject')}</Label>
                         <Input 
                           placeholder={t('ticketSubject')}
-                          className="bg-secondary border-white/10"
+                          className="bg-secondary border-border"
                           data-testid="ticket-subject-input"
                         />
                       </div>
@@ -407,10 +407,10 @@ export default function Tickets() {
                         <div className="space-y-2">
                           <Label>{t('ticketCategory')}</Label>
                           <Select defaultValue="technical">
-                            <SelectTrigger className="bg-secondary border-white/10">
+                            <SelectTrigger className="bg-secondary border-border">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-card border-white/10">
+                            <SelectContent className="bg-card border-border">
                               <SelectItem value="technical">{t('technical')}</SelectItem>
                               <SelectItem value="sales">{t('sales')}</SelectItem>
                               <SelectItem value="billing">{t('billing')}</SelectItem>
@@ -421,10 +421,10 @@ export default function Tickets() {
                         <div className="space-y-2">
                           <Label>{t('ticketPriority')}</Label>
                           <Select defaultValue="normal">
-                            <SelectTrigger className="bg-secondary border-white/10">
+                            <SelectTrigger className="bg-secondary border-border">
                               <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="bg-card border-white/10">
+                            <SelectContent className="bg-card border-border">
                               <SelectItem value="high">{t('high')}</SelectItem>
                               <SelectItem value="normal">{t('normal')}</SelectItem>
                               <SelectItem value="low">{t('low')}</SelectItem>
@@ -436,21 +436,21 @@ export default function Tickets() {
                         <Label>{t('relatedOrder')} <span className="text-muted-foreground text-xs">({t('optional')})</span></Label>
                         <Input 
                           placeholder="TF-2025-XXXX"
-                          className="bg-secondary border-white/10"
+                          className="bg-secondary border-border"
                         />
                       </div>
                       <div className="space-y-2">
                         <Label>{t('ticketMessage')}</Label>
                         <Textarea 
                           placeholder={t('ticketMessage')}
-                          className="bg-secondary border-white/10 min-h-[120px]"
+                          className="bg-secondary border-border min-h-[120px]"
                           data-testid="ticket-message-input"
                         />
                       </div>
                       <div className="flex justify-end gap-3 pt-4">
                         <Button 
                           variant="outline" 
-                          className="border-white/10"
+                          className="border-border"
                           onClick={() => setIsDialogOpen(false)}
                         >
                           {t('cancel')}
@@ -468,7 +468,7 @@ export default function Tickets() {
           </CardHeader>
           <CardContent className="p-0">
             {filteredTickets.length > 0 ? (
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-border">
                 {filteredTickets.map((ticket) => {
                   const statusConfig = getStatusConfig(ticket.status);
                   const priorityConfig = getPriorityConfig(ticket.priority);
@@ -478,7 +478,7 @@ export default function Tickets() {
                   return (
                     <div 
                       key={ticket.id}
-                      className="p-4 hover:bg-white/[0.02] transition-colors duration-200 cursor-pointer"
+                      className="p-4 hover:bg-secondary/50 transition-colors duration-200 cursor-pointer"
                       onClick={() => navigate(`/tickets/${ticket.id}`)}
                       data-testid={`ticket-item-${ticket.id}`}
                     >
@@ -502,11 +502,11 @@ export default function Tickets() {
                                   {priorityConfig.label}
                                 </Badge>
                               )}
-                              <Badge variant="outline" className="bg-secondary border-white/10 text-xs">
+                              <Badge variant="outline" className="bg-secondary border-border text-xs">
                                 {getCategoryLabel(ticket.category)}
                               </Badge>
                             </div>
-                            <h4 className="font-semibold text-white mt-1 truncate">{ticket.subject}</h4>
+                            <h4 className="font-semibold text-foreground mt-1 truncate">{ticket.subject}</h4>
                             <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
                               {lastMessage.message}
                             </p>
@@ -522,7 +522,7 @@ export default function Tickets() {
                         {/* Message Count & Arrow */}
                         <div className="flex items-center gap-4">
                           <div className="text-center">
-                            <p className="font-heading font-bold text-lg text-white">{ticket.messages.length}</p>
+                            <p className="font-heading font-bold text-lg text-foreground">{ticket.messages.length}</p>
                             <p className="text-xs text-muted-foreground">
                               {language === 'de' ? 'Nachrichten' : 'Messages'}
                             </p>

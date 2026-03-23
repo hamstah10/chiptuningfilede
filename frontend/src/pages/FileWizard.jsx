@@ -31,7 +31,7 @@ export default function FileWizard() {
     <DashboardLayout title={t('fileWizardTitle')}>
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Progress Indicator */}
-        <Card className="bg-card border-white/10" data-testid="wizard-progress-card">
+        <Card className="bg-card border-border" data-testid="wizard-progress-card">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
               {steps.map((step, index) => {
@@ -45,7 +45,7 @@ export default function FileWizard() {
                       <div 
                         className={cn(
                           "w-12 h-12 rounded-sm flex items-center justify-center transition-colors duration-200",
-                          isActive && "bg-primary text-white",
+                          isActive && "bg-primary text-foreground",
                           isCompleted && "bg-green-500/20 text-green-400 border border-green-500/30",
                           !isActive && !isCompleted && "bg-secondary text-muted-foreground"
                         )}
@@ -58,7 +58,7 @@ export default function FileWizard() {
                       </div>
                       <span className={cn(
                         "text-xs mt-2 font-medium",
-                        isActive ? "text-white" : "text-muted-foreground"
+                        isActive ? "text-foreground" : "text-muted-foreground"
                       )}>
                         {t(step.labelKey)}
                       </span>
@@ -78,8 +78,8 @@ export default function FileWizard() {
         </Card>
 
         {/* Step Content */}
-        <Card className="bg-card border-white/10 min-h-[400px]" data-testid="wizard-content-card">
-          <CardHeader className="border-b border-white/10">
+        <Card className="bg-card border-border min-h-[400px]" data-testid="wizard-content-card">
+          <CardHeader className="border-b border-border">
             <CardTitle className="font-heading font-semibold text-lg">
               Step {currentStep}: {t(steps[currentStep - 1].labelKey)}
             </CardTitle>
@@ -92,7 +92,7 @@ export default function FileWizard() {
                   return <Icon weight="thin" className="w-10 h-10 text-muted-foreground" />;
                 })()}
               </div>
-              <h3 className="font-heading font-semibold text-xl text-white mb-2">
+              <h3 className="font-heading font-semibold text-xl text-foreground mb-2">
                 {t(steps[currentStep - 1].labelKey)}
               </h3>
               <p className="text-muted-foreground max-w-md">
@@ -107,7 +107,7 @@ export default function FileWizard() {
         <div className="flex items-center justify-between">
           <Button
             variant="outline"
-            className="border-white/10 hover:bg-white/5"
+            className="border-border hover:bg-secondary"
             disabled={currentStep === 1}
             onClick={() => setCurrentStep(prev => prev - 1)}
             data-testid="wizard-prev-btn"

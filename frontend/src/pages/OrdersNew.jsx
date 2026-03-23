@@ -311,12 +311,12 @@ export default function OrdersNew() {
       <div className="space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4" data-testid="orders-stats">
-          <Card className="bg-card border-white/10">
+          <Card className="bg-card border-border">
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">{t('totalOrders')}</p>
-                  <p className="font-heading font-bold text-3xl text-white mt-2">{stats.total}</p>
+                  <p className="font-heading font-bold text-3xl text-foreground mt-2">{stats.total}</p>
                 </div>
                 <div className="w-12 h-12 rounded-sm bg-primary/10 flex items-center justify-center">
                   <ClockCounterClockwise weight="fill" className="w-6 h-6 text-primary" />
@@ -325,7 +325,7 @@ export default function OrdersNew() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-white/10">
+          <Card className="bg-card border-border">
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
                 <div>
@@ -339,7 +339,7 @@ export default function OrdersNew() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-white/10">
+          <Card className="bg-card border-border">
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
                 <div>
@@ -353,7 +353,7 @@ export default function OrdersNew() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-white/10">
+          <Card className="bg-card border-border">
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
                 <div>
@@ -369,8 +369,8 @@ export default function OrdersNew() {
         </div>
 
         {/* Filters & Orders List */}
-        <Card className="bg-card border-white/10" data-testid="orders-list-card">
-          <CardHeader className="border-b border-white/10 pb-4">
+        <Card className="bg-card border-border" data-testid="orders-list-card">
+          <CardHeader className="border-b border-border pb-4">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
                 <ClockCounterClockwise weight="fill" className="w-5 h-5 text-primary" />
@@ -386,7 +386,7 @@ export default function OrdersNew() {
                     placeholder={t('searchPlaceholder')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-64 pl-9 bg-secondary border-white/10"
+                    className="w-64 pl-9 bg-secondary border-border"
                     data-testid="orders-search"
                   />
                 </div>
@@ -394,10 +394,10 @@ export default function OrdersNew() {
                 {/* Status Filter */}
                 <FunnelSimple weight="bold" className="w-4 h-4 text-muted-foreground" />
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-40 bg-secondary border-white/10" data-testid="status-filter">
+                  <SelectTrigger className="w-40 bg-secondary border-border" data-testid="status-filter">
                     <SelectValue placeholder={t('filterByStatus')} />
                   </SelectTrigger>
-                  <SelectContent className="bg-card border-white/10">
+                  <SelectContent className="bg-card border-border">
                     <SelectItem value="all">{t('allStatus')}</SelectItem>
                     <SelectItem value="pending">{t('pending')}</SelectItem>
                     <SelectItem value="processing">{t('processing')}</SelectItem>
@@ -410,7 +410,7 @@ export default function OrdersNew() {
           </CardHeader>
           <CardContent className="p-0">
             {filteredOrders.length > 0 ? (
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-border">
                 {filteredOrders.map((order) => {
                   const statusConfig = getStatusConfig(order.status);
                   const StatusIcon = statusConfig.icon;
@@ -418,14 +418,14 @@ export default function OrdersNew() {
                   return (
                     <div 
                       key={order.id}
-                      className="p-4 hover:bg-white/[0.02] transition-colors duration-200 cursor-pointer"
+                      className="p-4 hover:bg-secondary/50 transition-colors duration-200 cursor-pointer"
                       onClick={() => navigate(`/orders/${order.id}`)}
                       data-testid={`order-item-${order.id}`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
                           {/* Vehicle Icon */}
-                          <div className="w-14 h-14 rounded-sm bg-secondary flex items-center justify-center border border-white/10">
+                          <div className="w-14 h-14 rounded-sm bg-secondary flex items-center justify-center border border-border">
                             <CarProfile weight="fill" className="w-7 h-7 text-primary" />
                           </div>
                           
@@ -438,7 +438,7 @@ export default function OrdersNew() {
                                 {statusConfig.label}
                               </Badge>
                             </div>
-                            <h4 className="font-semibold text-white mt-1">
+                            <h4 className="font-semibold text-foreground mt-1">
                               {order.vehicle.manufacturer} {order.vehicle.model} {order.vehicle.series}
                             </h4>
                             <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
@@ -464,12 +464,12 @@ export default function OrdersNew() {
                           {order.tuning.options.length > 0 && (
                             <div className="hidden lg:flex items-center gap-2">
                               {order.tuning.options.slice(0, 3).map((opt, idx) => (
-                                <Badge key={idx} variant="outline" className="bg-secondary border-white/10 text-xs">
+                                <Badge key={idx} variant="outline" className="bg-secondary border-border text-xs">
                                   {opt}
                                 </Badge>
                               ))}
                               {order.tuning.options.length > 3 && (
-                                <Badge variant="outline" className="bg-secondary border-white/10 text-xs">
+                                <Badge variant="outline" className="bg-secondary border-border text-xs">
                                   +{order.tuning.options.length - 3}
                                 </Badge>
                               )}
@@ -498,7 +498,7 @@ export default function OrdersNew() {
                             <Button 
                               variant="ghost" 
                               size="icon" 
-                              className="h-9 w-9 text-muted-foreground hover:text-white hover:bg-white/5"
+                              className="h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-secondary"
                               onClick={(e) => { e.stopPropagation(); navigate(`/orders/${order.id}`); }}
                               data-testid={`view-${order.id}`}
                             >
