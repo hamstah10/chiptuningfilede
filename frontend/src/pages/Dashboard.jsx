@@ -12,7 +12,8 @@ import {
   ArrowRight,
   CarProfile,
   Lightning,
-  Package
+  Package,
+  Clock
 } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
 import { mockOrders } from './OrdersNew';
@@ -56,6 +57,96 @@ const statusToProgress = {
   processing: 2,
   completed: 5,
   cancelled: -1,
+};
+
+// Opening hours configuration
+const openingHours = {
+  1: { open: '08:00', close: '18:00' }, // Monday
+  2: { open: '08:00', close: '18:00' }, // Tuesday
+  3: { open: '08:00', close: '18:00' }, // Wednesday
+  4: { open: '08:00', close: '18:00' }, // Thursday
+  5: { open: '08:00', close: '18:00' }, // Friday
+  6: { open: '09:00', close: '13:00' }, // Saturday
+  0: null, // Sunday - closed
+};
+
+const isBusinessOpen = () => {
+  const now = new Date();
+  const day = now.getDay();
+  const hours = openingHours[day];
+  
+  if (!hours) return false;
+  
+  const currentTime = now.getHours() * 60 + now.getMinutes();
+  const [openH, openM] = hours.open.split(':').map(Number);
+  const [closeH, closeM] = hours.close.split(':').map(Number);
+  const openTime = openH * 60 + openM;
+  const closeTime = closeH * 60 + closeM;
+  
+  return currentTime >= openTime && currentTime < closeTime;
+};
+
+// Opening Hours Component
+const OpeningHoursCard = ({ language }) => {
+  const isOpen = isBusinessOpen();
+  const now = new Date();
+  const currentDay = now.getDay();
+  
+  const dayNames = language === 'de' 
+    ? ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa']
+    : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  
+  const closedText = language === 'de' ? 'Geschlossen' : 'Closed';
+  const openText = language === 'de' ? 'Geöffnet' : 'Open';
+  const hoursTitle = language === 'de' ? 'Öffnungszeiten' : 'Opening Hours';
+
+  return (
+    <Card className="bg-card border-white/10" data-testid="opening-hours-card">
+      <CardHeader className="border-b border-white/10 pb-4">
+        <div className="flex items-center justify-between">
+          <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
+            <Clock weight="fill" className="w-5 h-5 text-primary" />
+            {hoursTitle}
+          </CardTitle>
+          <Badge className={`${isOpen ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'} border`}>
+            <span className={`w-2 h-2 rounded-full mr-2 ${isOpen ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
+            {isOpen ? openText : closedText}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="p-4">
+        <div className="space-y-2 text-sm">
+          {/* Mo-Fr */}
+          <div className={`flex justify-between py-1.5 px-2 rounded-sm ${currentDay >= 1 && currentDay <= 5 ? 'bg-primary/10 border border-primary/20' : ''}`}>
+            <span className={currentDay >= 1 && currentDay <= 5 ? 'text-white font-medium' : 'text-muted-foreground'}>
+              {language === 'de' ? 'Mo - Fr' : 'Mon - Fri'}
+            </span>
+            <span className={currentDay >= 1 && currentDay <= 5 ? 'text-white font-medium' : 'text-muted-foreground'}>
+              08:00 - 18:00
+            </span>
+          </div>
+          {/* Sa */}
+          <div className={`flex justify-between py-1.5 px-2 rounded-sm ${currentDay === 6 ? 'bg-primary/10 border border-primary/20' : ''}`}>
+            <span className={currentDay === 6 ? 'text-white font-medium' : 'text-muted-foreground'}>
+              {language === 'de' ? 'Sa' : 'Sat'}
+            </span>
+            <span className={currentDay === 6 ? 'text-white font-medium' : 'text-muted-foreground'}>
+              09:00 - 13:00
+            </span>
+          </div>
+          {/* So */}
+          <div className={`flex justify-between py-1.5 px-2 rounded-sm ${currentDay === 0 ? 'bg-red-500/10 border border-red-500/20' : ''}`}>
+            <span className={currentDay === 0 ? 'text-red-400 font-medium' : 'text-muted-foreground'}>
+              {language === 'de' ? 'So' : 'Sun'}
+            </span>
+            <span className={currentDay === 0 ? 'text-red-400 font-medium' : 'text-muted-foreground'}>
+              {closedText}
+            </span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 };
 
 // Horizontal Progress Component
@@ -248,14 +339,24 @@ export default function Dashboard() {
           })}
         </div>
 
-        {/* Current Order Progress - Horizontal */}
-        {latestActiveOrder && (
-          <HorizontalOrderProgress 
-            order={latestActiveOrder} 
-            language={language} 
-            navigate={navigate}
-          />
-        )}
+        {/* Current Order Progress + Opening Hours Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Current Order Progress - 2/3 width */}
+          {latestActiveOrder && (
+            <div className="lg:col-span-2">
+              <HorizontalOrderProgress 
+                order={latestActiveOrder} 
+                language={language} 
+                navigate={navigate}
+              />
+            </div>
+          )}
+          
+          {/* Opening Hours - 1/3 width */}
+          <div className={latestActiveOrder ? '' : 'lg:col-start-3'}>
+            <OpeningHoursCard language={language} />
+          </div>
+        </div>
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
