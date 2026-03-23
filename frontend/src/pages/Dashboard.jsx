@@ -13,10 +13,14 @@ import {
   CarProfile,
   Lightning,
   Package,
-  Clock
+  Clock,
+  Ticket,
+  Warning,
+  ChatCircle
 } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
 import { mockOrders } from './OrdersNew';
+import { mockTickets } from './Tickets';
 
 // Mock user data - will come from API
 const mockUser = {
@@ -144,6 +148,88 @@ const OpeningHoursCard = ({ language }) => {
             </span>
           </div>
         </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Current Tickets Component
+const CurrentTicketsCard = ({ language, navigate }) => {
+  const openTickets = mockTickets.filter(t => t.status === 'open' || t.status === 'answered').slice(0, 3);
+  
+  const getStatusConfig = (status) => {
+    const configs = {
+      open: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', border: 'border-yellow-500/30', icon: Clock },
+      answered: { bg: 'bg-green-500/20', text: 'text-green-400', border: 'border-green-500/30', icon: ChatCircle },
+    };
+    return configs[status] || configs.open;
+  };
+
+  const ticketsTitle = language === 'de' ? 'Aktuelle Tickets' : 'Current Tickets';
+  const noTickets = language === 'de' ? 'Keine offenen Tickets' : 'No open tickets';
+  const viewAll = language === 'de' ? 'Alle ansehen' : 'View all';
+
+  return (
+    <Card className="bg-card border-white/10" data-testid="current-tickets-card">
+      <CardHeader className="border-b border-white/10 pb-4">
+        <div className="flex items-center justify-between">
+          <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
+            <Ticket weight="fill" className="w-5 h-5 text-primary" />
+            {ticketsTitle}
+            {openTickets.length > 0 && (
+              <Badge className="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 ml-2">
+                {openTickets.length}
+              </Badge>
+            )}
+          </CardTitle>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="text-muted-foreground hover:text-white"
+            onClick={() => navigate('/tickets')}
+          >
+            {viewAll}
+            <ArrowRight weight="bold" className="w-4 h-4 ml-1" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="p-0">
+        {openTickets.length > 0 ? (
+          <div className="divide-y divide-white/5">
+            {openTickets.map((ticket) => {
+              const statusConfig = getStatusConfig(ticket.status);
+              const StatusIcon = statusConfig.icon;
+              
+              return (
+                <div 
+                  key={ticket.id}
+                  className="p-3 hover:bg-white/[0.02] transition-colors duration-200 cursor-pointer"
+                  onClick={() => navigate(`/tickets/${ticket.id}`)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-sm flex items-center justify-center flex-shrink-0 ${statusConfig.bg}`}>
+                      <StatusIcon weight="fill" className={`w-4 h-4 ${statusConfig.text}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs text-primary">{ticket.id}</span>
+                        {ticket.priority === 'high' && (
+                          <Warning weight="fill" className="w-3 h-3 text-red-400" />
+                        )}
+                      </div>
+                      <p className="text-sm text-white truncate">{ticket.subject}</p>
+                    </div>
+                    <ArrowRight weight="bold" className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="p-4 text-center text-sm text-muted-foreground">
+            {noTickets}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -339,23 +425,22 @@ export default function Dashboard() {
           })}
         </div>
 
-        {/* Current Order Progress + Opening Hours Row */}
+        {/* Current Order Progress + Opening Hours + Tickets Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Current Order Progress - 2/3 width */}
+          {/* Current Order Progress - 1/3 width */}
           {latestActiveOrder && (
-            <div className="lg:col-span-2">
-              <HorizontalOrderProgress 
-                order={latestActiveOrder} 
-                language={language} 
-                navigate={navigate}
-              />
-            </div>
+            <HorizontalOrderProgress 
+              order={latestActiveOrder} 
+              language={language} 
+              navigate={navigate}
+            />
           )}
           
+          {/* Current Tickets - 1/3 width */}
+          <CurrentTicketsCard language={language} navigate={navigate} />
+          
           {/* Opening Hours - 1/3 width */}
-          <div className={latestActiveOrder ? '' : 'lg:col-start-3'}>
-            <OpeningHoursCard language={language} />
-          </div>
+          <OpeningHoursCard language={language} />
         </div>
 
         {/* Main Content Grid */}
