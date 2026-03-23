@@ -8,7 +8,8 @@ import {
   ClockCounterClockwise, 
   User,
   SignOut,
-  Gauge
+  Gauge,
+  Receipt
 } from '@phosphor-icons/react';
 import { cn } from '../../lib/utils';
 
@@ -22,6 +23,7 @@ export const Sidebar = () => {
     { path: '/configurator', icon: Sliders, label: t('configurator') },
     { path: '/credits', icon: CurrencyCircleDollar, label: t('credits') },
     { path: '/orders', icon: ClockCounterClockwise, label: t('orders') },
+    { path: '/invoices', icon: Receipt, label: t('invoices') },
     { path: '/profile', icon: User, label: t('profile') },
   ];
 

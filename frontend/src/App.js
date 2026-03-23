@@ -10,6 +10,7 @@ import Configurator from "./pages/Configurator";
 import Credits from "./pages/Credits";
 import Orders from "./pages/Orders";
 import Profile from "./pages/Profile";
+import Invoices from "./pages/Invoices";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/configurator" element={<Configurator />} />
           <Route path="/credits" element={<Credits />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/invoices" element={<Invoices />} />
           <Route path="/profile" element={<Profile />} />
         </Routes>
       </BrowserRouter>

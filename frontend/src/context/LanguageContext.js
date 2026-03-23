@@ -8,6 +8,7 @@ const translations = {
     configurator: 'Configurator',
     credits: 'Credits',
     orders: 'Orders',
+    invoices: 'Invoices',
     profile: 'Profile',
     logout: 'Logout',
     
@@ -82,6 +83,7 @@ const translations = {
     configurator: 'Konfigurator',
     credits: 'Guthaben',
     orders: 'Bestellungen',
+    invoices: 'Rechnungen',
     profile: 'Profil',
     logout: 'Abmelden',
     
