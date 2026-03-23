@@ -14,6 +14,7 @@ import Profile from "./pages/Profile";
 import Invoices from "./pages/Invoices";
 import Tickets from "./pages/Tickets";
 import TicketDetail from "./pages/TicketDetail";
+import PriceList from "./pages/PriceList";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="/credits" element={<Credits />} />
           <Route path="/orders" element={<OrdersNew />} />
           <Route path="/orders/:id" element={<OrderDetail />} />
+          <Route path="/price-list" element={<PriceList />} />
           <Route path="/invoices" element={<Invoices />} />
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/tickets/:id" element={<TicketDetail />} />
