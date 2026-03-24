@@ -32,12 +32,12 @@ import { Progress } from '../components/ui/progress';
 import { cn } from '../lib/utils';
 
 const readingDevices = [
-  { group: 'Autotuner', options: ['Tool'] },
-  { group: 'Alientech', options: ['Kess3'] },
-  { group: 'Magic Motorsport', options: ['Flex'] },
-  { group: null, options: ['Autoflasher'] },
-  { group: null, options: ['CMD Flash'] },
-  { group: 'Dimsport', options: ['NewGenius'] },
+  { group: 'Autotuner', logo: '/logos/autotuner.png', options: ['Tool'] },
+  { group: 'Alientech', logo: '/logos/alientech.png', options: ['Kess3'] },
+  { group: 'Magic Motorsport', logo: null, options: ['Flex'] },
+  { group: null, logo: '/logos/autoflasher.png', options: ['Autoflasher'] },
+  { group: null, logo: null, options: ['CMD Flash'] },
+  { group: 'Dimsport', logo: '/logos/dimsport.png', options: ['NewGenius'] },
 ];
 
 const ALLOWED_EXTENSIONS = ['.bin', '.ori', '.mod', '.ecu', '.hex', '.s19', '.bkp'];
@@ -248,19 +248,32 @@ export default function FileWizard() {
                     {readingDevices.map((entry, idx) =>
                       entry.group ? (
                         <SelectGroup key={idx}>
-                          <SelectLabel className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
+                          <SelectLabel className="flex items-center gap-2 text-muted-foreground font-semibold text-xs uppercase tracking-wider py-2">
+                            {entry.logo && (
+                              <img src={entry.logo} alt={entry.group} className="h-4 w-auto object-contain" />
+                            )}
                             {entry.group}
                           </SelectLabel>
                           {entry.options.map((opt) => (
                             <SelectItem key={opt} value={`${entry.group} - ${opt}`}>
-                              {opt}
+                              <span className="flex items-center gap-2">
+                                {entry.logo && (
+                                  <img src={entry.logo} alt="" className="h-3.5 w-auto object-contain" />
+                                )}
+                                {opt}
+                              </span>
                             </SelectItem>
                           ))}
                         </SelectGroup>
                       ) : (
                         entry.options.map((opt) => (
                           <SelectItem key={opt} value={opt}>
-                            {opt}
+                            <span className="flex items-center gap-2">
+                              {entry.logo && (
+                                <img src={entry.logo} alt="" className="h-3.5 w-auto object-contain" />
+                              )}
+                              {opt}
+                            </span>
                           </SelectItem>
                         ))
                       )
