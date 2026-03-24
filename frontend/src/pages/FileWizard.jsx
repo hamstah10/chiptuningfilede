@@ -253,41 +253,56 @@ export default function FileWizard() {
     if (uploadedFiles.length === 0) return null;
     const name = uploadedFiles[0].name;
     const nameWithoutExt = name.replace(/\.[^/.]+$/, '');
-    // Try common separators: underscore, dash, space
-    const parts = nameWithoutExt.split(/[_\-\s]+/).filter(Boolean);
+    // Try common separators: underscore, dash, space, dots (but not extension dot)
+    const parts = nameWithoutExt.split(/[_\-\s.]+/).filter(Boolean);
     
     // Known manufacturer names for matching
-    const manufacturers = ['BMW', 'VW', 'Volkswagen', 'Audi', 'Mercedes', 'Benz', 'Porsche', 'Seat', 'Skoda', 'Opel', 'Ford', 'Toyota', 'Honda', 'Renault', 'Peugeot', 'Citroen', 'Fiat', 'Alfa', 'Hyundai', 'Kia', 'Volvo', 'Jaguar', 'Land', 'Range', 'Mini', 'Mazda', 'Nissan', 'Subaru', 'Mitsubishi', 'Suzuki', 'Dacia', 'Chevrolet', 'Dodge', 'Jeep', 'Cupra', 'DS', 'MAN', 'DAF', 'Scania', 'Iveco', 'Mercedes-Benz'];
+    const manufacturers = ['BMW', 'VW', 'Volkswagen', 'Audi', 'Mercedes', 'Benz', 'Porsche', 'Seat', 'Skoda', 'Opel', 'Ford', 'Toyota', 'Honda', 'Renault', 'Peugeot', 'Citroen', 'Fiat', 'Alfa', 'Hyundai', 'Kia', 'Volvo', 'Jaguar', 'Land', 'Range', 'Mini', 'Mazda', 'Nissan', 'Subaru', 'Mitsubishi', 'Suzuki', 'Dacia', 'Chevrolet', 'Dodge', 'Jeep', 'Cupra', 'DS', 'MAN', 'DAF', 'Scania', 'Iveco'];
     
     let parsed = { manufacturer: '', series: '', model: '', engine: '', ecu: '', rest: [] };
     let remaining = [...parts];
     
-    // Try to find manufacturer
-    if (remaining.length > 0) {
-      const mfIdx = remaining.findIndex(p => 
-        manufacturers.some(m => m.toLowerCase() === p.toLowerCase())
-      );
-      if (mfIdx !== -1) {
-        parsed.manufacturer = remaining[mfIdx];
-        remaining.splice(mfIdx, 1);
-      }
+    // 1. Find manufacturer
+    const mfIdx = remaining.findIndex(p => 
+      manufacturers.some(m => m.toLowerCase() === p.toLowerCase())
+    );
+    if (mfIdx !== -1) {
+      parsed.manufacturer = remaining.splice(mfIdx, 1)[0];
     }
     
-    // Try to find ECU (common patterns: EDC17, MED17, PCR2, Bosch, Siemens, Delphi, Continental)
-    const ecuPattern = /^(EDC|MED|PCR|MD1|MG1|SID|DCM|MEDC|Bosch|Siemens|Delphi|Continental|Marelli)/i;
-    const ecuIdx = remaining.findIndex(p => ecuPattern.test(p));
+    // 2. Find ECU (Bosch EDC17, MED17, PCR2, Siemens, Delphi, Continental etc.)
+    const ecuStartPattern = /^(EDC|MED|PCR|MD1|MG1|SID|DCM|MEDC|Bosch|Siemens|Delphi|Continental|Marelli)/i;
+    const ecuIdx = remaining.findIndex(p => ecuStartPattern.test(p));
     if (ecuIdx !== -1) {
-      parsed.ecu = remaining.splice(ecuIdx, remaining.length - ecuIdx).join(' ');
+      // Take from ECU start to end (ECU names are often multi-part: "Bosch EDC17CP54 OBD VR")
+      parsed.ecu = remaining.splice(ecuIdx).join(' ');
     }
     
-    // Try to find engine (patterns with L, TDI, TSI, TFSI, CDI, d, i, etc.)
-    const enginePattern = /(\d+\.?\d*\s*(L|l|TDI|TSI|TFSI|CDI|HDI|JTD|CDTI|CRDi|T|d|i|V\d))|^(N\d{2}|M\d{2}|EA\d{3}|OM\d{3}|CUNA|CBBB|CFGB)/i;
-    const engIdx = remaining.findIndex(p => enginePattern.test(p));
-    if (engIdx !== -1) {
-      parsed.engine = remaining.splice(engIdx, 1)[0];
+    // 3. Find engine parts (displacement + type like TDI, TSI, TFSI, CDI etc.)
+    // Engine tokens: displacement (2.0, 3.0), type (TDI, TSI, TFSI...), norm (EU6, EU5), power (190PS, 218PS)
+    const engineTokens = [];
+    const enginePatterns = [
+      /^\d+\.?\d*(L|l)?$/,                        // displacement: 2.0, 3.0, 2.0L
+      /^(TDI|TSI|TFSI|CDI|HDI|JTD|CDTI|CRDi|CRDI|FSI|BlueHDI|EcoBoost|EcoBlue|dCi|JTDM|Turbo|Bi)$/i,
+      /^(EU\d|Euro\d)$/i,                         // emission norm: EU6, Euro5
+      /^\d+\s?PS$/i,                              // power: 190PS, 218 PS
+      /^\d+\s?HP$/i,                              // power english
+      /^\d+\s?kW$/i,                              // power kW
+      /^(N\d{2}|M\d{2,3}|EA\d{3}|OM\d{3}|B\d{2}|S\d{2})$/i, // engine codes
+    ];
+    
+    remaining = remaining.filter(p => {
+      if (enginePatterns.some(pattern => pattern.test(p))) {
+        engineTokens.push(p);
+        return false;
+      }
+      return true;
+    });
+    if (engineTokens.length > 0) {
+      parsed.engine = engineTokens.join(' ');
     }
     
-    // First remaining = series (Baureihe like A6, Golf, 3er), second = model (like C7, F30)
+    // 4. Remaining: first = series (A6, Golf, 3er), second = model (C7, B8, F30)
     if (remaining.length > 0) parsed.series = remaining.shift();
     if (remaining.length > 0) parsed.model = remaining.shift();
     parsed.rest = remaining;
@@ -411,9 +426,17 @@ export default function FileWizard() {
   // Apply parsed filename data to the cascade dropdowns
   const handleApplyParsed = useCallback(() => {
     if (!parsedFilename) return;
-    const { manufacturer, series, model } = parsedFilename.parts;
+    const { manufacturer, series, model, engine } = parsedFilename.parts;
     
-    // Try to match manufacturer in vehicleData
+    // Fuzzy match helper: check if a string contains all keywords from search
+    const fuzzyMatch = (haystack, needle) => {
+      if (!needle) return false;
+      const h = haystack.toLowerCase();
+      const keywords = needle.toLowerCase().split(/\s+/);
+      return keywords.every(kw => h.includes(kw));
+    };
+    
+    // Match manufacturer
     const matchedMfr = allManufacturers.find(m => m.toLowerCase() === manufacturer.toLowerCase()) || '';
     
     let matchedSeries = '';
@@ -421,21 +444,48 @@ export default function FileWizard() {
     let matchedEngine = '';
     
     if (matchedMfr && vehicleData[matchedMfr]) {
-      // Try to match series
+      // Match series (e.g. "A6" matches "A6")
       const seriesKeys = Object.keys(vehicleData[matchedMfr]);
       matchedSeries = seriesKeys.find(s => s.toLowerCase() === series.toLowerCase()) || '';
       
       if (matchedSeries && vehicleData[matchedMfr][matchedSeries]) {
-        // Try to match model
+        // Match model fuzzy (e.g. "B8" matches "B8 - 2015" or "C7" matches "C7 - 2011")
         const modelKeys = Object.keys(vehicleData[matchedMfr][matchedSeries]);
-        matchedModel = modelKeys.find(m => m.toLowerCase().includes(model.toLowerCase())) || '';
+        matchedModel = modelKeys.find(m => {
+          const mLower = m.toLowerCase();
+          return mLower.startsWith(model.toLowerCase()) || mLower.includes(model.toLowerCase());
+        }) || '';
         
         if (matchedModel) {
-          // Try to match engine
+          // Match engine fuzzy: extract key parts (displacement + type) from parsed engine
+          // e.g. "2 0 TDI EU6 190PS" -> look for entries containing "2.0 TDI" and "190"
           const engines = vehicleData[matchedMfr][matchedSeries][matchedModel];
-          const engPart = parsedFilename.parts.engine;
-          if (engPart) {
-            matchedEngine = engines.find(e => e.toLowerCase().includes(engPart.toLowerCase())) || '';
+          if (engine) {
+            // Extract displacement (e.g. "2.0" or "3 0" -> "3.0")
+            const dispMatch = engine.match(/(\d)[\s.]?(\d)/);
+            const displacement = dispMatch ? `${dispMatch[1]}.${dispMatch[2]}` : '';
+            // Extract fuel type (TDI, TSI, etc.)
+            const fuelMatch = engine.match(/(TDI|TSI|TFSI|CDI|HDI|FSI|EcoBoost|EcoBlue|CDTI|CRDi|Turbo)/i);
+            const fuel = fuelMatch ? fuelMatch[1] : '';
+            // Extract power (190PS, 218PS)
+            const powerMatch = engine.match(/(\d{2,4})\s?PS/i);
+            const power = powerMatch ? powerMatch[1] : '';
+            
+            // Score all engines and pick the best match
+            let bestScore = 0;
+            let bestEngine = '';
+            engines.forEach(e => {
+              const eLower = e.toLowerCase();
+              let score = 0;
+              if (displacement && eLower.includes(displacement)) score++;
+              if (fuel && eLower.includes(fuel.toLowerCase())) score++;
+              if (power && eLower.includes(power)) score++;
+              if (score > bestScore) {
+                bestScore = score;
+                bestEngine = e;
+              }
+            });
+            if (bestScore >= 2) matchedEngine = bestEngine;
           }
         }
       }
