@@ -14,40 +14,67 @@ Build a dashboard for Tuningfiles portal for Chiptuningfile.de (tuning files dea
 - Credits system for file purchases
 - PayPal payment integration (planned)
 
-## What's Been Implemented (Jan 2026)
+## What's Been Implemented
+
+### UI/Frontend (Jan-Feb 2026)
 - [x] Dashboard layout with sidebar navigation
 - [x] Dashboard overview with stats (credits, orders, files, spent)
-- [x] Recent activity feed
-- [x] Quick actions panel
+- [x] Recent activity feed & Quick actions panel
 - [x] Chiptuning Configurator with vehicle/tuning selection
-- [x] File Wizard placeholder (4-step wizard UI)
 - [x] Credits page with balance and packages
 - [x] Orders history table
 - [x] Profile page with tabs (personal, company, API)
 - [x] Language toggle (DE/EN)
 - [x] Dark theme with red/black/grey colors
-- [x] Phosphor icons for technical aesthetic
-- [x] Exo 2 + IBM Plex Sans fonts
+- [x] Phosphor icons, Exo 2 + IBM Plex Sans fonts
+- [x] Price List page (PKW/LKW tabs, stages, gearbox, options)
+
+### File Wizard (Feb 2026)
+- [x] Step 1: File Upload & Lesegerät (tool selection, method/type toggles, master/slave, priority)
+- [x] Step 2: Fahrzeugauswahl (regex filename parsing, cascading dropdowns, fuzzy matching, "Übernehmen" button)
+- [x] Step 3: Optionen (tuning stage cards, additional options grid, gearbox-specific sub-stages with warning note, credit calculation)
+- [ ] Step 4: Übersicht (Review) — NOT STARTED
+
+### Backend
+- Nothing yet (server.py exists but empty logic)
 
 ## Prioritized Backlog
 
 ### P0 (Critical - Next)
-- File Wizard implementation (detailed steps per user requirements)
-- External API authentication integration
-- Backend API for credits, orders, user data
+- File Wizard Step 4 "Übersicht" (Review page)
+- Backend MongoDB CRUD (Users, Orders, Tickets, Invoices)
+- Frontend ↔ Backend integration (replace mocked data)
 
 ### P1 (High)
-- PayPal payment integration
-- Real-time order status updates
-- File download functionality
+- Symfony API Authentication Integration
+- PayPal payment integration for credits
+- File upload/download to backend storage
 
 ### P2 (Medium)
+- Invoice PDF Generator
+- Real-time order status updates
 - Notifications system
-- Mobile responsive improvements
-- Search functionality
+- FileWizard.jsx refactoring (split into components)
 
-## Next Tasks
-1. Get File Wizard specifications from user
-2. Implement authentication API connection
-3. Build backend CRUD for credits/orders
-4. Integrate PayPal for credit purchases
+## Architecture
+```
+/app/
+├── backend/
+│   ├── server.py              
+│   └── requirements.txt
+├── frontend/
+│   ├── public/logos/          # Tuning tool brand logos
+│   └── src/
+│       ├── components/        # Shared UI components
+│       ├── pages/             # All page components
+│       │   ├── FileWizard.jsx # Multi-step wizard (1570+ lines)
+│       │   ├── PriceList.jsx  # Pricing reference
+│       │   └── ...            # Dashboard, Orders, Tickets, etc.
+│       └── index.css          
+```
+
+## Key Design Tokens
+- Primary Red: #8B2635
+- Fonts: Exo 2 (headings), IBM Plex Sans (body)
+- Icons: Phosphor Icons (@phosphor-icons/react)
+- Style: Technical, carbon fiber, dark theme

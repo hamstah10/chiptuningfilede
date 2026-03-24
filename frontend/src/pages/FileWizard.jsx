@@ -315,9 +315,19 @@ const tuningStages = [
   { id: 'stage1', name: { de: 'Stage 1', en: 'Stage 1' }, credits: 100, Icon: Lightning, color: 'primary', desc: { de: 'Optimierte Kennfelder', en: 'Optimized maps' } },
   { id: 'stage2', name: { de: 'Stage 2', en: 'Stage 2' }, credits: 150, Icon: Fire, color: 'orange', desc: { de: 'Maximale Performance', en: 'Maximum performance' } },
   { id: 'eco', name: { de: 'Eco', en: 'Eco' }, credits: 100, Icon: Leaf, color: 'green', desc: { de: 'Verbrauch optimiert', en: 'Fuel optimized' } },
-  { id: 'gearbox', name: { de: 'Getriebe', en: 'Gearbox' }, credits: 120, Icon: Gear, color: 'blue', desc: { de: 'Schaltoptimierung', en: 'Shift optimization' } },
+  { id: 'gearbox', name: { de: 'Getriebe', en: 'Gearbox' }, credits: 0, Icon: Gear, color: 'blue', desc: { de: 'Schaltoptimierung', en: 'Shift optimization' } },
   { id: 'optionsOnly', name: { de: 'Nur Optionen', en: 'Options Only' }, credits: 0, Icon: Sliders, color: 'muted', desc: { de: 'Einzelne Optionen wählen', en: 'Select individual options' } },
 ];
+
+// Gearbox sub-stages (from PriceList)
+const gearboxStages = [
+  { id: 'gearbox_stage1', name: { de: 'Stage 1', en: 'Stage 1' }, credits: 120 },
+  { id: 'gearbox_stage2', name: { de: 'Stage 2', en: 'Stage 2' }, credits: 160 },
+  { id: 'gearbox_stage3', name: { de: 'Stage 3', en: 'Stage 3' }, credits: 200 },
+];
+
+// Manufacturers that support gearbox tuning
+const gearboxManufacturers = ['VW', 'Audi', 'Seat', 'Cupra', 'Skoda', 'BMW'];
 
 // Tuning options
 const tuningOptions = [
@@ -354,6 +364,7 @@ export default function FileWizard() {
   });
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedStage, setSelectedStage] = useState('');
+  const [selectedGearboxStage, setSelectedGearboxStage] = useState('');
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -516,6 +527,8 @@ export default function FileWizard() {
         includedInStage: 'Inklusive',
         totalCredits: 'GESAMT',
         nextStep4: 'Weiter zur Übersicht',
+        gearboxNote: 'Nur bei VW, Audi, Seat, Cupra, Skoda und BMW möglich',
+        selectGearboxStage: 'GETRIEBE-STUFE WÄHLEN',
       },
       en: {
         pageTitle: 'New Order',
@@ -562,6 +575,8 @@ export default function FileWizard() {
         includedInStage: 'Included',
         totalCredits: 'TOTAL',
         nextStep4: 'Continue to Review',
+        gearboxNote: 'Only available for VW, Audi, Seat, Cupra, Skoda and BMW',
+        selectGearboxStage: 'SELECT GEARBOX STAGE',
       },
     };
     return texts[language]?.[key] || texts.de[key] || key;
@@ -1433,7 +1448,15 @@ export default function FileWizard() {
                   <button
                     key={stage.id}
                     type="button"
-                    onClick={() => setSelectedStage(isSelected ? '' : stage.id)}
+                    onClick={() => {
+                      if (isSelected) {
+                        setSelectedStage('');
+                        setSelectedGearboxStage('');
+                      } else {
+                        setSelectedStage(stage.id);
+                        setSelectedGearboxStage('');
+                      }
+                    }}
                     data-testid={`stage-${stage.id}`}
                     className={cn(
                       "relative flex flex-col items-center gap-2 p-3 rounded-sm border-2 transition-all duration-200 cursor-pointer group",
@@ -1460,7 +1483,56 @@ export default function FileWizard() {
             </div>
           </div>
 
-          {/* Additional Options */}
+          {/* Gearbox Stages (when Getriebe is selected) */}
+          {selectedStage === 'gearbox' && (
+            <div>
+              <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase mb-4">
+                <Gear weight="bold" className="w-3.5 h-3.5" />
+                {t('selectGearboxStage')}
+              </label>
+              {/* Gearbox manufacturer warning */}
+              <div className="flex items-start gap-3 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-sm mb-4">
+                <Warning weight="fill" className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-yellow-400">{t('gearboxNote')}</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {gearboxStages.map((gs) => {
+                  const isSelected = selectedGearboxStage === gs.id;
+                  return (
+                    <button
+                      key={gs.id}
+                      type="button"
+                      onClick={() => setSelectedGearboxStage(isSelected ? '' : gs.id)}
+                      data-testid={`gearbox-${gs.id}`}
+                      className={cn(
+                        "relative flex flex-col items-center gap-3 p-5 rounded-sm border-2 transition-all duration-200 cursor-pointer",
+                        isSelected
+                          ? "bg-blue-500/10 border-blue-500"
+                          : "bg-card border-border hover:border-muted-foreground/50"
+                      )}
+                    >
+                      {isSelected && (
+                        <div className="absolute top-2 right-2">
+                          <CheckCircle weight="fill" className="w-4 h-4 text-green-500" />
+                        </div>
+                      )}
+                      <Gear weight={isSelected ? "fill" : "regular"} className={cn("w-7 h-7", isSelected ? "text-blue-500" : "text-muted-foreground")} />
+                      <span className="text-base font-bold text-foreground">{gs.name[language]}</span>
+                      <span className={cn(
+                        "text-sm font-bold px-4 py-1.5 rounded-full",
+                        isSelected ? "bg-blue-500 text-white" : "bg-secondary text-muted-foreground"
+                      )}>
+                        {gs.credits} Credits
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Additional Options (when NOT Getriebe) */}
+          {selectedStage !== 'gearbox' && (
           <div>
             <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase mb-4">
               <Sliders weight="bold" className="w-3.5 h-3.5" />
@@ -1505,20 +1577,26 @@ export default function FileWizard() {
               })}
             </div>
           </div>
+          )}
 
           {/* Credits Total */}
-          {(selectedStage || selectedOptions.length > 0) && (
+          {(selectedStage || selectedOptions.length > 0 || selectedGearboxStage) && (
             <Card className="bg-card border-primary/30" data-testid="credits-total-card">
               <CardContent className="p-4 flex items-center justify-between">
                 <span className="text-xs font-semibold text-muted-foreground tracking-widest uppercase">{t('totalCredits')}</span>
                 <span className="text-2xl font-bold text-primary">
                   {(() => {
-                    const stageCredits = tuningStages.find(s => s.id === selectedStage)?.credits || 0;
-                    const optCredits = selectedOptions.reduce((sum, id) => {
-                      const opt = tuningOptions.find(o => o.id === id);
-                      return sum + (opt?.credits || 0);
-                    }, 0);
-                    return stageCredits + optCredits;
+                    let total = 0;
+                    if (selectedStage === 'gearbox') {
+                      total += gearboxStages.find(gs => gs.id === selectedGearboxStage)?.credits || 0;
+                    } else {
+                      total += tuningStages.find(s => s.id === selectedStage)?.credits || 0;
+                      total += selectedOptions.reduce((sum, id) => {
+                        const opt = tuningOptions.find(o => o.id === id);
+                        return sum + (opt?.credits || 0);
+                      }, 0);
+                    }
+                    return total;
                   })()}{' '}
                   <span className="text-sm font-medium text-muted-foreground">Credits</span>
                 </span>
