@@ -468,6 +468,10 @@ export default function FileWizard() {
         readTypeBadge: 'LESEART',
         applyParsed: 'Übernehmen',
         nextStep3: 'Weiter zu Schritt 3',
+        // Step 3
+        step3Title: 'Optionen',
+        selectedVehicle: 'AUSGEWÄHLTES FAHRZEUG',
+        nextStep4: 'Weiter zur Übersicht',
       },
       en: {
         pageTitle: 'New Order',
@@ -506,6 +510,10 @@ export default function FileWizard() {
         readTypeBadge: 'READ TYPE',
         applyParsed: 'Apply',
         nextStep3: 'Continue to Step 3',
+        // Step 3
+        step3Title: 'Options',
+        selectedVehicle: 'SELECTED VEHICLE',
+        nextStep4: 'Continue to Review',
       },
     };
     return texts[language]?.[key] || texts.de[key] || key;
@@ -747,7 +755,7 @@ export default function FileWizard() {
         <div className="flex items-end justify-between">
           <div>
             <h1 className="font-heading text-2xl font-bold text-foreground tracking-tight">
-              {currentStep === 1 ? t('stepTitle') : t('step2Title')}
+              {currentStep === 1 ? t('stepTitle') : currentStep === 2 ? t('step2Title') : t('step3Title')}
             </h1>
             <div className="w-10 h-1 bg-green-500 rounded-full mt-2" />
           </div>
@@ -1288,8 +1296,89 @@ export default function FileWizard() {
             <Button
               className="btn-gradient text-white font-semibold px-8 py-3 h-auto"
               data-testid="wizard-next-btn-step2"
+              onClick={() => setCurrentStep(3)}
             >
               {t('nextStep3')}
+              <ArrowRight weight="bold" className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        </>)}
+
+        {/* ====== STEP 3: Optionen ====== */}
+        {currentStep === 3 && (<>
+          {/* Selected Vehicle + ECU Summary */}
+          <Card className="bg-card border-border" data-testid="vehicle-summary-card">
+            <CardContent className="p-5">
+              <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase mb-3">
+                <CarProfile weight="bold" className="w-3.5 h-3.5" />
+                {t('selectedVehicle')}
+              </label>
+              <div className="flex flex-wrap gap-3">
+                {formData.manufacturer && (
+                  <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-sm px-4 py-2.5">
+                    <Car weight="bold" className="w-4 h-4 text-primary" />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('manufacturer')}</p>
+                      <p className="text-sm font-semibold text-foreground">{formData.manufacturer}</p>
+                    </div>
+                  </div>
+                )}
+                {formData.series && (
+                  <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2.5">
+                    <Tag weight="bold" className="w-4 h-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('series')}</p>
+                      <p className="text-sm font-semibold text-foreground">{formData.series}</p>
+                    </div>
+                  </div>
+                )}
+                {formData.vehicleModel && (
+                  <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2.5">
+                    <Calendar weight="bold" className="w-4 h-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('vehicleModel')}</p>
+                      <p className="text-sm font-semibold text-foreground">{formData.vehicleModel}</p>
+                    </div>
+                  </div>
+                )}
+                {formData.engine && (
+                  <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2.5">
+                    <Engine weight="bold" className="w-4 h-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('engine')}</p>
+                      <p className="text-sm font-semibold text-foreground">{formData.engine}</p>
+                    </div>
+                  </div>
+                )}
+                {formData.ecu && (
+                  <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-sm px-4 py-2.5">
+                    <GasPump weight="bold" className="w-4 h-4 text-primary" />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('ecu')}</p>
+                      <p className="text-sm font-semibold text-foreground">{formData.ecu}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Step 3 Navigation */}
+          <div className="flex items-center justify-between">
+            <Button
+              variant="outline"
+              className="border-border hover:bg-secondary font-semibold px-6 py-3 h-auto"
+              onClick={() => setCurrentStep(2)}
+              data-testid="wizard-prev-btn-step3"
+            >
+              <ArrowLeft weight="bold" className="w-4 h-4 mr-2" />
+              {t('prevStep')}
+            </Button>
+            <Button
+              className="btn-gradient text-white font-semibold px-8 py-3 h-auto"
+              data-testid="wizard-next-btn-step3"
+            >
+              {t('nextStep4')}
               <ArrowRight weight="bold" className="w-4 h-4 ml-2" />
             </Button>
           </div>
