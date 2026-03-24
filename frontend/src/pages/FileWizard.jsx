@@ -35,7 +35,8 @@ import {
   Car,
   Engine,
   Calendar,
-  Tag
+  Tag,
+  GasPump
 } from '@phosphor-icons/react';
 import { Progress } from '../components/ui/progress';
 import { cn } from '../lib/utils';
@@ -258,7 +259,7 @@ export default function FileWizard() {
     // Known manufacturer names for matching
     const manufacturers = ['BMW', 'VW', 'Volkswagen', 'Audi', 'Mercedes', 'Benz', 'Porsche', 'Seat', 'Skoda', 'Opel', 'Ford', 'Toyota', 'Honda', 'Renault', 'Peugeot', 'Citroen', 'Fiat', 'Alfa', 'Hyundai', 'Kia', 'Volvo', 'Jaguar', 'Land', 'Range', 'Mini', 'Mazda', 'Nissan', 'Subaru', 'Mitsubishi', 'Suzuki', 'Dacia', 'Chevrolet', 'Dodge', 'Jeep', 'Cupra', 'DS', 'MAN', 'DAF', 'Scania', 'Iveco', 'Mercedes-Benz'];
     
-    let parsed = { manufacturer: '', model: '', engine: '', ecu: '', rest: [] };
+    let parsed = { manufacturer: '', series: '', model: '', engine: '', ecu: '', rest: [] };
     let remaining = [...parts];
     
     // Try to find manufacturer
@@ -286,12 +287,13 @@ export default function FileWizard() {
       parsed.engine = remaining.splice(engIdx, 1)[0];
     }
     
-    // First remaining = model, rest = extra info
+    // First remaining = series (Baureihe like A6, Golf, 3er), second = model (like C7, F30)
+    if (remaining.length > 0) parsed.series = remaining.shift();
     if (remaining.length > 0) parsed.model = remaining.shift();
     parsed.rest = remaining;
     
     // Build readable name
-    const readableParts = [parsed.manufacturer, parsed.model, parsed.engine, parsed.ecu, ...parsed.rest].filter(Boolean);
+    const readableParts = [parsed.manufacturer, parsed.series, parsed.model, parsed.engine, parsed.ecu, ...parsed.rest].filter(Boolean);
     
     return {
       original: name,
@@ -333,6 +335,8 @@ export default function FileWizard() {
         vehicleModelPlaceholder: 'Modell wählen...',
         engine: 'MOTOR',
         enginePlaceholder: 'Motor wählen...',
+        ecu: 'STEUERGERÄT',
+        applyParsed: 'Übernehmen',
         nextStep3: 'Weiter zu Schritt 3',
       },
       en: {
@@ -366,6 +370,8 @@ export default function FileWizard() {
         vehicleModelPlaceholder: 'Select model...',
         engine: 'ENGINE',
         enginePlaceholder: 'Select engine...',
+        ecu: 'ECU',
+        applyParsed: 'Apply',
         nextStep3: 'Continue to Step 3',
       },
     };
@@ -401,6 +407,48 @@ export default function FileWizard() {
   const removeFile = (index) => {
     setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
   };
+
+  // Apply parsed filename data to the cascade dropdowns
+  const handleApplyParsed = useCallback(() => {
+    if (!parsedFilename) return;
+    const { manufacturer, series, model } = parsedFilename.parts;
+    
+    // Try to match manufacturer in vehicleData
+    const matchedMfr = allManufacturers.find(m => m.toLowerCase() === manufacturer.toLowerCase()) || '';
+    
+    let matchedSeries = '';
+    let matchedModel = '';
+    let matchedEngine = '';
+    
+    if (matchedMfr && vehicleData[matchedMfr]) {
+      // Try to match series
+      const seriesKeys = Object.keys(vehicleData[matchedMfr]);
+      matchedSeries = seriesKeys.find(s => s.toLowerCase() === series.toLowerCase()) || '';
+      
+      if (matchedSeries && vehicleData[matchedMfr][matchedSeries]) {
+        // Try to match model
+        const modelKeys = Object.keys(vehicleData[matchedMfr][matchedSeries]);
+        matchedModel = modelKeys.find(m => m.toLowerCase().includes(model.toLowerCase())) || '';
+        
+        if (matchedModel) {
+          // Try to match engine
+          const engines = vehicleData[matchedMfr][matchedSeries][matchedModel];
+          const engPart = parsedFilename.parts.engine;
+          if (engPart) {
+            matchedEngine = engines.find(e => e.toLowerCase().includes(engPart.toLowerCase())) || '';
+          }
+        }
+      }
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      manufacturer: matchedMfr,
+      series: matchedSeries,
+      vehicleModel: matchedModel,
+      engine: matchedEngine,
+    }));
+  }, [parsedFilename]);
 
   const wizardSteps = [
     { id: 1, icon: Upload, label: language === 'de' ? 'File & Lesegerät' : 'File & Device' },
@@ -767,7 +815,7 @@ export default function FileWizard() {
 
         {/* ====== STEP 2: Fahrzeugauswahl ====== */}
         {currentStep === 2 && (<>
-          {/* Filename Display */}
+          {/* Filename Display with parsed badges */}
           {parsedFilename && (
             <Card className="bg-card border-border" data-testid="filename-display-card">
               <CardContent className="p-5">
@@ -775,9 +823,9 @@ export default function FileWizard() {
                   <FileIcon weight="bold" className="w-3.5 h-3.5" />
                   {t('uploadedFile')}
                 </label>
-                <div className="flex items-center gap-3 bg-secondary/50 border border-border rounded-sm px-4 py-3">
+                <div className="flex items-center gap-3 bg-secondary/50 border border-border rounded-sm px-4 py-3 mb-4">
                   <FileIcon weight="fill" className="w-5 h-5 text-primary flex-shrink-0" />
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm font-mono text-foreground truncate">{parsedFilename.original}</p>
                     {parsedFilename.readable && (
                       <p className="text-xs text-muted-foreground mt-0.5">
@@ -785,6 +833,63 @@ export default function FileWizard() {
                       </p>
                     )}
                   </div>
+                </div>
+                {/* Parsed badges + Übernehmen button */}
+                <div className="flex flex-wrap items-center gap-3">
+                  {parsedFilename.parts.manufacturer && (
+                    <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-sm px-4 py-2">
+                      <Car weight="bold" className="w-4 h-4 text-primary" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('manufacturer')}</p>
+                        <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.manufacturer}</p>
+                      </div>
+                    </div>
+                  )}
+                  {parsedFilename.parts.series && (
+                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2">
+                      <Tag weight="bold" className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('series')}</p>
+                        <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.series}</p>
+                      </div>
+                    </div>
+                  )}
+                  {parsedFilename.parts.model && (
+                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2">
+                      <Calendar weight="bold" className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('vehicleModel')}</p>
+                        <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.model}</p>
+                      </div>
+                    </div>
+                  )}
+                  {parsedFilename.parts.engine && (
+                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2">
+                      <Engine weight="bold" className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('engine')}</p>
+                        <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.engine}</p>
+                      </div>
+                    </div>
+                  )}
+                  {parsedFilename.parts.ecu && (
+                    <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-sm px-4 py-2">
+                      <GasPump weight="bold" className="w-4 h-4 text-primary" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('ecu')}</p>
+                        <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.ecu}</p>
+                      </div>
+                    </div>
+                  )}
+                  {/* Übernehmen Button */}
+                  <Button
+                    onClick={handleApplyParsed}
+                    className="btn-gradient text-white font-semibold px-5 py-2 h-auto ml-auto"
+                    data-testid="apply-parsed-btn"
+                  >
+                    <ArrowRight weight="bold" className="w-4 h-4 mr-1.5" />
+                    {t('applyParsed')}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -887,46 +992,6 @@ export default function FileWizard() {
                   </Select>
                 </div>
               </div>
-
-              {/* Selected summary badges */}
-              {formData.manufacturer && (
-                <div className="flex flex-wrap gap-3 pt-2 border-t border-border">
-                  <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-sm px-4 py-2">
-                    <Car weight="bold" className="w-4 h-4 text-primary" />
-                    <div>
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('manufacturer')}</p>
-                      <p className="text-sm font-semibold text-foreground">{formData.manufacturer}</p>
-                    </div>
-                  </div>
-                  {formData.series && (
-                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2">
-                      <Tag weight="bold" className="w-4 h-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('series')}</p>
-                        <p className="text-sm font-semibold text-foreground">{formData.series}</p>
-                      </div>
-                    </div>
-                  )}
-                  {formData.vehicleModel && (
-                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2">
-                      <Calendar weight="bold" className="w-4 h-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('vehicleModel')}</p>
-                        <p className="text-sm font-semibold text-foreground">{formData.vehicleModel}</p>
-                      </div>
-                    </div>
-                  )}
-                  {formData.engine && (
-                    <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-sm px-4 py-2">
-                      <Engine weight="bold" className="w-4 h-4 text-primary" />
-                      <div>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('engine')}</p>
-                        <p className="text-sm font-semibold text-foreground">{formData.engine}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
             </CardContent>
           </Card>
 
