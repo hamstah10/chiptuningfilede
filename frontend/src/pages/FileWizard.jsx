@@ -1436,20 +1436,19 @@ export default function FileWizard() {
                     onClick={() => setSelectedStage(isSelected ? '' : stage.id)}
                     data-testid={`stage-${stage.id}`}
                     className={cn(
-                      "relative flex flex-col items-center gap-3 p-5 rounded-sm border-2 transition-all duration-200 cursor-pointer group",
+                      "relative flex flex-col items-center gap-2 p-3 rounded-sm border-2 transition-all duration-200 cursor-pointer group",
                       colors.bg
                     )}
                   >
                     {isSelected && (
                       <div className="absolute top-2 right-2">
-                        <CheckCircle weight="fill" className="w-5 h-5 text-green-500" />
+                        <CheckCircle weight="fill" className="w-4 h-4 text-green-500" />
                       </div>
                     )}
-                    <div className={cn("w-12 h-12 rounded-sm flex items-center justify-center bg-background/50", isSelected && "bg-background/80")}>
-                      <Icon weight={isSelected ? "fill" : "regular"} className={cn("w-7 h-7 transition-colors", colors.icon)} />
+                    <div className={cn("w-9 h-9 rounded-sm flex items-center justify-center bg-background/50", isSelected && "bg-background/80")}>
+                      <Icon weight={isSelected ? "fill" : "regular"} className={cn("w-5 h-5 transition-colors", colors.icon)} />
                     </div>
                     <span className="text-sm font-bold text-foreground">{stage.name[language] || stage.name.de}</span>
-                    <p className="text-[11px] text-muted-foreground leading-tight">{stage.desc[language] || stage.desc.de}</p>
                     {stage.credits > 0 && (
                       <span className={cn("text-xs font-bold px-3 py-1 rounded-full", colors.badge)}>
                         {stage.credits} Credits
@@ -1471,7 +1470,6 @@ export default function FileWizard() {
               {tuningOptions.map((opt) => {
                 const Icon = opt.Icon;
                 const isSelected = selectedOptions.includes(opt.id);
-                const isIncluded = opt.included && selectedStage && selectedStage !== 'optionsOnly';
                 return (
                   <button
                     key={opt.id}
@@ -1484,22 +1482,20 @@ export default function FileWizard() {
                     data-testid={`option-${opt.id}`}
                     className={cn(
                       "relative flex flex-col items-center gap-2 p-4 rounded-sm border transition-all duration-200 cursor-pointer",
-                      isSelected || isIncluded
+                      isSelected
                         ? "bg-primary/8 border-primary/40 ring-1 ring-primary/20"
                         : "bg-card border-border hover:border-muted-foreground/40"
                     )}
                   >
-                    {(isSelected || isIncluded) && (
+                    {isSelected && (
                       <div className="absolute top-1.5 right-1.5">
                         <CheckCircle weight="fill" className="w-4 h-4 text-green-500" />
                       </div>
                     )}
-                    <Icon weight={isSelected || isIncluded ? "fill" : "regular"} className={cn("w-6 h-6 transition-colors", isSelected || isIncluded ? "text-primary" : "text-muted-foreground")} />
+                    <Icon weight={isSelected ? "fill" : "regular"} className={cn("w-6 h-6 transition-colors", isSelected ? "text-primary" : "text-muted-foreground")} />
                     <span className="text-xs font-bold text-foreground text-center leading-tight">{opt.name[language] || opt.name.de}</span>
                     <span className="text-[10px] text-muted-foreground">{opt.desc[language] || opt.desc.de}</span>
-                    {isIncluded ? (
-                      <span className="text-[10px] font-semibold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">{t('includedInStage')}</span>
-                    ) : opt.credits > 0 ? (
+                    {opt.credits > 0 ? (
                       <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{opt.credits} Credits</span>
                     ) : (
                       <span className="text-[10px] font-semibold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">0 Credits</span>
@@ -1520,9 +1516,7 @@ export default function FileWizard() {
                     const stageCredits = tuningStages.find(s => s.id === selectedStage)?.credits || 0;
                     const optCredits = selectedOptions.reduce((sum, id) => {
                       const opt = tuningOptions.find(o => o.id === id);
-                      if (!opt) return sum;
-                      if (opt.included && selectedStage && selectedStage !== 'optionsOnly') return sum;
-                      return sum + opt.credits;
+                      return sum + (opt?.credits || 0);
                     }, 0);
                     return stageCredits + optCredits;
                   })()}{' '}
