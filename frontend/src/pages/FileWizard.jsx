@@ -1588,29 +1588,77 @@ export default function FileWizard() {
                     </div>
                   </div>
 
-                  {/* Stage comparison cards */}
-                  <div className="grid grid-cols-3 gap-3 mt-5">
-                    <div className="bg-secondary/60 border border-border rounded-sm p-3 text-center">
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">{t('originalPower')}</p>
-                      <p className="text-xl font-bold text-foreground font-heading">{perfData.originalPs} <span className="text-xs text-muted-foreground font-normal">PS</span></p>
-                      <p className="text-sm text-muted-foreground">{perfData.originalNm} <span className="text-xs">Nm</span></p>
-                    </div>
-                    <div className="bg-primary/8 border border-primary/30 rounded-sm p-3 text-center">
-                      <p className="text-[10px] text-foreground uppercase tracking-wider font-bold mb-2">{t('stage1Power')}</p>
-                      <p className="text-xl font-bold text-foreground font-heading">{perfData.stage1Ps} <span className="text-xs text-muted-foreground font-normal">PS</span></p>
-                      <p className="text-sm text-muted-foreground">{perfData.stage1Nm} <span className="text-xs">Nm</span></p>
-                      <div className="mt-1.5 flex items-center justify-center gap-2">
-                        <Badge className="bg-green-500/15 text-green-400 border-green-500/30 text-[10px] font-bold">+{perfData.psGainS1} PS</Badge>
-                        <Badge className="bg-blue-500/15 text-blue-400 border-blue-500/30 text-[10px] font-bold">+{perfData.nmGainS1} Nm</Badge>
+                  {/* Stage comparison - horizontal bars */}
+                  <div className="mt-6 space-y-4">
+                    {/* PS Row */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-bold text-foreground uppercase tracking-wider">{t('power')} (PS)</span>
+                        <span className="text-xs text-muted-foreground">max {perfData.stage2Ps} PS</span>
+                      </div>
+                      <div className="space-y-2">
+                        {/* Serie */}
+                        <div className="flex items-center gap-3">
+                          <span className="text-[11px] text-muted-foreground w-16 text-right flex-shrink-0">{t('originalPower')}</span>
+                          <div className="flex-1 h-7 bg-secondary/40 rounded-sm overflow-hidden relative">
+                            <div className="h-full bg-[#555] rounded-sm transition-all" style={{ width: `${(perfData.originalPs / perfData.stage2Ps) * 100}%` }} />
+                            <span className="absolute inset-0 flex items-center pl-3 text-xs font-bold text-white">{perfData.originalPs} PS</span>
+                          </div>
+                        </div>
+                        {/* Stage 1 */}
+                        <div className="flex items-center gap-3">
+                          <span className="text-[11px] text-foreground w-16 text-right flex-shrink-0 font-semibold">Stage 1</span>
+                          <div className="flex-1 h-7 bg-secondary/40 rounded-sm overflow-hidden relative">
+                            <div className="h-full bg-gradient-to-r from-[#8B2635] to-[#a52d3a] rounded-sm transition-all" style={{ width: `${(perfData.stage1Ps / perfData.stage2Ps) * 100}%` }} />
+                            <span className="absolute inset-0 flex items-center pl-3 text-xs font-bold text-white">{perfData.stage1Ps} PS</span>
+                            <span className="absolute inset-0 flex items-center justify-end pr-3 text-[10px] font-bold text-green-400">+{perfData.psGainS1}</span>
+                          </div>
+                        </div>
+                        {/* Stage 2 */}
+                        <div className="flex items-center gap-3">
+                          <span className="text-[11px] text-foreground w-16 text-right flex-shrink-0 font-semibold">Stage 2</span>
+                          <div className="flex-1 h-7 bg-secondary/40 rounded-sm overflow-hidden relative">
+                            <div className="h-full bg-gradient-to-r from-[#c0392b] to-[#e74c3c] rounded-sm transition-all" style={{ width: '100%' }} />
+                            <span className="absolute inset-0 flex items-center pl-3 text-xs font-bold text-white">{perfData.stage2Ps} PS</span>
+                            <span className="absolute inset-0 flex items-center justify-end pr-3 text-[10px] font-bold text-green-400">+{perfData.psGainS2}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div className="bg-primary/8 border border-primary/30 rounded-sm p-3 text-center">
-                      <p className="text-[10px] text-foreground uppercase tracking-wider font-bold mb-2">{t('stage2Power')}</p>
-                      <p className="text-xl font-bold text-foreground font-heading">{perfData.stage2Ps} <span className="text-xs text-muted-foreground font-normal">PS</span></p>
-                      <p className="text-sm text-muted-foreground">{perfData.stage2Nm} <span className="text-xs">Nm</span></p>
-                      <div className="mt-1.5 flex items-center justify-center gap-2">
-                        <Badge className="bg-green-500/15 text-green-400 border-green-500/30 text-[10px] font-bold">+{perfData.psGainS2} PS</Badge>
-                        <Badge className="bg-blue-500/15 text-blue-400 border-blue-500/30 text-[10px] font-bold">+{perfData.nmGainS2} Nm</Badge>
+
+                    {/* Nm Row */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-bold text-foreground uppercase tracking-wider">{t('torque')} (Nm)</span>
+                        <span className="text-xs text-muted-foreground">max {perfData.stage2Nm} Nm</span>
+                      </div>
+                      <div className="space-y-2">
+                        {/* Serie */}
+                        <div className="flex items-center gap-3">
+                          <span className="text-[11px] text-muted-foreground w-16 text-right flex-shrink-0">{t('originalPower')}</span>
+                          <div className="flex-1 h-7 bg-secondary/40 rounded-sm overflow-hidden relative">
+                            <div className="h-full bg-[#555] rounded-sm transition-all" style={{ width: `${(perfData.originalNm / perfData.stage2Nm) * 100}%` }} />
+                            <span className="absolute inset-0 flex items-center pl-3 text-xs font-bold text-white">{perfData.originalNm} Nm</span>
+                          </div>
+                        </div>
+                        {/* Stage 1 */}
+                        <div className="flex items-center gap-3">
+                          <span className="text-[11px] text-foreground w-16 text-right flex-shrink-0 font-semibold">Stage 1</span>
+                          <div className="flex-1 h-7 bg-secondary/40 rounded-sm overflow-hidden relative">
+                            <div className="h-full bg-gradient-to-r from-[#1d4ed8] to-[#2563eb] rounded-sm transition-all" style={{ width: `${(perfData.stage1Nm / perfData.stage2Nm) * 100}%` }} />
+                            <span className="absolute inset-0 flex items-center pl-3 text-xs font-bold text-white">{perfData.stage1Nm} Nm</span>
+                            <span className="absolute inset-0 flex items-center justify-end pr-3 text-[10px] font-bold text-green-400">+{perfData.nmGainS1}</span>
+                          </div>
+                        </div>
+                        {/* Stage 2 */}
+                        <div className="flex items-center gap-3">
+                          <span className="text-[11px] text-foreground w-16 text-right flex-shrink-0 font-semibold">Stage 2</span>
+                          <div className="flex-1 h-7 bg-secondary/40 rounded-sm overflow-hidden relative">
+                            <div className="h-full bg-gradient-to-r from-[#2563eb] to-[#3b82f6] rounded-sm transition-all" style={{ width: '100%' }} />
+                            <span className="absolute inset-0 flex items-center pl-3 text-xs font-bold text-white">{perfData.stage2Nm} Nm</span>
+                            <span className="absolute inset-0 flex items-center justify-end pr-3 text-[10px] font-bold text-green-400">+{perfData.nmGainS2}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
