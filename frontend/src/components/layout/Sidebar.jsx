@@ -148,9 +148,9 @@ export const Sidebar = () => {
           label={t('tuningFile')}
           isOpen={tuningOpen}
           onToggle={() => setTuningOpen(!tuningOpen)}
-          activePaths={['/new-order', '/file-wizard', '/orders', '/price-list']}
+          activePaths={['/file-wizard', '/orders', '/price-list']}
         >
-          <NavItem path="/new-order" icon={FileArrowUp} label={t('newOrder')} indent />
+          <NavItem path="/file-wizard" icon={FileArrowUp} label={t('newOrder')} indent />
           <NavItem path="/orders" icon={ClockCounterClockwise} label={t('allOrders')} indent />
           <NavItem path="/price-list" icon={ListBullets} label={t('priceList')} indent />
         </MenuGroup>
