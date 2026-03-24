@@ -1087,17 +1087,8 @@ export default function FileWizard() {
                     )}
                   </div>
                 </div>
-                {/* Parsed badges + Übernehmen button */}
+                {/* Parsed badges */}
                 <div className="flex flex-wrap items-center gap-3">
-                  {/* Übernehmen Button (links) */}
-                  <Button
-                    onClick={handleApplyParsed}
-                    className="btn-gradient text-white font-semibold px-5 py-2 h-auto"
-                    data-testid="apply-parsed-btn"
-                  >
-                    <ArrowRight weight="bold" className="w-4 h-4 mr-1.5" />
-                    {t('applyParsed')}
-                  </Button>
                   {parsedFilename.parts.manufacturer && (
                     <div className={cn("flex items-center gap-2 rounded-sm px-4 py-2", matchStatus.manufacturer ? "bg-green-500/10 border border-green-500/40" : "bg-secondary/80 border border-border")}>
                       <Car weight="bold" className={cn("w-4 h-4", matchStatus.manufacturer ? "text-green-500" : "text-muted-foreground")} />
@@ -1161,6 +1152,17 @@ export default function FileWizard() {
                       </div>
                     </div>
                   )}
+                </div>
+                {/* Übernehmen Button */}
+                <div className="mt-3">
+                  <Button
+                    onClick={handleApplyParsed}
+                    className="btn-gradient text-white font-semibold px-5 py-2 h-auto"
+                    data-testid="apply-parsed-btn"
+                  >
+                    <ArrowRight weight="bold" className="w-4 h-4 mr-1.5" />
+                    {t('applyParsed')}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
