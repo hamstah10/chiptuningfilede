@@ -20,13 +20,15 @@ import {
   CircleHalf,
   Timer,
   CloudArrowUp,
+  CloudArrowDown,
   ArrowRight,
   X,
   File as FileIcon,
   Upload,
   Sliders,
   CheckCircle,
-  CarProfile
+  CarProfile,
+  HardDrives
 } from '@phosphor-icons/react';
 import { Progress } from '../components/ui/progress';
 import { cn } from '../lib/utils';
@@ -42,7 +44,7 @@ const readingDevices = [
 
 const ALLOWED_EXTENSIONS = ['.bin', '.ori', '.mod', '.ecu', '.hex', '.s19', '.bkp'];
 
-function ToggleOption({ label, selected, onClick, extra, testId, icon }) {
+function ToggleOption({ label, selected, onClick, extra, testId, icon, IconComponent }) {
   return (
     <button
       type="button"
@@ -56,6 +58,7 @@ function ToggleOption({ label, selected, onClick, extra, testId, icon }) {
       )}
     >
       {icon && <img src={icon} alt="" className="h-5 w-5 object-contain" />}
+      {IconComponent && <IconComponent weight="bold" className="w-5 h-5" />}
       <span>{label}</span>
       {extra && (
         <span className="ml-1 text-primary font-bold">{extra}</span>
@@ -333,13 +336,17 @@ export default function FileWizard() {
                   {t('readingType')}
                 </label>
                 <div className="flex gap-2" data-testid="reading-type-group">
-                  {['Full Read', 'Virtuell'].map((type) => (
+                  {[
+                    { label: 'Full Read', Icon: HardDrives },
+                    { label: 'Virtuell', Icon: CloudArrowDown },
+                  ].map((type) => (
                     <ToggleOption
-                      key={type}
-                      label={type}
-                      selected={formData.readingType === type}
-                      onClick={() => setFormData((prev) => ({ ...prev, readingType: type }))}
-                      testId={`type-${type.toLowerCase().replace(' ', '-')}`}
+                      key={type.label}
+                      label={type.label}
+                      IconComponent={type.Icon}
+                      selected={formData.readingType === type.label}
+                      onClick={() => setFormData((prev) => ({ ...prev, readingType: type.label }))}
+                      testId={`type-${type.label.toLowerCase().replace(' ', '-')}`}
                     />
                   ))}
                 </div>
