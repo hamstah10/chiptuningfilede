@@ -258,7 +258,7 @@ export default function FileWizard() {
     
     const manufacturers = ['BMW', 'VW', 'Volkswagen', 'Audi', 'Mercedes', 'Benz', 'Porsche', 'Seat', 'Skoda', 'Opel', 'Ford', 'Toyota', 'Honda', 'Renault', 'Peugeot', 'Citroen', 'Fiat', 'Alfa', 'Hyundai', 'Kia', 'Volvo', 'Jaguar', 'Land', 'Range', 'Mini', 'Mazda', 'Nissan', 'Subaru', 'Mitsubishi', 'Suzuki', 'Dacia', 'Chevrolet', 'Dodge', 'Jeep', 'Cupra', 'DS', 'MAN', 'DAF', 'Scania', 'Iveco'];
     
-    let parsed = { manufacturer: '', series: '', model: '', engine: '', ecu: '', rest: [] };
+    let parsed = { manufacturer: '', series: '', model: '', engine: '', ecu: '', readMethod: '', readType: '', rest: [] };
     let remaining = [...parts];
     
     // 1. Find manufacturer
@@ -273,7 +273,22 @@ export default function FileWizard() {
     const ecuStartPattern = /^(EDC|MED|PCR|MD1|MG1|SID|DCM|MEDC|Bosch|Siemens|Delphi|Continental|Marelli)/i;
     const ecuIdx = remaining.findIndex(p => ecuStartPattern.test(p));
     if (ecuIdx !== -1) {
-      parsed.ecu = remaining.splice(ecuIdx).join(' ');
+      const ecuParts = remaining.splice(ecuIdx);
+      // Separate reading method/type from ECU parts
+      const readMethods = ['OBD', 'Bench', 'Boot'];
+      const readTypes = ['VR', 'FR'];
+      const cleanEcuParts = [];
+      ecuParts.forEach(p => {
+        const upper = p.toUpperCase();
+        if (readMethods.includes(upper)) {
+          parsed.readMethod = upper === 'OBD' ? 'OBD' : upper.charAt(0).toUpperCase() + upper.slice(1).toLowerCase();
+        } else if (readTypes.includes(upper)) {
+          parsed.readType = upper === 'VR' ? 'Virtuell' : 'Full Read';
+        } else {
+          cleanEcuParts.push(p);
+        }
+      });
+      parsed.ecu = cleanEcuParts.join(' ');
     }
     
     // 3. Find year (4-digit number 1990-2030)
@@ -377,6 +392,8 @@ export default function FileWizard() {
         engine: 'MOTOR',
         enginePlaceholder: 'Motor wählen...',
         ecu: 'STEUERGERÄT',
+        readMethodBadge: 'LESEMETHODE',
+        readTypeBadge: 'LESEART',
         applyParsed: 'Übernehmen',
         nextStep3: 'Weiter zu Schritt 3',
       },
@@ -412,6 +429,8 @@ export default function FileWizard() {
         engine: 'ENGINE',
         enginePlaceholder: 'Select engine...',
         ecu: 'ECU',
+        readMethodBadge: 'METHOD',
+        readTypeBadge: 'READ TYPE',
         applyParsed: 'Apply',
         nextStep3: 'Continue to Step 3',
       },
@@ -966,6 +985,24 @@ export default function FileWizard() {
                       <div>
                         <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('ecu')}</p>
                         <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.ecu}</p>
+                      </div>
+                    </div>
+                  )}
+                  {parsedFilename.parts.readMethod && (
+                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2">
+                      <PlugsConnected weight="bold" className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('readMethodBadge')}</p>
+                        <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.readMethod}</p>
+                      </div>
+                    </div>
+                  )}
+                  {parsedFilename.parts.readType && (
+                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2">
+                      <BookOpen weight="bold" className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('readTypeBadge')}</p>
+                        <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.readType}</p>
                       </div>
                     </div>
                   )}
