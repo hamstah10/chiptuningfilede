@@ -193,6 +193,76 @@ const vehicleData = {
 
 const allManufacturers = Object.keys(vehicleData).sort();
 
+// ECU database: mapped by manufacturer + fuel type
+const ecuData = {
+  'Audi': {
+    'TDI': ['Bosch EDC17CP14', 'Bosch EDC17CP20', 'Bosch EDC17CP44', 'Bosch EDC17CP46', 'Bosch EDC17CP54', 'Bosch EDC17C46', 'Bosch EDC17C54', 'Bosch EDC17C74', 'Bosch MD1CP004', 'Bosch MD1CS004', 'Continental PCR2.1', 'Continental Simos 7.1'],
+    'TSI': ['Bosch MED17.5', 'Bosch MED17.5.2', 'Bosch MED17.1', 'Bosch MED17.1.1', 'Bosch MG1CS011', 'Bosch MG1CS002', 'Continental Simos 12.1', 'Continental Simos 18.1', 'Continental Simos 18.10', 'Continental Simos 19.6'],
+    'TFSI': ['Bosch MED17.1', 'Bosch MED17.1.1', 'Bosch MED17.5', 'Bosch MG1CS002', 'Bosch MG1CS011', 'Continental Simos 12.1', 'Continental Simos 18.1', 'Continental Simos 18.10'],
+    'FSI': ['Bosch MED9.1', 'Bosch MED9.5', 'Bosch MED17.1'],
+    'default': ['Bosch EDC17CP14', 'Bosch EDC17CP54', 'Bosch MED17.1', 'Bosch MG1CS002', 'Continental Simos 18.1'],
+  },
+  'BMW': {
+    'd': ['Bosch EDC17C06', 'Bosch EDC17C41', 'Bosch EDC17C50', 'Bosch EDC17CP02', 'Bosch EDC17CP09', 'Bosch EDC17CP45', 'Bosch EDC17C76', 'Bosch MD1CP002', 'Bosch MD1CS001'],
+    'i': ['Bosch MEVD17.2', 'Bosch MEVD17.2.4', 'Bosch MEVD17.2.9', 'Bosch MG1CS003', 'Bosch MG1CS201', 'Continental MSD80', 'Continental MSD81', 'Continental MSD85', 'Continental MSD87'],
+    'M': ['Bosch MEVD17.2', 'Bosch MG1CS201', 'Continental MSD85', 'Continental MSD87'],
+    'default': ['Bosch EDC17C50', 'Bosch EDC17CP45', 'Bosch MEVD17.2', 'Bosch MG1CS003', 'Continental MSD80'],
+  },
+  'VW': {
+    'TDI': ['Bosch EDC17CP14', 'Bosch EDC17CP20', 'Bosch EDC17CP44', 'Bosch EDC17CP46', 'Bosch EDC17C46', 'Bosch EDC17C54', 'Bosch EDC17C74', 'Bosch MD1CP004', 'Continental PCR2.1', 'Delphi DCM6.2'],
+    'TSI': ['Bosch MED17.5', 'Bosch MED17.5.2', 'Bosch MED17.1', 'Bosch MG1CS011', 'Continental Simos 12.1', 'Continental Simos 18.1', 'Continental Simos 18.10', 'Continental Simos 19.6'],
+    'default': ['Bosch EDC17CP14', 'Bosch MED17.5', 'Continental Simos 18.1', 'Continental PCR2.1'],
+  },
+  'Mercedes': {
+    'CDI': ['Bosch EDC17CP01', 'Bosch EDC17CP10', 'Bosch EDC17CP46', 'Bosch EDC17CP57', 'Bosch EDC17C43', 'Bosch EDC17C66', 'Bosch MD1CP001', 'Delphi CRD2', 'Delphi CRD3'],
+    'd': ['Bosch EDC17CP46', 'Bosch EDC17CP57', 'Bosch EDC17C66', 'Bosch MD1CP001'],
+    'AMG': ['Bosch MED17.7.2', 'Bosch MED17.7.3', 'Bosch MG1CP002', 'Continental SIM271DE'],
+    'default': ['Bosch EDC17CP46', 'Bosch EDC17CP57', 'Bosch MED17.7.2', 'Bosch MD1CP001', 'Delphi CRD3'],
+  },
+  'Seat': {
+    'TDI': ['Bosch EDC17CP14', 'Bosch EDC17CP20', 'Bosch EDC17C46', 'Bosch EDC17C54', 'Bosch EDC17C74', 'Continental PCR2.1'],
+    'TSI': ['Bosch MED17.5', 'Bosch MED17.5.2', 'Continental Simos 12.1', 'Continental Simos 18.1', 'Continental Simos 18.10'],
+    'default': ['Bosch EDC17CP14', 'Bosch MED17.5', 'Continental Simos 18.1'],
+  },
+  'Skoda': {
+    'TDI': ['Bosch EDC17CP14', 'Bosch EDC17CP20', 'Bosch EDC17C46', 'Bosch EDC17C54', 'Bosch EDC17C74', 'Continental PCR2.1'],
+    'TSI': ['Bosch MED17.5', 'Bosch MED17.5.2', 'Continental Simos 12.1', 'Continental Simos 18.1', 'Continental Simos 18.10'],
+    'default': ['Bosch EDC17CP14', 'Bosch MED17.5', 'Continental Simos 18.1'],
+  },
+  'Opel': {
+    'CDTI': ['Bosch EDC17C18', 'Bosch EDC17C19', 'Bosch EDC17C59', 'Delphi DCM3.7', 'Delphi DCM6.2'],
+    'Turbo': ['Bosch ME17.9', 'Bosch ME17.9.6', 'Delco E80', 'Delco E87'],
+    'default': ['Bosch EDC17C18', 'Bosch EDC17C59', 'Delphi DCM3.7', 'Delco E80'],
+  },
+  'Ford': {
+    'TDCi': ['Bosch EDC17C10', 'Bosch EDC17C70', 'Continental SID807', 'Continental SID211', 'Delphi DCM3.5', 'Delphi DCM6.1'],
+    'EcoBoost': ['Bosch MED17.0', 'Bosch MED17.2', 'Continental EMS2510', 'Continental EMS2511'],
+    'EcoBlue': ['Bosch EDC17C70', 'Bosch MD1CS005', 'Continental SID211'],
+    'default': ['Bosch EDC17C10', 'Bosch MED17.0', 'Continental SID807', 'Delphi DCM3.5'],
+  },
+  'Porsche': {
+    'default': ['Bosch MED17.1.1', 'Bosch MG1CP007', 'Bosch MG1CS111', 'Continental SDI10', 'Continental SDI21', 'Bosch EDC17CP44', 'Bosch MD1CP014'],
+  },
+};
+
+// Get ECU options based on manufacturer and engine
+function getEcuOptions(manufacturer, engine) {
+  if (!manufacturer || !ecuData[manufacturer]) return [];
+  const mfrEcus = ecuData[manufacturer];
+  
+  // Try to find fuel type from engine string
+  const fuelTypes = Object.keys(mfrEcus).filter(k => k !== 'default');
+  const engineLower = (engine || '').toLowerCase();
+  
+  for (const fuelType of fuelTypes) {
+    if (engineLower.includes(fuelType.toLowerCase())) {
+      return mfrEcus[fuelType];
+    }
+  }
+  
+  return mfrEcus['default'] || [];
+}
+
 const readingDevices = [
   { group: 'Autotuner', logo: '/logos/autotuner.png', options: ['Tool'] },
   { group: 'Alientech', logo: '/logos/alientech.png', options: ['Kess3'] },
@@ -242,6 +312,7 @@ export default function FileWizard() {
     series: '',
     vehicleModel: '',
     engine: '',
+    ecu: '',
   });
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -392,6 +463,7 @@ export default function FileWizard() {
         engine: 'MOTOR',
         enginePlaceholder: 'Motor wählen...',
         ecu: 'STEUERGERÄT',
+        ecuPlaceholder: 'Steuergerät wählen...',
         readMethodBadge: 'LESEMETHODE',
         readTypeBadge: 'LESEART',
         applyParsed: 'Übernehmen',
@@ -429,6 +501,7 @@ export default function FileWizard() {
         engine: 'ENGINE',
         enginePlaceholder: 'Select engine...',
         ecu: 'ECU',
+        ecuPlaceholder: 'Select ECU...',
         readMethodBadge: 'METHOD',
         readTypeBadge: 'READ TYPE',
         applyParsed: 'Apply',
@@ -548,12 +621,33 @@ export default function FileWizard() {
       }
     }
     
+    // Match ECU from parsed filename
+    let matchedEcu = '';
+    const parsedEcu = parsedFilename.parts.ecu;
+    if (matchedMfr && parsedEcu) {
+      const ecuOptions = getEcuOptions(matchedMfr, matchedEngine);
+      // Fuzzy match: find the ECU whose name is contained in parsed ECU or vice versa
+      matchedEcu = ecuOptions.find(e => {
+        const eLower = e.toLowerCase().replace(/\s+/g, '');
+        const pLower = parsedEcu.toLowerCase().replace(/\s+/g, '');
+        return pLower.includes(eLower) || eLower.includes(pLower);
+      }) || '';
+      // If no match, try partial match on the ECU code (e.g. "EDC17C74" in "Bosch EDC17C74")
+      if (!matchedEcu) {
+        const ecuCode = parsedEcu.split(' ').find(p => /^(EDC|MED|PCR|MD1|MG1|SID|DCM|Simos)/i.test(p));
+        if (ecuCode) {
+          matchedEcu = ecuOptions.find(e => e.toLowerCase().includes(ecuCode.toLowerCase())) || '';
+        }
+      }
+    }
+    
     setFormData(prev => ({
       ...prev,
       manufacturer: matchedMfr,
       series: matchedSeries,
       vehicleModel: matchedModel,
       engine: matchedEngine,
+      ecu: matchedEcu,
     }));
   }, [parsedFilename]);
 
@@ -1023,7 +1117,7 @@ export default function FileWizard() {
           {/* Cascade Vehicle Selection */}
           <Card className="bg-card border-border" data-testid="vehicle-cascade-card">
             <CardContent className="p-6 space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 {/* 1. Hersteller */}
                 <div className="space-y-2.5">
                   <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
@@ -1032,7 +1126,7 @@ export default function FileWizard() {
                   </label>
                   <Select
                     value={formData.manufacturer}
-                    onValueChange={(val) => setFormData(prev => ({ ...prev, manufacturer: val, series: '', vehicleModel: '', engine: '' }))}
+                    onValueChange={(val) => setFormData(prev => ({ ...prev, manufacturer: val, series: '', vehicleModel: '', engine: '', ecu: '' }))}
                   >
                     <SelectTrigger className="w-full h-12 bg-secondary/50 border-border text-sm" data-testid="select-manufacturer">
                       <SelectValue placeholder={t('manufacturerPlaceholder')} />
@@ -1053,7 +1147,7 @@ export default function FileWizard() {
                   </label>
                   <Select
                     value={formData.series}
-                    onValueChange={(val) => setFormData(prev => ({ ...prev, series: val, vehicleModel: '', engine: '' }))}
+                    onValueChange={(val) => setFormData(prev => ({ ...prev, series: val, vehicleModel: '', engine: '', ecu: '' }))}
                     disabled={!formData.manufacturer}
                   >
                     <SelectTrigger className="w-full h-12 bg-secondary/50 border-border text-sm" data-testid="select-series">
@@ -1077,7 +1171,7 @@ export default function FileWizard() {
                   </label>
                   <Select
                     value={formData.vehicleModel}
-                    onValueChange={(val) => setFormData(prev => ({ ...prev, vehicleModel: val, engine: '' }))}
+                    onValueChange={(val) => setFormData(prev => ({ ...prev, vehicleModel: val, engine: '', ecu: '' }))}
                     disabled={!formData.series}
                   >
                     <SelectTrigger className="w-full h-12 bg-secondary/50 border-border text-sm" data-testid="select-model">
@@ -1101,7 +1195,7 @@ export default function FileWizard() {
                   </label>
                   <Select
                     value={formData.engine}
-                    onValueChange={(val) => setFormData(prev => ({ ...prev, engine: val }))}
+                    onValueChange={(val) => setFormData(prev => ({ ...prev, engine: val, ecu: '' }))}
                     disabled={!formData.vehicleModel}
                   >
                     <SelectTrigger className="w-full h-12 bg-secondary/50 border-border text-sm" data-testid="select-engine">
@@ -1110,6 +1204,30 @@ export default function FileWizard() {
                     <SelectContent className="bg-card border-border">
                       {formData.manufacturer && formData.series && formData.vehicleModel &&
                         vehicleData[formData.manufacturer]?.[formData.series]?.[formData.vehicleModel]?.map((e) => (
+                          <SelectItem key={e} value={e}>{e}</SelectItem>
+                        ))
+                      }
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* 5. ECU / Steuergerät */}
+                <div className="space-y-2.5">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
+                    <GasPump weight="bold" className="w-3.5 h-3.5" />
+                    {t('ecu')}
+                  </label>
+                  <Select
+                    value={formData.ecu}
+                    onValueChange={(val) => setFormData(prev => ({ ...prev, ecu: val }))}
+                    disabled={!formData.manufacturer}
+                  >
+                    <SelectTrigger className="w-full h-12 bg-secondary/50 border-border text-sm" data-testid="select-ecu">
+                      <SelectValue placeholder={formData.manufacturer ? t('ecuPlaceholder') : '—'} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                      {formData.manufacturer &&
+                        getEcuOptions(formData.manufacturer, formData.engine).map((e) => (
                           <SelectItem key={e} value={e}>{e}</SelectItem>
                         ))
                       }
