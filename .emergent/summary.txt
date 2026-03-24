@@ -1,17 +1,17 @@
-<analysis>**original_problem_statement:** 
-build me a dashboard for a Tuningfiles portal. we are Tuningfiles dealer and the Company name is: Chiptuningfile.de. The portal is only for our customers. Logins come from a super admin with easyadmin/symfony via API. Core Features: File upload/download (a specific wizard), Chiptuning configurator with prices/credits, credits system, PayPal payment integration. Colours: red, black, grey. Technical, carbon, modern design.
+<analysis>**original_problem_statement**: 
+Build a dashboard for a Tuningfiles portal for Chiptuningfile.de (a tuning files dealer). The portal is for customers only. Logins come from a super admin with easyadmin/symfony via API. Core Features: File upload/download (a specific multi-step wizard), Chiptuning configurator with prices/credits, credits system, PayPal payment integration. Colours: red, black, grey. Technical, carbon, modern design.
 
-**User's preferred language**: The user's primary language is **German**. INSTRUCT next agent to respond in **German (Deutsch)** only.
+**User's preferred language**: **German**. (You MUST automatically detect the user's primary language from their messages inside the <trajectory> tag and INSTRUCT next agent to respond in **German (Deutsch)** only).
 
 **what currently exists?** 
-A highly-polished, fully mocked React frontend matching the requested technical/carbon design. Features include a Sidebar with collapsible menus, a Header with quick actions, and multiple pages: Dashboard (Progress, Tickets, News, Opening Hours), Orders (List + Detail with visual progress bars), Tickets, Invoices, Profile, Configurator, and a complex Price List. The app supports Dark/Light mode with custom red gradients (). No backend integration or actual APIs are connected yet; everything relies on frontend mock data.
+A highly-polished React frontend matching the requested technical/carbon design. The UI is fully mocked. A complex, multi-step File Upload Wizard () is currently being built. It features advanced regex-based filename parsing, cascading dropdowns for vehicle selection, and interactive tuning stage/option selections. No backend integration or external APIs are connected yet.
 
 **Last working item**: 
-    - Last item agent was working: Fixing Light Theme text contrast issues (replacing hardcoded  with Tailwind's dynamic  across all dashboard files using bash scripts).
-    - Status: COMPLETED
+    - Last item agent was working: Building Step 3 (Options) of the File Wizard. The user specifically requested that when Getriebe (Gearbox) is selected as the tuning stage, the UI must show different sub-options based on the existing  (e.g., Gearbox Stage 1, Stage 2, Stage 3), rather than the standard engine tuning options like DPF-Off.
+    - Status: IN PROGRESS
     - Agent Testing Done: Y
     - Which testing method agent to use? screenshot tool
-    - User Testing Done: N/A
+    - User Testing Done: N
 
 **All Pending/In progress Issue list**: 
   Issue 1: Backend Integration for Mocked Data (P0)
@@ -24,32 +24,39 @@ A highly-polished, fully mocked React frontend matching the requested technical/
      - Blocked on other issue: None
 
 **In progress Task List**: 
-None. Last UI task was fully completed.
+  Task 1: File Wizard Step 3 Getriebe Options (P0)
+     - Where to resume: Read  to understand the specific options available for Gearbox (Getriebe). Modify the options rendering in  (Step 3) to conditionally show these Gearbox-specific options when the Getriebe stage card is selected.
+     - What will be achieved with this? Accurate order configuration matching the portal's pricing model.
+     - Status: IN PROGRESS
+     - Should Test frontend/backend/both after fix? frontend
+     - Blocked on something: None
+
+  Task 2: File Wizard Step 4 Übersicht (Review) (P1)
+     - Where to resume: Build the final review step in  summarizing Step 1, Step 2, and Step 3 selections before final submission.
+     - What will be achieved with this? Completing the UI for the File Upload Wizard.
+     - Status: NOT STARTED
+     - Should Test frontend/backend/both after fix? frontend
+     - Blocked on something: Task 1
 
 **Upcoming and Future Tasks**
     Upcoming Tasks:
-    - Task 1: **File Wizard Implementation** (P0) - User mentioned File upload/download but different from normal. this has to be a wizard. Currently  is just a placeholder. User will provide specific wizard steps.
-    - Task 2: **Symfony API Authentication Sync** (P0) - Connect the login flow to the external EasyAdmin/Symfony super admin via API as specified in the first prompt.
-    - Task 3: **MongoDB Backend Setup** (P1) - Create Pydantic models and CRUD endpoints for Users, Orders, Tickets, Invoices, and News in FastAPI.
-    - Task 4: **PayPal Integration** (P1) - Implement PayPal logic for the Credits kaufen flow in  and Header. Requires .
+    - Task 3: **Symfony API Authentication Sync** (P0) - Connect the login flow to the external EasyAdmin/Symfony super admin via API as specified in the original prompt.
+    - Task 4: **MongoDB Backend Setup** (P1) - Create Pydantic models and CRUD endpoints for Users, Orders, Tickets, Invoices, and News in FastAPI.
+    - Task 5: **PayPal Integration** (P1) - Implement PayPal logic for the Credits kaufen flow in  and Header. Requires .
     
     Future Tasks:
-    - Task 5: **Invoice PDF Generator** (P2) - Allow users to download real PDF invoices from the Invoices table.
+    - Task 6: **Invoice PDF Generator** (P2) - Allow users to download real PDF invoices from the Invoices table.
 
 **Completed work in this session**
-- Complete UI layout generation (Sidebar, Header, Dashboard layout).
-- Implemented  (Invoices & Credits overview).
-- Implemented  and  with horizontal and vertical visual progress tracks.
-- Implemented  and  for support system.
-- Refined Dashboard layout to 1/3 grid splits (Current Order Progress, Current Tickets, Opening Hours, News Carousel).
-- Implemented intricate  with category tabs (PKW/LKW), 6-column option cards, and specific red/green pricing badges.
-- Setup  for Dark/Light mode switching.
+- File Wizard Step 1 (File & Lesegerät): Built layout, tuning tool dropdowns with brand logos, Lesemethode/Leseart with white Phosphor SVG icons, and Master/slave toggles.
+- File Wizard Step 2 (Fahrzeugauswahl): Implemented advanced filename parsing (extracts Manufacturer, Series, Model, Engine, ECU, read method/type). Created visual parsing badges with match-status highlighting. Built 5-level cascading dropdowns with fuzzy string matching applied via an Übernehmen button.
+- File Wizard Step 3 (Partial): Created vehicle summary header, compact tuning stage cards (Stage 1, 2, Eco, Getriebe), and free inclusive options logic (without pre-selection).
 
 **Earlier issues found/mentioned but not fixed**
-   None. All UI iterations requested by the user were successfully resolved.
+   None.
 
 **Known issue recurrence from previous fork**
-  - Issue recurrence in previous fork: N/A (Initial session)
+  - Issue recurrence in previous fork: None
   - Recurrence count: 0
   - Status: N/A
 
@@ -57,55 +64,43 @@ None. Last UI task was fully completed.
 
 
 **Key Technical Concepts**
-Frontend: React.js, Tailwind CSS, Shadcn UI, Phosphor Icons (), React Router, Context API (Theme, Language).
+Frontend: React.js, Tailwind CSS, Shadcn UI, Phosphor Icons (), Regex-based string parsing, Fuzzy matching.
 Backend: FastAPI, MongoDB (Currently untouched).
 
 **key DB schema**
-  - None created yet. Backend models for , , , , and  need to be designed.
+  - None created yet. 
 
 **changes in tech stack**
-  - Included  for technical/modern SVG icons.
-  - Implemented custom Theme/Language context providers.
+  - None.
 
 **All files of reference** 
-- : Contains crucial CSS variables for the Dark/Light themes and custom gradients (, ).
-- : Contains the custom collapsible menu logic.
-- : Contains complex pricing structures and conditional UI rendering for tuning options.
-- : Contains highly customized grid layout with News Carousel and visual progress tracking.
+- : The primary focus of this session. Contains complex multi-step form state, a hardcoded vehicle database, and filename parsing logic.
+- : Crucial reference file to understand how pricing and tuning options should be structured in the Wizard.
 
 **Areas that need refactoring**: 
--  was created to replace the old . It can be renamed back to  to keep the file structure clean.
-- Massive amounts of mock data are hardcoded directly into the component files (, , ). These should be extracted to hooks/services before starting backend integration.
+-  has grown massively (>1500 lines) due to the hardcoded vehicle mock database and complex step logic. The vehicle data should ideally be extracted to a separate constants file, and the Wizard steps could be componentized to improve maintainability.
 
 **key api endpoints**
-  - No custom backend APIs implemented yet.
+  - None yet.
 
 **Critical Info for New Agent** 
-- The user is extremely detail-oriented regarding the UI. Maintain the exact styling principles established (Phosphor icons, Red  gradients, specific layout fractions like 1/3 widths).
-- **CRITICAL**: Before making UI changes, ensure they work in BOTH Dark and Light modes! The agent just spent effort fixing text contrast issues caused by hardcoded  classes in Light Mode. Always use Tailwind dynamic classes (e.g., , , ).
-- **CRITICAL**: The user prefers to communicate in German and provides very specific UI/UX demands. Acknowledge and proceed in German.
-- The next logical step based on the prompt is asking the user for the specifics of the File Wizard or beginning to wire up the Symfony API Authentication that was mentioned in the original prompt.
+- The user is extremely detail-oriented, providing iterative visual feedback via screenshots. Maintain the exact styling principles (Phosphor icons, Red  gradients, specific layout alignments).
+- **Language**: Acknowledge and proceed in **German**.
+- The  state management is complex (, , cascading dropdowns). Read the  and  functions carefully before modifying Step 2/Step 3 state.
 
 **documents and test reports created in this job** 
   - 
-  - 
-  - 
 
 **Last 10 User Messages and any pending HUMAN messages** 
- 1. aber bei hell passen die schriftfarben oft nicht (Light mode text contrast issues) -> Fixed by agent. (COMPLETED)
- 2. mache mir einen theme switch rein und eine light version. mache das rot sehr dunkel edel. vielleicht mit gradient -> Implemented ThemeContext & dark red gradient. (COMPLETED)
- 3. bei stage1 müssen die preise auch rot bg -> Added red badges to option prices. (COMPLETED)
- 4. die optionen als kleine card jeweils. 6 stück in einer row. mit icon... -> Updated PriceList cards. (COMPLETED)
- 5. preisliste: es gibt 2 oberkategorien: PKW und LKW... -> Rebuilt PriceList structure and tabs. (COMPLETED)
- 6. mache mir auch aufklappbare menüs. Dashboard nicht... -> Built collapsible sidebar sections. (COMPLETED)
- 7. icon weg oben beim namen. nur Chiptuningfile.de lassen -> Removed logo icon in sidebar. (COMPLETED)
- 8. Neue Anfrage änder zu Auftrag und als icon ein file symbol... auf dem dashboard neben letzte Aktivität ein Newsbereich -> Header tweaks and News Carousel added. (COMPLETED)
- 9. suche nach links. name oben raus. buttons für neuen Auftrag und Credits kaufen oben auch in den header. -> Restructured Header/Dashboard layout. (COMPLETED)
- 10. aktuelle tickets muss auch aufs dashboard -> Added tickets card to dashboard. (COMPLETED)
+ 1. bei steuergerät bitte nur das erkannte und eins: ZF AL552 -> Restrained ECU dropdown options. (COMPLETED)
+ 2. nun schritt 3. wir erstellen den schritt stück für stück. fange an mit: Anzeige oben welches Auto ausgewählt ist... -> Added vehicle summary header to Step 3. (COMPLETED)
+ 3. wir brauchen hier nun die anzeige was es für dieses fahrzeug gibt. nimm die preisliste als vorgabe... -> Built tuning stage cards. (COMPLETED)
+ 4. tuning wählen in der höhe reduzieren. beschreibungstext raus. die inklusive nicht vorauswählen... -> Compacted UI, removed pre-selection of free options. (COMPLETED)
+ 5. bei getriebe bitte auch an der preisliste orientieren. da sind andere optionen -> **PENDING**: The user wants the sub-options to change to Gearbox-specific options when the Getriebe stage is selected in Step 3.
 
 **Project Health Check:**
 - Broken: None.
-- Mocked: **ENTIRE FRONTEND IS MOCKED.** All stats, tables, tickets, invoices, and progress bars rely on static arrays in the  files.
+- Mocked: Frontend is entirely mocked.  contains a hardcoded  object simulating a database.
 
 **3rd Party Integrations** 
 None currently active. 
@@ -113,7 +108,7 @@ None currently active.
 *(Pending: External API call to EasyAdmin/Symfony for Auth sync)*
 
 **Testing status**
-  - Testing agent used after significant changes: YES
+  - Testing agent used after significant changes: NO (The main agent relied entirely on the screenshot tool for UI verification).
   - Troubleshoot agent used after agent stuck in loop: NO
   - Test files created: []
   - Known regressions: []
@@ -122,6 +117,4 @@ None currently active.
 None yet. App is running entirely on static mock data. 
 
 **What agent forgot to execute**
-- The initial prompt requested connecting logins to an existing EasyAdmin/Symfony super admin via API. This was deferred to focus on layout.
-- Implementation of the actual File Upload Wizard, which the user explicitly stated is different from normal. Currently, it's just an empty placeholder.
-- PayPal Integration for credits.</analysis>
+- The agent forgot to call the  after completing massive refactors to  (Step 1 and Step 2). The next agent should trigger the testing agent once Step 3 and Step 4 are complete to ensure the entire wizard flow has no regressions.</analysis>
