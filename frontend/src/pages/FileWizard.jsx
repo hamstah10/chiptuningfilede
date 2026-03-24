@@ -1589,7 +1589,7 @@ export default function FileWizard() {
                   </div>
 
                   {/* Stage comparison - horizontal bars */}
-                  <div className="mt-6 space-y-4">
+                  <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* PS Row */}
                     <div>
                       <div className="flex items-center justify-between mb-2">
