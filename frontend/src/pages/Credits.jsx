@@ -189,16 +189,17 @@ export default function Credits() {
                     <Check weight="bold" className="w-3.5 h-3.5 text-white" />
                   </div>
                 )}
-                <div className="flex items-start justify-between mb-1">
-                  <div>
-                    <span className="text-2xl font-bold text-foreground font-heading">{fmt(pkg.price)} &euro;</span>
-                    {pkg.oldPrice && (
-                      <span className="ml-2 text-sm text-muted-foreground line-through">{fmt(pkg.oldPrice)} &euro;</span>
-                    )}
-                  </div>
-                  <span className="text-primary font-bold text-sm mt-1">{pkg.credits.toLocaleString('de-DE')} {t('credits')}</span>
+                {/* Credits amount - hero */}
+                <p className="text-3xl font-bold text-primary font-heading">{pkg.credits.toLocaleString('de-DE')}</p>
+                <p className="text-xs text-muted-foreground mb-3">{t('credits')}</p>
+                {/* Price */}
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="text-sm font-semibold text-foreground">{fmt(pkg.price)} &euro;</span>
+                  {pkg.oldPrice && (
+                    <span className="text-xs text-muted-foreground line-through">{fmt(pkg.oldPrice)} &euro;</span>
+                  )}
                 </div>
-                <p className="text-xs text-muted-foreground mb-4">{fmt(pkg.priceInkl)} &euro; {t('inclVat')}</p>
+                <p className="text-[11px] text-muted-foreground mb-4">{fmt(pkg.priceInkl)} &euro; {t('inclVat')}</p>
                 <div className="h-px bg-border mb-3" />
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">{t('features')}</p>
                 <div className="flex flex-wrap gap-x-4 gap-y-1">
