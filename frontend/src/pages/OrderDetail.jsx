@@ -1,13 +1,31 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
+import { Textarea } from '../components/ui/textarea';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../components/ui/dialog';
 import {
   ArrowLeft, CarProfile, CheckCircle, Download, FileArrowUp, FileArrowDown,
   CurrencyCircleDollar, Wrench, Note, Copy, Info, Package,
-  Upload, Cpu, MagnifyingGlass, Lightning,
+  Upload, Cpu, MagnifyingGlass, Lightning, Ticket, PaperPlaneTilt,
   Headset, Clock, Pulse, Warning, XCircle,
 } from '@phosphor-icons/react';
 import { cn } from '../lib/utils';
@@ -68,6 +86,23 @@ const t_data = {
     step_no_match: 'Kein Match gefunden',
     step_manual: 'Manuelle Bearbeitung',
     step_support_notified: 'Support benachrichtigt',
+    // Ticket
+    openTicket: 'Ticket \u00F6ffnen',
+    ticketDesc: 'Support-Anfrage zu diesem Auftrag erstellen',
+    ticketSubject: 'Betreff',
+    ticketSubjectPlaceholder: 'Kurze Beschreibung des Problems',
+    ticketCategory: 'Kategorie',
+    ticketCatTechnical: 'Technisches Problem',
+    ticketCatFile: 'Datei-Problem',
+    ticketCatGeneral: 'Allgemeine Frage',
+    ticketCatBilling: 'Abrechnung',
+    ticketMessage: 'Nachricht',
+    ticketMessagePlaceholder: 'Beschreibe dein Anliegen so genau wie m\u00F6glich...',
+    ticketOrder: 'Auftrag',
+    ticketSend: 'Ticket absenden',
+    ticketSent: 'Ticket erstellt!',
+    ticketSentMsg: 'Dein Ticket wurde erfolgreich erstellt. Unser Support-Team meldet sich schnellstm\u00F6glich.',
+    ticketGoTo: 'Zum Ticket',
   },
   en: {
     backToOrders: 'Back to Orders',
@@ -123,6 +158,23 @@ const t_data = {
     step_no_match: 'No match found',
     step_manual: 'Manual processing',
     step_support_notified: 'Support notified',
+    // Ticket
+    openTicket: 'Open Ticket',
+    ticketDesc: 'Create a support request for this order',
+    ticketSubject: 'Subject',
+    ticketSubjectPlaceholder: 'Brief description of the issue',
+    ticketCategory: 'Category',
+    ticketCatTechnical: 'Technical Issue',
+    ticketCatFile: 'File Problem',
+    ticketCatGeneral: 'General Question',
+    ticketCatBilling: 'Billing',
+    ticketMessage: 'Message',
+    ticketMessagePlaceholder: 'Describe your concern as precisely as possible...',
+    ticketOrder: 'Order',
+    ticketSend: 'Submit Ticket',
+    ticketSent: 'Ticket Created!',
+    ticketSentMsg: 'Your ticket has been created successfully. Our support team will get back to you shortly.',
+    ticketGoTo: 'Go to Ticket',
   },
 };
 
@@ -212,6 +264,133 @@ function StatusStepper({ order, t }) {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+// ─── Ticket Dialog Card ─────────────────────────────────────────────
+function TicketCard({ order, t, navigate }) {
+  const [open, setOpen] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [subject, setSubject] = useState('');
+  const [category, setCategory] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = () => {
+    setSent(true);
+  };
+
+  const handleReset = () => {
+    setOpen(false);
+    setSent(false);
+    setSubject('');
+    setCategory('');
+    setMessage('');
+  };
+
+  return (
+    <Card className="bg-card border-border border-dashed" data-testid="ticket-card">
+      <CardContent className="p-5">
+        <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase mb-2">
+          <Ticket weight="bold" className="w-3.5 h-3.5" />
+          {t('openTicket')}
+        </label>
+        <p className="text-[11px] text-muted-foreground mb-4">{t('ticketDesc')}</p>
+
+        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) handleReset(); }}>
+          <DialogTrigger asChild>
+            <Button className="w-full bg-secondary/80 hover:bg-secondary border border-border text-foreground font-bold py-2.5 h-auto text-sm" data-testid="open-ticket-btn">
+              <Ticket weight="fill" className="w-4 h-4 mr-2" />
+              {t('openTicket')}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="bg-card border-border max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="font-heading text-lg flex items-center gap-2">
+                <Ticket weight="fill" className="w-5 h-5 text-primary" />
+                {t('openTicket')}
+              </DialogTitle>
+            </DialogHeader>
+
+            {sent ? (
+              <div className="py-6 text-center space-y-4">
+                <CheckCircle weight="fill" className="w-14 h-14 text-green-500 mx-auto" />
+                <p className="text-lg font-bold text-green-400">{t('ticketSent')}</p>
+                <p className="text-sm text-muted-foreground px-4">{t('ticketSentMsg')}</p>
+                <div className="flex gap-3 justify-center pt-2">
+                  <Button variant="outline" className="border-border" onClick={handleReset}>OK</Button>
+                  <Button className="btn-gradient text-white font-semibold" onClick={() => { handleReset(); navigate('/tickets'); }} data-testid="goto-ticket-btn">
+                    {t('ticketGoTo')}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4 pt-2">
+                {/* Order reference (read-only) */}
+                <div>
+                  <Label className="text-xs text-muted-foreground">{t('ticketOrder')}</Label>
+                  <div className="mt-1 flex items-center gap-2 bg-secondary/50 border border-border rounded-sm px-3 py-2">
+                    <Package weight="fill" className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-mono font-semibold text-foreground">{order.id}</span>
+                    <span className="text-xs text-muted-foreground">&mdash; {order.vehicle.manufacturer} {order.vehicle.model}</span>
+                  </div>
+                </div>
+
+                {/* Category */}
+                <div>
+                  <Label className="text-xs text-muted-foreground">{t('ticketCategory')}</Label>
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger className="mt-1 bg-secondary/50 border-border" data-testid="ticket-category">
+                      <SelectValue placeholder={t('ticketCategory')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="technical">{t('ticketCatTechnical')}</SelectItem>
+                      <SelectItem value="file">{t('ticketCatFile')}</SelectItem>
+                      <SelectItem value="general">{t('ticketCatGeneral')}</SelectItem>
+                      <SelectItem value="billing">{t('ticketCatBilling')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Subject */}
+                <div>
+                  <Label className="text-xs text-muted-foreground">{t('ticketSubject')}</Label>
+                  <Input
+                    className="mt-1 bg-secondary/50 border-border"
+                    placeholder={t('ticketSubjectPlaceholder')}
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    data-testid="ticket-subject"
+                  />
+                </div>
+
+                {/* Message */}
+                <div>
+                  <Label className="text-xs text-muted-foreground">{t('ticketMessage')}</Label>
+                  <Textarea
+                    className="mt-1 bg-secondary/50 border-border min-h-[120px] resize-none"
+                    placeholder={t('ticketMessagePlaceholder')}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    data-testid="ticket-message"
+                  />
+                </div>
+
+                {/* Submit */}
+                <Button
+                  className="w-full btn-gradient text-white font-bold py-3 h-auto"
+                  disabled={!subject.trim() || !message.trim() || !category}
+                  onClick={handleSubmit}
+                  data-testid="ticket-submit-btn"
+                >
+                  <PaperPlaneTilt weight="fill" className="w-4 h-4 mr-2" />
+                  {t('ticketSend')}
+                </Button>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -484,6 +663,9 @@ export default function OrderDetail() {
                   </CardContent>
                 </Card>
               )}
+
+              {/* Ticket */}
+              <TicketCard order={order} t={t} navigate={navigate} />
             </div>
           </div>
         ) : (
@@ -534,6 +716,9 @@ export default function OrderDetail() {
                   </CardContent>
                 </Card>
               )}
+
+              {/* Ticket */}
+              <TicketCard order={order} t={t} navigate={navigate} />
             </div>
           </div>
         )}
