@@ -29,6 +29,11 @@ Build a dashboard for Tuningfiles portal for Chiptuningfile.de (tuning files dea
 - [x] Phosphor icons, Exo 2 + IBM Plex Sans fonts
 - [x] Price List page (PKW/LKW tabs, stages, gearbox, options)
 
+### Configurator (Feb 2026)
+- [x] Vehicle type selector (PKW, LKW, Motorrad, Agrar, Jetski, Andere)
+- [x] 4-level cascading dropdowns (Hersteller/Baureihe/Modell/Motor)
+- [x] ECU display, Dyno chart, Performance bars, Tuning stages, Gearbox stages, Options grid
+
 ### File Wizard (Feb 2026)
 - [x] Step 1: File Upload & Lesegerät (tool selection, method/type toggles, master/slave, priority)
 - [x] Step 2: Fahrzeugauswahl (regex filename parsing, cascading dropdowns, fuzzy matching, "Übernehmen" button)
