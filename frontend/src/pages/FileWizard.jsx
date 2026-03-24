@@ -19,10 +19,8 @@ import {
   Timer,
   CloudArrowUp,
   ArrowRight,
-  MapPin,
   X,
-  File as FileIcon,
-  CheckCircle
+  File as FileIcon
 } from '@phosphor-icons/react';
 import { cn } from '../lib/utils';
 
@@ -325,18 +323,6 @@ export default function FileWizard() {
                   ))}
                 </div>
               )}
-
-              {/* Addresses Button */}
-              <div className="mb-4">
-                <Button
-                  variant="outline"
-                  className="bg-foreground text-background hover:bg-foreground/90 border-0 text-xs font-semibold px-4 py-2 rounded-sm"
-                  data-testid="addresses-btn"
-                >
-                  <MapPin weight="bold" className="w-3.5 h-3.5 mr-1.5" />
-                  {t('addressesMore')}
-                </Button>
-              </div>
 
               {/* Drag & Drop Zone */}
               <div
