@@ -15,7 +15,8 @@ import {
   Sliders,
   CurrencyCircleDollar,
   ListBullets,
-  ShoppingCart
+  ShoppingCart,
+  EnvelopeSimple
 } from '@phosphor-icons/react';
 import { cn } from '../../lib/utils';
 
@@ -41,6 +42,7 @@ export const Sidebar = () => {
       invoices: 'Rechnungen',
       tickets: 'Tickets',
       profile: 'Profil',
+      emailTemplates: 'E-Mail Templates',
       logout: 'Abmelden',
     },
     en: {
@@ -55,6 +57,7 @@ export const Sidebar = () => {
       invoices: 'Invoices',
       tickets: 'Tickets',
       profile: 'Profile',
+      emailTemplates: 'Email Templates',
       logout: 'Logout',
     }
   };
@@ -178,6 +181,9 @@ export const Sidebar = () => {
 
         {/* Tickets - single */}
         <NavItem path="/tickets" icon={Ticket} label={t('tickets')} />
+
+        {/* Email Templates - single */}
+        <NavItem path="/email-templates" icon={EnvelopeSimple} label={t('emailTemplates')} />
 
         {/* Profile - single */}
         <NavItem path="/profile" icon={User} label={t('profile')} />
