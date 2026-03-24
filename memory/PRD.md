@@ -34,7 +34,7 @@ Build a dashboard for Tuningfiles portal for Chiptuningfile.de (tuning files dea
 - [x] Step 2: Fahrzeugauswahl (regex filename parsing, cascading dropdowns, fuzzy matching, "Übernehmen" button)
 - [x] Step 2: Leistungsdaten-Anzeige mit Recharts-Charts (PS + Nm Balkendiagramm, Stage 1/2 Vergleich, Tuning-Optionen Vorschau)
 - [x] Step 3: Optionen (tuning stage cards, additional options grid, gearbox-specific sub-stages with warning note, credit calculation)
-- [ ] Step 4: Übersicht (Review) — NOT STARTED
+- [x] Step 4: Übersicht (Review-Seite mit Zusammenfassung aller Steps, Kostenaufstellung, Bearbeiten-Links, Absenden-Button)
 
 ### Backend
 - Nothing yet (server.py exists but empty logic)

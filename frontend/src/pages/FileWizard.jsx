@@ -48,7 +48,10 @@ import {
   Fire,
   RocketLaunch,
   Prohibit,
-  Thermometer
+  Thermometer,
+  PaperPlaneTilt,
+  CreditCard,
+  Pencil
 } from '@phosphor-icons/react';
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
@@ -617,6 +620,22 @@ export default function FileWizard() {
         nextStep4: 'Weiter zur Übersicht',
         gearboxNote: 'Nur bei VW, Audi, Seat, Cupra, Skoda und BMW möglich',
         selectGearboxStage: 'GETRIEBE-STUFE WÄHLEN',
+        // Step 4
+        step4Title: 'Übersicht',
+        reviewFile: 'DATEI & LESEGERÄT',
+        reviewVehicle: 'FAHRZEUG',
+        reviewTuning: 'TUNING & OPTIONEN',
+        reviewCost: 'KOSTEN',
+        submitOrder: 'Auftrag absenden',
+        editStep: 'Bearbeiten',
+        noFileUploaded: 'Keine Datei hochgeladen',
+        noVehicleSelected: 'Kein Fahrzeug ausgewählt',
+        noTuningSelected: 'Kein Tuning ausgewählt',
+        stage: 'Stufe',
+        options: 'Optionen',
+        baseCredits: 'Grundpreis',
+        optionsCredits: 'Optionen',
+        prioritySurcharge: 'Prioritäts-Zuschlag',
       },
       en: {
         pageTitle: 'New Order',
@@ -674,6 +693,22 @@ export default function FileWizard() {
         nextStep4: 'Continue to Review',
         gearboxNote: 'Only available for VW, Audi, Seat, Cupra, Skoda and BMW',
         selectGearboxStage: 'SELECT GEARBOX STAGE',
+        // Step 4
+        step4Title: 'Review',
+        reviewFile: 'FILE & READING DEVICE',
+        reviewVehicle: 'VEHICLE',
+        reviewTuning: 'TUNING & OPTIONS',
+        reviewCost: 'COST',
+        submitOrder: 'Submit Order',
+        editStep: 'Edit',
+        noFileUploaded: 'No file uploaded',
+        noVehicleSelected: 'No vehicle selected',
+        noTuningSelected: 'No tuning selected',
+        stage: 'Stage',
+        options: 'Options',
+        baseCredits: 'Base price',
+        optionsCredits: 'Options',
+        prioritySurcharge: 'Priority surcharge',
       },
     };
     return texts[language]?.[key] || texts.de[key] || key;
@@ -920,7 +955,7 @@ export default function FileWizard() {
         <div className="flex items-end justify-between">
           <div>
             <h1 className="font-heading text-2xl font-bold text-foreground tracking-tight">
-              {currentStep === 1 ? t('stepTitle') : currentStep === 2 ? t('step2Title') : t('step3Title')}
+              {currentStep === 1 ? t('stepTitle') : currentStep === 2 ? t('step2Title') : currentStep === 3 ? t('step3Title') : t('step4Title')}
             </h1>
             <div className="w-10 h-1 bg-green-500 rounded-full mt-2" />
           </div>
@@ -1892,9 +1927,315 @@ export default function FileWizard() {
             <Button
               className="btn-gradient text-white font-semibold px-8 py-3 h-auto"
               data-testid="wizard-next-btn-step3"
+              onClick={() => setCurrentStep(4)}
             >
               {t('nextStep4')}
               <ArrowRight weight="bold" className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        </>)}
+
+        {/* ====== STEP 4: Übersicht ====== */}
+        {currentStep === 4 && (<>
+          {/* Section 1: File & Lesegerät */}
+          <Card className="bg-card border-border" data-testid="review-file-card">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between mb-4">
+                <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
+                  <Upload weight="bold" className="w-3.5 h-3.5" />
+                  {t('reviewFile')}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(1)}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
+                  data-testid="review-edit-step1"
+                >
+                  <Pencil weight="bold" className="w-3.5 h-3.5" />
+                  {t('editStep')}
+                </button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {/* Uploaded File */}
+                <div className="bg-secondary/50 border border-border rounded-sm px-4 py-3">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{language === 'de' ? 'Datei' : 'File'}</p>
+                  {uploadedFiles.length > 0 ? (
+                    <div className="flex items-center gap-2">
+                      <FileIcon weight="fill" className="w-4 h-4 text-primary flex-shrink-0" />
+                      <p className="text-sm font-semibold text-foreground truncate">{uploadedFiles[0].name}</p>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">{t('noFileUploaded')}</p>
+                  )}
+                </div>
+                {/* Reading Device */}
+                <div className="bg-secondary/50 border border-border rounded-sm px-4 py-3">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t('tuningTool')}</p>
+                  <p className="text-sm font-semibold text-foreground">{formData.readingDevice || '—'}</p>
+                </div>
+                {/* Reading Method */}
+                <div className="bg-secondary/50 border border-border rounded-sm px-4 py-3">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t('readingMethod')}</p>
+                  <p className="text-sm font-semibold text-foreground">{formData.readingMethod}</p>
+                </div>
+                {/* Reading Type */}
+                <div className="bg-secondary/50 border border-border rounded-sm px-4 py-3">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t('readingType')}</p>
+                  <p className="text-sm font-semibold text-foreground">{formData.readingType}</p>
+                </div>
+                {/* Master/Slave */}
+                <div className="bg-secondary/50 border border-border rounded-sm px-4 py-3">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t('masterSlave')}</p>
+                  <p className="text-sm font-semibold text-foreground">{formData.masterSlave}</p>
+                </div>
+                {/* Priority */}
+                <div className={cn(
+                  "border rounded-sm px-4 py-3",
+                  formData.priority !== 'Normal' ? "bg-primary/8 border-primary/30" : "bg-secondary/50 border-border"
+                )}>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t('priority')}</p>
+                  <p className={cn("text-sm font-semibold", formData.priority !== 'Normal' ? "text-primary" : "text-foreground")}>
+                    {formData.priority}
+                    {formData.priority === 'Express' && <span className="text-xs ml-1 text-muted-foreground">(+49€)</span>}
+                    {formData.priority === 'Sofort' && <span className="text-xs ml-1 text-muted-foreground">(+99€)</span>}
+                  </p>
+                </div>
+              </div>
+              {/* Comment */}
+              {formData.comment && (
+                <div className="mt-3 bg-secondary/50 border border-border rounded-sm px-4 py-3">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{t('comment')}</p>
+                  <p className="text-sm text-foreground whitespace-pre-wrap">{formData.comment}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Section 2: Vehicle */}
+          <Card className="bg-card border-border" data-testid="review-vehicle-card">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between mb-4">
+                <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
+                  <CarProfile weight="bold" className="w-3.5 h-3.5" />
+                  {t('reviewVehicle')}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(2)}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
+                  data-testid="review-edit-step2"
+                >
+                  <Pencil weight="bold" className="w-3.5 h-3.5" />
+                  {t('editStep')}
+                </button>
+              </div>
+              {formData.manufacturer ? (
+                <div className="flex flex-wrap gap-3">
+                  <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-sm px-4 py-2.5">
+                    <Car weight="bold" className="w-4 h-4 text-primary" />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('manufacturer')}</p>
+                      <p className="text-sm font-semibold text-foreground">{formData.manufacturer}</p>
+                    </div>
+                  </div>
+                  {formData.series && (
+                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2.5">
+                      <Tag weight="bold" className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('series')}</p>
+                        <p className="text-sm font-semibold text-foreground">{formData.series}</p>
+                      </div>
+                    </div>
+                  )}
+                  {formData.vehicleModel && (
+                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2.5">
+                      <Calendar weight="bold" className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('vehicleModel')}</p>
+                        <p className="text-sm font-semibold text-foreground">{formData.vehicleModel}</p>
+                      </div>
+                    </div>
+                  )}
+                  {formData.engine && (
+                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2.5">
+                      <Engine weight="bold" className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('engine')}</p>
+                        <p className="text-sm font-semibold text-foreground">{formData.engine}</p>
+                      </div>
+                    </div>
+                  )}
+                  {formData.ecu && (
+                    <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-sm px-4 py-2.5">
+                      <GasPump weight="bold" className="w-4 h-4 text-primary" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('ecu')}</p>
+                        <p className="text-sm font-semibold text-foreground">{formData.ecu}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">{t('noVehicleSelected')}</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Section 3: Tuning & Options */}
+          <Card className="bg-card border-border" data-testid="review-tuning-card">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between mb-4">
+                <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
+                  <Lightning weight="bold" className="w-3.5 h-3.5" />
+                  {t('reviewTuning')}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(3)}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
+                  data-testid="review-edit-step3"
+                >
+                  <Pencil weight="bold" className="w-3.5 h-3.5" />
+                  {t('editStep')}
+                </button>
+              </div>
+              {selectedStage ? (
+                <div className="space-y-4">
+                  {/* Selected Stage */}
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">{t('stage')}</p>
+                    <div className="flex items-center gap-3">
+                      {(() => {
+                        const stage = tuningStages.find(s => s.id === selectedStage);
+                        if (!stage) return null;
+                        const Icon = stage.Icon;
+                        return (
+                          <div className="flex items-center gap-3 bg-primary/8 border border-primary/30 rounded-sm px-4 py-2.5">
+                            <Icon weight="fill" className="w-5 h-5 text-primary" />
+                            <span className="text-sm font-bold text-foreground">{stage.name[language]}</span>
+                            {selectedStage === 'gearbox' && selectedGearboxStage ? (
+                              <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs font-bold">
+                                {gearboxStages.find(gs => gs.id === selectedGearboxStage)?.name[language]} — {gearboxStages.find(gs => gs.id === selectedGearboxStage)?.credits} Credits
+                              </Badge>
+                            ) : stage.credits > 0 ? (
+                              <Badge className="bg-primary/20 text-primary border-primary/30 text-xs font-bold">{stage.credits} Credits</Badge>
+                            ) : null}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                  {/* Selected Options (not for gearbox) */}
+                  {selectedStage !== 'gearbox' && selectedOptions.length > 0 && (
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">{t('options')}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedOptions.map(optId => {
+                          const opt = tuningOptions.find(o => o.id === optId);
+                          if (!opt) return null;
+                          const Icon = opt.Icon;
+                          return (
+                            <div key={optId} className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-3 py-2">
+                              <Icon weight="fill" className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-xs font-semibold text-foreground">{opt.name[language]}</span>
+                              {opt.credits > 0 ? (
+                                <span className="text-[10px] font-bold text-primary">+{opt.credits}</span>
+                              ) : (
+                                <span className="text-[10px] font-bold text-green-400">0</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">{t('noTuningSelected')}</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Section 4: Cost Summary */}
+          <Card className="bg-card border-primary/30" data-testid="review-cost-card">
+            <CardContent className="p-5">
+              <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase mb-4">
+                <CreditCard weight="bold" className="w-3.5 h-3.5" />
+                {t('reviewCost')}
+              </label>
+              <div className="space-y-2">
+                {/* Stage base cost */}
+                {selectedStage && (
+                  <div className="flex items-center justify-between py-2 border-b border-border/50">
+                    <span className="text-sm text-muted-foreground">{t('baseCredits')}: {
+                      selectedStage === 'gearbox'
+                        ? `${tuningStages.find(s => s.id === 'gearbox')?.name[language]} ${selectedGearboxStage ? '— ' + gearboxStages.find(gs => gs.id === selectedGearboxStage)?.name[language] : ''}`
+                        : tuningStages.find(s => s.id === selectedStage)?.name[language]
+                    }</span>
+                    <span className="text-sm font-bold text-foreground">
+                      {selectedStage === 'gearbox'
+                        ? (gearboxStages.find(gs => gs.id === selectedGearboxStage)?.credits || 0)
+                        : (tuningStages.find(s => s.id === selectedStage)?.credits || 0)
+                      } Credits
+                    </span>
+                  </div>
+                )}
+                {/* Options cost */}
+                {selectedStage !== 'gearbox' && selectedOptions.length > 0 && (
+                  <div className="flex items-center justify-between py-2 border-b border-border/50">
+                    <span className="text-sm text-muted-foreground">{t('optionsCredits')} ({selectedOptions.length}x)</span>
+                    <span className="text-sm font-bold text-foreground">
+                      {selectedOptions.reduce((sum, id) => sum + (tuningOptions.find(o => o.id === id)?.credits || 0), 0)} Credits
+                    </span>
+                  </div>
+                )}
+                {/* Priority surcharge */}
+                {formData.priority !== 'Normal' && (
+                  <div className="flex items-center justify-between py-2 border-b border-border/50">
+                    <span className="text-sm text-muted-foreground">{t('prioritySurcharge')}: {formData.priority}</span>
+                    <span className="text-sm font-bold text-primary">
+                      +{formData.priority === 'Express' ? '49' : '99'}€
+                    </span>
+                  </div>
+                )}
+                {/* Total */}
+                <div className="flex items-center justify-between pt-3">
+                  <span className="text-sm font-bold text-foreground uppercase tracking-wider">{t('totalCredits')}</span>
+                  <span className="text-2xl font-bold text-primary font-heading">
+                    {(() => {
+                      let total = 0;
+                      if (selectedStage === 'gearbox') {
+                        total += gearboxStages.find(gs => gs.id === selectedGearboxStage)?.credits || 0;
+                      } else {
+                        total += tuningStages.find(s => s.id === selectedStage)?.credits || 0;
+                        total += selectedOptions.reduce((sum, id) => sum + (tuningOptions.find(o => o.id === id)?.credits || 0), 0);
+                      }
+                      return total;
+                    })()}{' '}
+                    <span className="text-sm font-medium text-muted-foreground">Credits</span>
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Step 4 Navigation */}
+          <div className="flex items-center justify-between">
+            <Button
+              variant="outline"
+              className="border-border hover:bg-secondary font-semibold px-6 py-3 h-auto"
+              onClick={() => setCurrentStep(3)}
+              data-testid="wizard-prev-btn-step4"
+            >
+              <ArrowLeft weight="bold" className="w-4 h-4 mr-2" />
+              {t('prevStep')}
+            </Button>
+            <Button
+              className="btn-gradient text-white font-semibold px-10 py-3.5 h-auto text-base"
+              data-testid="wizard-submit-btn"
+            >
+              <PaperPlaneTilt weight="fill" className="w-5 h-5 mr-2" />
+              {t('submitOrder')}
             </Button>
           </div>
         </>)}
