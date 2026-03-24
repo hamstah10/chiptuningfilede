@@ -34,7 +34,7 @@ import { cn } from '../lib/utils';
 const readingDevices = [
   { group: 'Autotuner', logo: '/logos/autotuner.png', options: ['Tool'] },
   { group: 'Alientech', logo: '/logos/alientech.png', options: ['Kess3'] },
-  { group: 'Magic Motorsport', logo: null, options: ['Flex'] },
+  { group: 'Magic Motorsport', logo: '/logos/magicmotorsport.png', options: ['Flex'] },
   { group: null, logo: '/logos/autoflasher.png', options: ['Autoflasher'] },
   { group: null, logo: null, options: ['CMD Flash'] },
   { group: 'Dimsport', logo: '/logos/dimsport.png', options: ['NewGenius'] },
