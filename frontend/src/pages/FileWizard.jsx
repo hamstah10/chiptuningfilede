@@ -621,25 +621,8 @@ export default function FileWizard() {
       }
     }
     
-    // Match ECU from parsed filename
-    let matchedEcu = '';
-    const parsedEcu = parsedFilename.parts.ecu;
-    if (matchedMfr && parsedEcu) {
-      const ecuOptions = getEcuOptions(matchedMfr, matchedEngine);
-      // Fuzzy match: find the ECU whose name is contained in parsed ECU or vice versa
-      matchedEcu = ecuOptions.find(e => {
-        const eLower = e.toLowerCase().replace(/\s+/g, '');
-        const pLower = parsedEcu.toLowerCase().replace(/\s+/g, '');
-        return pLower.includes(eLower) || eLower.includes(pLower);
-      }) || '';
-      // If no match, try partial match on the ECU code (e.g. "EDC17C74" in "Bosch EDC17C74")
-      if (!matchedEcu) {
-        const ecuCode = parsedEcu.split(' ').find(p => /^(EDC|MED|PCR|MD1|MG1|SID|DCM|Simos)/i.test(p));
-        if (ecuCode) {
-          matchedEcu = ecuOptions.find(e => e.toLowerCase().includes(ecuCode.toLowerCase())) || '';
-        }
-      }
-    }
+    // ECU: directly use the parsed ECU value
+    let matchedEcu = parsedFilename.parts.ecu || '';
     
     setFormData(prev => ({
       ...prev,
@@ -1280,11 +1263,10 @@ export default function FileWizard() {
                       <SelectValue placeholder={formData.manufacturer ? t('ecuPlaceholder') : '—'} />
                     </SelectTrigger>
                     <SelectContent className="bg-card border-border">
-                      {formData.manufacturer &&
-                        getEcuOptions(formData.manufacturer, formData.engine).map((e) => (
-                          <SelectItem key={e} value={e}>{e}</SelectItem>
-                        ))
-                      }
+                      {parsedFilename?.parts?.ecu && (
+                        <SelectItem value={parsedFilename.parts.ecu}>{parsedFilename.parts.ecu}</SelectItem>
+                      )}
+                      <SelectItem value="ZF AL552">ZF AL552</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
