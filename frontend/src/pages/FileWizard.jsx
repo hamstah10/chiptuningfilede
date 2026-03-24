@@ -248,34 +248,33 @@ export default function FileWizard() {
                     {readingDevices.map((entry, idx) =>
                       entry.group ? (
                         <SelectGroup key={idx}>
-                          <SelectLabel className="flex items-center gap-2 text-muted-foreground font-semibold text-xs uppercase tracking-wider py-2">
+                          {idx > 0 && <div className="h-px bg-border mx-2 my-1.5" />}
+                          <SelectLabel className="flex items-center gap-2.5 text-muted-foreground font-semibold text-xs uppercase tracking-wider py-2">
                             {entry.logo && (
-                              <img src={entry.logo} alt={entry.group} className="h-4 w-auto object-contain" />
+                              <img src={entry.logo} alt={entry.group} className="h-4 w-16 object-contain object-left" />
                             )}
                             {entry.group}
                           </SelectLabel>
                           {entry.options.map((opt) => (
                             <SelectItem key={opt} value={`${entry.group} - ${opt}`}>
-                              <span className="flex items-center gap-2">
+                              {opt}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      ) : (
+                        <div key={idx}>
+                          {idx > 0 && <div className="h-px bg-border mx-2 my-1.5" />}
+                          {entry.options.map((opt) => (
+                            <SelectItem key={opt} value={opt}>
+                              <span className="flex items-center gap-2.5">
                                 {entry.logo && (
-                                  <img src={entry.logo} alt="" className="h-3.5 w-auto object-contain" />
+                                  <img src={entry.logo} alt="" className="h-4 w-16 object-contain object-left" />
                                 )}
                                 {opt}
                               </span>
                             </SelectItem>
                           ))}
-                        </SelectGroup>
-                      ) : (
-                        entry.options.map((opt) => (
-                          <SelectItem key={opt} value={opt}>
-                            <span className="flex items-center gap-2">
-                              {entry.logo && (
-                                <img src={entry.logo} alt="" className="h-3.5 w-auto object-contain" />
-                              )}
-                              {opt}
-                            </span>
-                          </SelectItem>
-                        ))
+                        </div>
                       )
                     )}
                   </SelectContent>
