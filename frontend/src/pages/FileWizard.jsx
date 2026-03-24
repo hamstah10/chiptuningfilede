@@ -28,7 +28,9 @@ import {
   Sliders,
   CheckCircle,
   CarProfile,
-  HardDrives
+  HardDrives,
+  Crown,
+  Link
 } from '@phosphor-icons/react';
 import { Progress } from '../components/ui/progress';
 import { cn } from '../lib/utils';
@@ -359,13 +361,17 @@ export default function FileWizard() {
                   {t('masterSlave')}
                 </label>
                 <div className="flex gap-2" data-testid="master-slave-group">
-                  {['Master', 'Slave'].map((ms) => (
+                  {[
+                    { label: 'Master', Icon: Crown },
+                    { label: 'Slave', Icon: Link },
+                  ].map((ms) => (
                     <ToggleOption
-                      key={ms}
-                      label={ms}
-                      selected={formData.masterSlave === ms}
-                      onClick={() => setFormData((prev) => ({ ...prev, masterSlave: ms }))}
-                      testId={`ms-${ms.toLowerCase()}`}
+                      key={ms.label}
+                      label={ms.label}
+                      IconComponent={ms.Icon}
+                      selected={formData.masterSlave === ms.label}
+                      onClick={() => setFormData((prev) => ({ ...prev, masterSlave: ms.label }))}
+                      testId={`ms-${ms.label.toLowerCase()}`}
                     />
                   ))}
                 </div>
