@@ -32,6 +32,7 @@ Build a dashboard for Tuningfiles portal for Chiptuningfile.de (tuning files dea
 ### File Wizard (Feb 2026)
 - [x] Step 1: File Upload & Lesegerät (tool selection, method/type toggles, master/slave, priority)
 - [x] Step 2: Fahrzeugauswahl (regex filename parsing, cascading dropdowns, fuzzy matching, "Übernehmen" button)
+- [x] Step 2: Leistungsdaten-Anzeige mit Recharts-Charts (PS + Nm Balkendiagramm, Stage 1/2 Vergleich, Tuning-Optionen Vorschau)
 - [x] Step 3: Optionen (tuning stage cards, additional options grid, gearbox-specific sub-stages with warning note, credit calculation)
 - [ ] Step 4: Übersicht (Review) — NOT STARTED
 

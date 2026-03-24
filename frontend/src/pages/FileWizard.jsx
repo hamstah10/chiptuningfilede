@@ -53,6 +53,7 @@ import {
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
 import { cn } from '../lib/utils';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 // Vehicle database: Hersteller -> Baureihe -> Modell -> Motor
 const vehicleData = {
@@ -329,6 +330,58 @@ const gearboxStages = [
 // Manufacturers that support gearbox tuning
 const gearboxManufacturers = ['VW', 'Audi', 'Seat', 'Cupra', 'Skoda', 'BMW'];
 
+// Generate mock performance data from engine string
+function getPerformanceData(engine) {
+  if (!engine) return null;
+  // Extract PS from engine string like "2.0 TDI - 190 PS" or "M135i - 306 PS"
+  const psMatch = engine.match(/(\d{2,4})\s*PS/);
+  if (!psMatch) return null;
+  const originalPs = parseInt(psMatch[1]);
+  
+  // Detect diesel vs petrol for torque estimation
+  const isDiesel = /TDI|CDI|CDTI|HDI|CRDi|EcoBlue|TDCi|d\b/i.test(engine);
+  const torqueMultiplier = isDiesel ? 2.0 : 1.35;
+  const originalNm = Math.round(originalPs * torqueMultiplier);
+  
+  // Stage 1: +20-30% PS, +25-35% Nm
+  const s1PsGain = isDiesel ? 0.25 : 0.22;
+  const s1NmGain = isDiesel ? 0.30 : 0.25;
+  const stage1Ps = Math.round(originalPs * (1 + s1PsGain));
+  const stage1Nm = Math.round(originalNm * (1 + s1NmGain));
+  
+  // Stage 2: +35-50% PS, +40-55% Nm  
+  const s2PsGain = isDiesel ? 0.40 : 0.35;
+  const s2NmGain = isDiesel ? 0.45 : 0.38;
+  const stage2Ps = Math.round(originalPs * (1 + s2PsGain));
+  const stage2Nm = Math.round(originalNm * (1 + s2NmGain));
+  
+  return {
+    originalPs, originalNm,
+    stage1Ps, stage1Nm,
+    stage2Ps, stage2Nm,
+    isDiesel,
+    psGainS1: stage1Ps - originalPs,
+    psGainS2: stage2Ps - originalPs,
+    nmGainS1: stage1Nm - originalNm,
+    nmGainS2: stage2Nm - originalNm,
+  };
+}
+
+// Custom tooltip for performance chart
+const PerfTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-card border border-border rounded-sm px-3 py-2 shadow-lg">
+      <p className="text-xs font-semibold text-foreground mb-1">{label}</p>
+      {payload.map((entry, i) => (
+        <p key={i} className="text-xs" style={{ color: entry.fill }}>
+          {entry.name}: <span className="font-bold">{entry.value}</span>
+        </p>
+      ))}
+    </div>
+  );
+};
+
 // Tuning options
 const tuningOptions = [
   { id: 'dpf', name: { de: 'DPF-Off', en: 'DPF-Off' }, credits: 0, included: true, Icon: Drop, desc: { de: 'Partikelfilter', en: 'Particle Filter' } },
@@ -519,6 +572,15 @@ export default function FileWizard() {
         readTypeBadge: 'LESEART',
         applyParsed: 'Übernehmen',
         nextStep3: 'Weiter zu Schritt 3',
+        // Step 2 - Performance
+        performanceTitle: 'LEISTUNGSDATEN',
+        originalPower: 'Serie',
+        stage1Power: 'Stage 1',
+        stage2Power: 'Stage 2',
+        power: 'Leistung',
+        torque: 'Drehmoment',
+        gain: 'Zugewinn',
+        availableOptionsTitle: 'VERFÜGBARE TUNING-OPTIONEN',
         // Step 3
         step3Title: 'Optionen',
         selectedVehicle: 'AUSGEWÄHLTES FAHRZEUG',
@@ -567,6 +629,15 @@ export default function FileWizard() {
         readTypeBadge: 'READ TYPE',
         applyParsed: 'Apply',
         nextStep3: 'Continue to Step 3',
+        // Step 2 - Performance
+        performanceTitle: 'PERFORMANCE DATA',
+        originalPower: 'Stock',
+        stage1Power: 'Stage 1',
+        stage2Power: 'Stage 2',
+        power: 'Power',
+        torque: 'Torque',
+        gain: 'Gain',
+        availableOptionsTitle: 'AVAILABLE TUNING OPTIONS',
         // Step 3
         step3Title: 'Options',
         selectedVehicle: 'SELECTED VEHICLE',
@@ -756,6 +827,11 @@ export default function FileWizard() {
     }
     return status;
   }, [parsedFilename]);
+
+  // Performance data based on selected engine
+  const perfData = useMemo(() => {
+    return getPerformanceData(formData.engine);
+  }, [formData.engine]);
 
   const wizardSteps = [
     { id: 1, icon: Upload, label: language === 'de' ? 'File & Lesegerät' : 'File & Device' },
@@ -1344,6 +1420,144 @@ export default function FileWizard() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Performance Data & Tuning Options (when engine selected) */}
+          {formData.engine && perfData && (
+            <>
+              {/* Performance Chart */}
+              <Card className="bg-card border-border" data-testid="performance-data-card">
+                <CardContent className="p-6">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase mb-5">
+                    <Lightning weight="bold" className="w-3.5 h-3.5" />
+                    {t('performanceTitle')}
+                  </label>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* PS Chart */}
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground tracking-wider uppercase mb-3">{t('power')} (PS)</p>
+                      <div className="h-[200px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={[
+                              { name: t('originalPower'), PS: perfData.originalPs },
+                              { name: t('stage1Power'), PS: perfData.stage1Ps },
+                              { name: t('stage2Power'), PS: perfData.stage2Ps },
+                            ]}
+                            margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+                            barCategoryGap="25%"
+                          >
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                            <XAxis dataKey="name" tick={{ fill: '#888', fontSize: 12 }} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} tickLine={false} />
+                            <YAxis tick={{ fill: '#888', fontSize: 11 }} axisLine={false} tickLine={false} domain={[0, 'auto']} />
+                            <Tooltip content={<PerfTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
+                            <Bar dataKey="PS" name={t('power')} radius={[3, 3, 0, 0]} maxBarSize={60}>
+                              <Cell fill="#555" />
+                              <Cell fill="#8B2635" />
+                              <Cell fill="#c0392b" />
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+
+                    {/* Nm Chart */}
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground tracking-wider uppercase mb-3">{t('torque')} (Nm)</p>
+                      <div className="h-[200px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={[
+                              { name: t('originalPower'), Nm: perfData.originalNm },
+                              { name: t('stage1Power'), Nm: perfData.stage1Nm },
+                              { name: t('stage2Power'), Nm: perfData.stage2Nm },
+                            ]}
+                            margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
+                            barCategoryGap="25%"
+                          >
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                            <XAxis dataKey="name" tick={{ fill: '#888', fontSize: 12 }} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} tickLine={false} />
+                            <YAxis tick={{ fill: '#888', fontSize: 11 }} axisLine={false} tickLine={false} domain={[0, 'auto']} />
+                            <Tooltip content={<PerfTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
+                            <Bar dataKey="Nm" name={t('torque')} radius={[3, 3, 0, 0]} maxBarSize={60}>
+                              <Cell fill="#555" />
+                              <Cell fill="#2563eb" />
+                              <Cell fill="#3b82f6" />
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Stage comparison table */}
+                  <div className="grid grid-cols-3 gap-3 mt-5">
+                    {/* Original */}
+                    <div className="bg-secondary/60 border border-border rounded-sm p-3 text-center">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">{t('originalPower')}</p>
+                      <p className="text-xl font-bold text-foreground font-heading">{perfData.originalPs} <span className="text-xs text-muted-foreground font-normal">PS</span></p>
+                      <p className="text-sm text-muted-foreground">{perfData.originalNm} <span className="text-xs">Nm</span></p>
+                    </div>
+                    {/* Stage 1 */}
+                    <div className="bg-primary/8 border border-primary/30 rounded-sm p-3 text-center">
+                      <p className="text-[10px] text-primary uppercase tracking-wider mb-2">{t('stage1Power')}</p>
+                      <p className="text-xl font-bold text-foreground font-heading">{perfData.stage1Ps} <span className="text-xs text-muted-foreground font-normal">PS</span></p>
+                      <p className="text-sm text-muted-foreground">{perfData.stage1Nm} <span className="text-xs">Nm</span></p>
+                      <div className="mt-1.5 flex items-center justify-center gap-2">
+                        <Badge className="bg-green-500/15 text-green-400 border-green-500/30 text-[10px] font-bold">+{perfData.psGainS1} PS</Badge>
+                        <Badge className="bg-blue-500/15 text-blue-400 border-blue-500/30 text-[10px] font-bold">+{perfData.nmGainS1} Nm</Badge>
+                      </div>
+                    </div>
+                    {/* Stage 2 */}
+                    <div className="bg-primary/8 border border-primary/30 rounded-sm p-3 text-center">
+                      <p className="text-[10px] text-primary uppercase tracking-wider mb-2">{t('stage2Power')}</p>
+                      <p className="text-xl font-bold text-foreground font-heading">{perfData.stage2Ps} <span className="text-xs text-muted-foreground font-normal">PS</span></p>
+                      <p className="text-sm text-muted-foreground">{perfData.stage2Nm} <span className="text-xs">Nm</span></p>
+                      <div className="mt-1.5 flex items-center justify-center gap-2">
+                        <Badge className="bg-green-500/15 text-green-400 border-green-500/30 text-[10px] font-bold">+{perfData.psGainS2} PS</Badge>
+                        <Badge className="bg-blue-500/15 text-blue-400 border-blue-500/30 text-[10px] font-bold">+{perfData.nmGainS2} Nm</Badge>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Available Tuning Options */}
+              <Card className="bg-card border-border" data-testid="available-options-card">
+                <CardContent className="p-6">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase mb-4">
+                    <Sliders weight="bold" className="w-3.5 h-3.5" />
+                    {t('availableOptionsTitle')}
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                    {tuningOptions.map((opt) => {
+                      const Icon = opt.Icon;
+                      return (
+                        <div
+                          key={opt.id}
+                          data-testid={`preview-option-${opt.id}`}
+                          className={cn(
+                            "flex flex-col items-center gap-2 p-3 rounded-sm border transition-colors",
+                            opt.included
+                              ? "bg-green-500/8 border-green-500/30"
+                              : "bg-card border-border"
+                          )}
+                        >
+                          <Icon weight="regular" className={cn("w-5 h-5", opt.included ? "text-green-400" : "text-muted-foreground")} />
+                          <span className="text-xs font-bold text-foreground text-center leading-tight">{opt.name[language] || opt.name.de}</span>
+                          {opt.included ? (
+                            <span className="text-[10px] font-semibold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">{language === 'de' ? 'Inklusive' : 'Included'}</span>
+                          ) : (
+                            <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">+{opt.credits} Credits</span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
 
           {/* Step 2 Navigation */}
           <div className="flex items-center justify-between">
