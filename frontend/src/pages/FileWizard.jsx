@@ -42,22 +42,23 @@ const readingDevices = [
 
 const ALLOWED_EXTENSIONS = ['.bin', '.ori', '.mod', '.ecu', '.hex', '.s19', '.bkp'];
 
-function ToggleOption({ label, selected, onClick, extra, testId }) {
+function ToggleOption({ label, selected, onClick, extra, testId, icon }) {
   return (
     <button
       type="button"
       onClick={onClick}
       data-testid={testId}
       className={cn(
-        "flex-1 py-3 px-4 text-sm font-semibold rounded-sm border transition-all duration-200 cursor-pointer text-center",
+        "flex-1 py-3 px-4 text-sm font-semibold rounded-sm border transition-all duration-200 cursor-pointer flex items-center justify-center gap-2",
         selected
           ? "bg-primary/10 border-primary text-foreground"
           : "bg-secondary/50 border-border text-muted-foreground hover:bg-secondary hover:text-foreground"
       )}
     >
+      {icon && <img src={icon} alt="" className="h-5 w-5 object-contain" />}
       <span>{label}</span>
       {extra && (
-        <span className="ml-1.5 text-primary font-bold">{extra}</span>
+        <span className="ml-1 text-primary font-bold">{extra}</span>
       )}
     </button>
   );
@@ -308,13 +309,18 @@ export default function FileWizard() {
                   {t('readingMethod')}
                 </label>
                 <div className="flex gap-2" data-testid="reading-method-group">
-                  {['OBD', 'Bench', 'Boot'].map((method) => (
+                  {[
+                    { label: 'OBD', icon: '/logos/obd.svg' },
+                    { label: 'Bench', icon: '/logos/bench.svg' },
+                    { label: 'Boot', icon: '/logos/boot.svg' },
+                  ].map((method) => (
                     <ToggleOption
-                      key={method}
-                      label={method}
-                      selected={formData.readingMethod === method}
-                      onClick={() => setFormData((prev) => ({ ...prev, readingMethod: method }))}
-                      testId={`method-${method.toLowerCase()}`}
+                      key={method.label}
+                      label={method.label}
+                      icon={method.icon}
+                      selected={formData.readingMethod === method.label}
+                      onClick={() => setFormData((prev) => ({ ...prev, readingMethod: method.label }))}
+                      testId={`method-${method.label.toLowerCase()}`}
                     />
                   ))}
                 </div>
