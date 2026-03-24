@@ -17,6 +17,7 @@ import Tickets from "./pages/Tickets";
 import TicketDetail from "./pages/TicketDetail";
 import PriceList from "./pages/PriceList";
 import NewOrderCombined from "./pages/NewOrderCombined";
+import OrderLive from "./pages/OrderLive";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
             <Route path="/tickets" element={<Tickets />} />
             <Route path="/tickets/:id" element={<TicketDetail />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/order-live" element={<OrderLive />} />
           </Routes>
         </BrowserRouter>
         <Toaster />

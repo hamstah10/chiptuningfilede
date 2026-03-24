@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card, CardContent } from '../components/ui/card';
@@ -427,6 +428,7 @@ const tuningOptions = [
 
 export default function FileWizard() {
   const { language } = useLanguage();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     readingDevice: '',
@@ -2281,6 +2283,23 @@ export default function FileWizard() {
             <Button
               className="btn-gradient text-white font-semibold px-10 py-3.5 h-auto text-base"
               data-testid="wizard-submit-btn"
+              onClick={() => {
+                let totalCredits = 0;
+                if (selectedStage === 'gearbox') {
+                  totalCredits = gearboxStages.find(gs => gs.id === selectedGearboxStage)?.credits || 0;
+                } else {
+                  totalCredits = (tuningStages.find(s => s.id === selectedStage)?.credits || 0) +
+                    selectedOptions.reduce((sum, id) => sum + (tuningOptions.find(o => o.id === id)?.credits || 0), 0);
+                }
+                navigate('/order-live', { state: { orderData: {
+                  fileName: uploadedFiles[0]?.name || '',
+                  mfr: formData.manufacturer, ser: formData.series, mod: formData.vehicleModel, eng: formData.engine,
+                  ecuVal: formData.ecu,
+                  readingDevice: formData.readingDevice, readingMethod: formData.readingMethod,
+                  readingType: formData.readingType, masterSlave: formData.masterSlave, priority: formData.priority,
+                  selectedStage, selectedGearboxStage, selectedOptions, totalCredits,
+                }}});
+              }}
             >
               <PaperPlaneTilt weight="fill" className="w-5 h-5 mr-2" />
               {t('submitOrder')}

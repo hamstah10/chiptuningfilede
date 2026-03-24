@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -182,6 +183,7 @@ function Toggle({ label, selected, onClick, testId }) {
 // ══════════════════════════════════════════════════════════════════════════
 export default function NewOrder() {
   const { language } = useLanguage();
+  const navigate = useNavigate();
   const t = (k) => t_data[language]?.[k] || k;
   const [step, setStep] = useState(1);
 
@@ -718,7 +720,15 @@ export default function NewOrder() {
               <Button variant="outline" className="border-border hover:bg-secondary font-semibold px-6 py-3 h-auto" onClick={() => setStep(2)} data-testid="no-prev-3">
                 <ArrowLeft weight="bold" className="w-4 h-4 mr-2" /> {t('prevStep')}
               </Button>
-              <Button className="btn-gradient text-white font-semibold px-10 py-3.5 h-auto text-base" data-testid="no-submit-btn">
+              <Button className="btn-gradient text-white font-semibold px-10 py-3.5 h-auto text-base" data-testid="no-submit-btn"
+                onClick={() => navigate('/order-live', { state: { orderData: {
+                  fileName: files[0]?.name || '',
+                  mfr, ser, mod, eng, ecuVal,
+                  readingDevice, readingMethod, readingType, masterSlave, priority,
+                  selectedStage, selectedGearboxStage, selectedOptions,
+                  totalCredits,
+                }}})}
+              >
                 <PaperPlaneTilt weight="fill" className="w-5 h-5 mr-2" /> {t('submitOrder')}
               </Button>
             </div>
