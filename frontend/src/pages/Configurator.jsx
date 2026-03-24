@@ -206,6 +206,7 @@ const translations = {
     options: 'VERFÜGBARE OPTIONEN',
     included: 'Inklusive',
     selectPlaceholder: 'Bitte wählen...',
+    selectedVehicle: 'AUSGEWÄHLTES FAHRZEUG',
   },
   en: {
     title: 'Configurator',
@@ -228,6 +229,7 @@ const translations = {
     options: 'AVAILABLE OPTIONS',
     included: 'Included',
     selectPlaceholder: 'Please select...',
+    selectedVehicle: 'SELECTED VEHICLE',
   },
 };
 
@@ -389,20 +391,27 @@ export default function Configurator() {
         {/* Results (when engine is selected) */}
         {engine && perfData && (
           <>
-            {/* ECU Info */}
-            <Card className="bg-card border-border" data-testid="ecu-info-card">
-              <CardContent className="p-5">
-                <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase mb-3">
-                  <Cpu weight="bold" className="w-3.5 h-3.5" />
-                  {t('ecu')}
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {ecuOptions.map(ecu => (
-                    <Badge key={ecu} className="bg-secondary border-border text-foreground text-xs font-mono px-3 py-1.5">{ecu}</Badge>
-                  ))}
+            {/* Vehicle Header Banner */}
+            <div className="relative overflow-hidden rounded-sm border border-border bg-gradient-to-r from-card via-card to-primary/5 p-6" data-testid="vehicle-banner">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
+              <div className="relative flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">{t('selectedVehicle')}</p>
+                  <h2 className="font-heading text-xl font-bold text-foreground">{manufacturer} {series} {model}</h2>
+                  <p className="text-sm text-muted-foreground mt-1">{engine}</p>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{t('ecu')}</p>
+                    <div className="flex flex-wrap gap-1.5 mt-1 justify-end">
+                      {ecuOptions.map(ecu => (
+                        <span key={ecu} className="text-xs font-mono text-foreground bg-secondary/80 border border-border px-2 py-1 rounded-sm">{ecu}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Performance Chart + Bars */}
             <Card className="bg-card border-border" data-testid="perf-chart-card">
@@ -504,26 +513,25 @@ export default function Configurator() {
               </CardContent>
             </Card>
 
-            {/* Tuning Stages */}
+            {/* Tuning Stages - Visual cards without prices */}
             <Card className="bg-card border-border" data-testid="tuning-stages-card">
               <CardContent className="p-5">
                 <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase mb-4">
                   <Lightning weight="bold" className="w-3.5 h-3.5" />
                   {t('stages')}
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {[
-                    { name: 'Stage 1', credits: 100, Icon: Lightning, color: 'text-primary' },
-                    { name: 'Stage 2', credits: 150, Icon: Fire, color: 'text-orange-500' },
-                    { name: language === 'de' ? 'Eco' : 'Eco', credits: 100, Icon: Leaf, color: 'text-green-500' },
-                    { name: language === 'de' ? 'Nur Optionen' : 'Options Only', credits: 0, Icon: Sliders, color: 'text-muted-foreground' },
+                    { name: 'Stage 1', Icon: Lightning, color: 'from-[#8B2635]/20 to-transparent', iconColor: 'text-primary', border: 'border-primary/30', desc: language === 'de' ? 'Optimierte Kennfelder f\u00fcr mehr Leistung und Drehmoment' : 'Optimized maps for more power and torque', highlight: `+${perfData.psGainS1} PS / +${perfData.nmGainS1} Nm` },
+                    { name: 'Stage 2', Icon: Fire, color: 'from-orange-500/15 to-transparent', iconColor: 'text-orange-500', border: 'border-orange-500/30', desc: language === 'de' ? 'Maximale Performance mit erweiterten Anpassungen' : 'Maximum performance with extended adjustments', highlight: `+${perfData.psGainS2} PS / +${perfData.nmGainS2} Nm` },
+                    { name: 'Eco', Icon: Leaf, color: 'from-green-500/15 to-transparent', iconColor: 'text-green-500', border: 'border-green-500/30', desc: language === 'de' ? 'Verbrauch optimiert bei gleichem Fahrerlebnis' : 'Fuel optimized with same driving experience', highlight: language === 'de' ? 'Bis zu -15% Verbrauch' : 'Up to -15% fuel' },
+                    { name: language === 'de' ? 'Nur Optionen' : 'Options Only', Icon: Sliders, color: 'from-white/5 to-transparent', iconColor: 'text-muted-foreground', border: 'border-border', desc: language === 'de' ? 'Einzelne Optionen ohne Stufe w\u00e4hlen' : 'Select individual options without a stage', highlight: language === 'de' ? 'Flexibel' : 'Flexible' },
                   ].map((stage) => (
-                    <div key={stage.name} className="flex flex-col items-center gap-2 p-4 rounded-sm border border-border bg-secondary/50">
-                      <stage.Icon weight="fill" className={cn("w-6 h-6", stage.color)} />
-                      <span className="text-sm font-bold text-foreground">{stage.name}</span>
-                      <Badge className="bg-primary/20 text-primary border-primary/30 text-xs font-bold">
-                        {stage.credits > 0 ? `${stage.credits} Credits` : (language === 'de' ? 'Nur Optionen' : 'Options only')}
-                      </Badge>
+                    <div key={stage.name} className={cn("relative overflow-hidden rounded-sm border p-5 bg-gradient-to-b", stage.color, stage.border)}>
+                      <stage.Icon weight="fill" className={cn("w-8 h-8 mb-3", stage.iconColor)} />
+                      <h3 className="text-base font-bold text-foreground font-heading mb-1">{stage.name}</h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed mb-3">{stage.desc}</p>
+                      <span className="inline-block text-xs font-bold text-green-400 bg-green-500/10 px-2.5 py-1 rounded-sm">{stage.highlight}</span>
                     </div>
                   ))}
                 </div>
@@ -541,10 +549,10 @@ export default function Configurator() {
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                       {gearboxStages.map((gs) => (
-                        <div key={gs.id} className="flex flex-col items-center gap-2 p-4 rounded-sm border border-border bg-secondary/50">
-                          <Gear weight="fill" className="w-6 h-6 text-blue-500" />
-                          <span className="text-sm font-bold text-foreground">{gs.name[language]}</span>
-                          <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs font-bold">{gs.credits} Credits</Badge>
+                        <div key={gs.id} className="relative overflow-hidden rounded-sm border border-blue-500/30 p-5 bg-gradient-to-b from-blue-500/10 to-transparent">
+                          <Gear weight="fill" className="w-7 h-7 text-blue-500 mb-2" />
+                          <h3 className="text-base font-bold text-foreground font-heading">{language === 'de' ? 'Getriebe' : 'Gearbox'} {gs.name[language]}</h3>
+                          <p className="text-xs text-muted-foreground mt-1">{language === 'de' ? 'Schaltoptimierung und Drehmomentanpassung' : 'Shift optimization and torque adjustment'}</p>
                         </div>
                       ))}
                     </div>
@@ -553,7 +561,7 @@ export default function Configurator() {
               </CardContent>
             </Card>
 
-            {/* Options */}
+            {/* Options - Visual feature showcase */}
             <Card className="bg-card border-border" data-testid="tuning-options-card">
               <CardContent className="p-5">
                 <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase mb-4">
@@ -564,13 +572,20 @@ export default function Configurator() {
                   {tuningOptions.map((opt) => {
                     const Icon = opt.Icon;
                     return (
-                      <div key={opt.id} data-testid={`cfg-opt-${opt.id}`} className={cn("flex flex-col items-center gap-2 p-3 rounded-sm border", opt.included ? "bg-green-500/8 border-green-500/30" : "bg-card border-border")}>
-                        <Icon weight="regular" className={cn("w-5 h-5", opt.included ? "text-green-400" : "text-muted-foreground")} />
+                      <div
+                        key={opt.id}
+                        data-testid={`cfg-opt-${opt.id}`}
+                        className="group flex flex-col items-center gap-2.5 p-4 rounded-sm border border-border bg-secondary/30 hover:bg-secondary/60 hover:border-muted-foreground/40 transition-all"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                          <Icon weight="fill" className="w-5 h-5 text-primary" />
+                        </div>
                         <span className="text-xs font-bold text-foreground text-center leading-tight">{opt.name[language]}</span>
-                        {opt.included ? (
-                          <span className="text-[10px] font-semibold text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">{t('included')}</span>
-                        ) : (
-                          <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">+{opt.credits} Credits</span>
+                        {opt.included && (
+                          <div className="flex items-center gap-1">
+                            <CheckCircle weight="fill" className="w-3.5 h-3.5 text-green-500" />
+                            <span className="text-[10px] font-semibold text-green-400">{t('included')}</span>
+                          </div>
                         )}
                       </div>
                     );
