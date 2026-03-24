@@ -1596,7 +1596,7 @@ export default function FileWizard() {
                       <p className="text-sm text-muted-foreground">{perfData.originalNm} <span className="text-xs">Nm</span></p>
                     </div>
                     <div className="bg-primary/8 border border-primary/30 rounded-sm p-3 text-center">
-                      <p className="text-[10px] text-primary uppercase tracking-wider mb-2">{t('stage1Power')}</p>
+                      <p className="text-[10px] text-foreground uppercase tracking-wider font-bold mb-2">{t('stage1Power')}</p>
                       <p className="text-xl font-bold text-foreground font-heading">{perfData.stage1Ps} <span className="text-xs text-muted-foreground font-normal">PS</span></p>
                       <p className="text-sm text-muted-foreground">{perfData.stage1Nm} <span className="text-xs">Nm</span></p>
                       <div className="mt-1.5 flex items-center justify-center gap-2">
@@ -1605,7 +1605,7 @@ export default function FileWizard() {
                       </div>
                     </div>
                     <div className="bg-primary/8 border border-primary/30 rounded-sm p-3 text-center">
-                      <p className="text-[10px] text-primary uppercase tracking-wider mb-2">{t('stage2Power')}</p>
+                      <p className="text-[10px] text-foreground uppercase tracking-wider font-bold mb-2">{t('stage2Power')}</p>
                       <p className="text-xl font-bold text-foreground font-heading">{perfData.stage2Ps} <span className="text-xs text-muted-foreground font-normal">PS</span></p>
                       <p className="text-sm text-muted-foreground">{perfData.stage2Nm} <span className="text-xs">Nm</span></p>
                       <div className="mt-1.5 flex items-center justify-center gap-2">
