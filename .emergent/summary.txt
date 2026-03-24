@@ -1,0 +1,127 @@
+<analysis>**original_problem_statement:** 
+build me a dashboard for a Tuningfiles portal. we are Tuningfiles dealer and the Company name is: Chiptuningfile.de. The portal is only for our customers. Logins come from a super admin with easyadmin/symfony via API. Core Features: File upload/download (a specific wizard), Chiptuning configurator with prices/credits, credits system, PayPal payment integration. Colours: red, black, grey. Technical, carbon, modern design.
+
+**User's preferred language**: The user's primary language is **German**. INSTRUCT next agent to respond in **German (Deutsch)** only.
+
+**what currently exists?** 
+A highly-polished, fully mocked React frontend matching the requested technical/carbon design. Features include a Sidebar with collapsible menus, a Header with quick actions, and multiple pages: Dashboard (Progress, Tickets, News, Opening Hours), Orders (List + Detail with visual progress bars), Tickets, Invoices, Profile, Configurator, and a complex Price List. The app supports Dark/Light mode with custom red gradients (). No backend integration or actual APIs are connected yet; everything relies on frontend mock data.
+
+**Last working item**: 
+    - Last item agent was working: Fixing Light Theme text contrast issues (replacing hardcoded  with Tailwind's dynamic  across all dashboard files using bash scripts).
+    - Status: COMPLETED
+    - Agent Testing Done: Y
+    - Which testing method agent to use? screenshot tool
+    - User Testing Done: N/A
+
+**All Pending/In progress Issue list**: 
+  Issue 1: Backend Integration for Mocked Data (P0)
+     - Attempted fixes: N/A
+     - Next debug checklist: Review all frontend  pages (Dashboard, Orders, Tickets, Invoices) and extract mock data arrays into React hooks fetching from FastAPI  endpoints.
+     - Why fix this issue and what will be achieved with the fix? The app is currently just a static UI. It needs to be connected to the database to be functional.
+     - Status: NOT STARTED
+     - Is recurring issue? N
+     - Should Test frontend/backend/both after fix? both
+     - Blocked on other issue: None
+
+**In progress Task List**: 
+None. Last UI task was fully completed.
+
+**Upcoming and Future Tasks**
+    Upcoming Tasks:
+    - Task 1: **File Wizard Implementation** (P0) - User mentioned File upload/download but different from normal. this has to be a wizard. Currently  is just a placeholder. User will provide specific wizard steps.
+    - Task 2: **Symfony API Authentication Sync** (P0) - Connect the login flow to the external EasyAdmin/Symfony super admin via API as specified in the first prompt.
+    - Task 3: **MongoDB Backend Setup** (P1) - Create Pydantic models and CRUD endpoints for Users, Orders, Tickets, Invoices, and News in FastAPI.
+    - Task 4: **PayPal Integration** (P1) - Implement PayPal logic for the Credits kaufen flow in  and Header. Requires .
+    
+    Future Tasks:
+    - Task 5: **Invoice PDF Generator** (P2) - Allow users to download real PDF invoices from the Invoices table.
+
+**Completed work in this session**
+- Complete UI layout generation (Sidebar, Header, Dashboard layout).
+- Implemented  (Invoices & Credits overview).
+- Implemented  and  with horizontal and vertical visual progress tracks.
+- Implemented  and  for support system.
+- Refined Dashboard layout to 1/3 grid splits (Current Order Progress, Current Tickets, Opening Hours, News Carousel).
+- Implemented intricate  with category tabs (PKW/LKW), 6-column option cards, and specific red/green pricing badges.
+- Setup  for Dark/Light mode switching.
+
+**Earlier issues found/mentioned but not fixed**
+   None. All UI iterations requested by the user were successfully resolved.
+
+**Known issue recurrence from previous fork**
+  - Issue recurrence in previous fork: N/A (Initial session)
+  - Recurrence count: 0
+  - Status: N/A
+
+**Code Architecture**
+
+
+**Key Technical Concepts**
+Frontend: React.js, Tailwind CSS, Shadcn UI, Phosphor Icons (), React Router, Context API (Theme, Language).
+Backend: FastAPI, MongoDB (Currently untouched).
+
+**key DB schema**
+  - None created yet. Backend models for , , , , and  need to be designed.
+
+**changes in tech stack**
+  - Included  for technical/modern SVG icons.
+  - Implemented custom Theme/Language context providers.
+
+**All files of reference** 
+- : Contains crucial CSS variables for the Dark/Light themes and custom gradients (, ).
+- : Contains the custom collapsible menu logic.
+- : Contains complex pricing structures and conditional UI rendering for tuning options.
+- : Contains highly customized grid layout with News Carousel and visual progress tracking.
+
+**Areas that need refactoring**: 
+-  was created to replace the old . It can be renamed back to  to keep the file structure clean.
+- Massive amounts of mock data are hardcoded directly into the component files (, , ). These should be extracted to hooks/services before starting backend integration.
+
+**key api endpoints**
+  - No custom backend APIs implemented yet.
+
+**Critical Info for New Agent** 
+- The user is extremely detail-oriented regarding the UI. Maintain the exact styling principles established (Phosphor icons, Red  gradients, specific layout fractions like 1/3 widths).
+- **CRITICAL**: Before making UI changes, ensure they work in BOTH Dark and Light modes! The agent just spent effort fixing text contrast issues caused by hardcoded  classes in Light Mode. Always use Tailwind dynamic classes (e.g., , , ).
+- **CRITICAL**: The user prefers to communicate in German and provides very specific UI/UX demands. Acknowledge and proceed in German.
+- The next logical step based on the prompt is asking the user for the specifics of the File Wizard or beginning to wire up the Symfony API Authentication that was mentioned in the original prompt.
+
+**documents and test reports created in this job** 
+  - 
+  - 
+  - 
+
+**Last 10 User Messages and any pending HUMAN messages** 
+ 1. aber bei hell passen die schriftfarben oft nicht (Light mode text contrast issues) -> Fixed by agent. (COMPLETED)
+ 2. mache mir einen theme switch rein und eine light version. mache das rot sehr dunkel edel. vielleicht mit gradient -> Implemented ThemeContext & dark red gradient. (COMPLETED)
+ 3. bei stage1 müssen die preise auch rot bg -> Added red badges to option prices. (COMPLETED)
+ 4. die optionen als kleine card jeweils. 6 stück in einer row. mit icon... -> Updated PriceList cards. (COMPLETED)
+ 5. preisliste: es gibt 2 oberkategorien: PKW und LKW... -> Rebuilt PriceList structure and tabs. (COMPLETED)
+ 6. mache mir auch aufklappbare menüs. Dashboard nicht... -> Built collapsible sidebar sections. (COMPLETED)
+ 7. icon weg oben beim namen. nur Chiptuningfile.de lassen -> Removed logo icon in sidebar. (COMPLETED)
+ 8. Neue Anfrage änder zu Auftrag und als icon ein file symbol... auf dem dashboard neben letzte Aktivität ein Newsbereich -> Header tweaks and News Carousel added. (COMPLETED)
+ 9. suche nach links. name oben raus. buttons für neuen Auftrag und Credits kaufen oben auch in den header. -> Restructured Header/Dashboard layout. (COMPLETED)
+ 10. aktuelle tickets muss auch aufs dashboard -> Added tickets card to dashboard. (COMPLETED)
+
+**Project Health Check:**
+- Broken: None.
+- Mocked: **ENTIRE FRONTEND IS MOCKED.** All stats, tables, tickets, invoices, and progress bars rely on static arrays in the  files.
+
+**3rd Party Integrations** 
+None currently active. 
+*(Pending: PayPal (Payments) — requires integration_playbook_expert_v2 when starting)*
+*(Pending: External API call to EasyAdmin/Symfony for Auth sync)*
+
+**Testing status**
+  - Testing agent used after significant changes: YES
+  - Troubleshoot agent used after agent stuck in loop: NO
+  - Test files created: []
+  - Known regressions: []
+
+**Credentials to test flow:**
+None yet. App is running entirely on static mock data. 
+
+**What agent forgot to execute**
+- The initial prompt requested connecting logins to an existing EasyAdmin/Symfony super admin via API. This was deferred to focus on layout.
+- Implementation of the actual File Upload Wizard, which the user explicitly stated is different from normal. Currently, it's just an empty placeholder.
+- PayPal Integration for credits.</analysis>
