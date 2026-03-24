@@ -365,6 +365,7 @@ export default function PriceList() {
   const t = (key) => pageTranslations[language][key] || key;
   const [activeTab, setActiveTab] = useState('pkw');
   const [pkwSubTab, setPkwSubTab] = useState('stage1');
+  const [lkwSubTab, setLkwSubTab] = useState('eco');
 
   return (
     <DashboardLayout>
@@ -476,7 +477,102 @@ export default function PriceList() {
 
           {/* LKW Content */}
           <TabsContent value="lkw" className="mt-6">
-            <LkwSection language={language} t={t} />
+            <Tabs value={lkwSubTab} onValueChange={setLkwSubTab}>
+              <TabsList className="bg-card border border-border p-1 flex-wrap h-auto gap-1">
+                <TabsTrigger 
+                  value="eco" 
+                  className="data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
+                >
+                  {t('eco')}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="tuning" 
+                  className="data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
+                >
+                  {t('tuning')}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="options" 
+                  className="data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
+                >
+                  {t('optionsSingle')}
+                </TabsTrigger>
+              </TabsList>
+
+              <div className="mt-6">
+                <TabsContent value="eco">
+                  <Card className="bg-card border-border">
+                    <CardHeader className="border-b border-border pb-4">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
+                          <Leaf weight="fill" className="w-5 h-5 text-green-500" />
+                          {t('eco')}
+                        </CardTitle>
+                        <Badge className="bg-green-500/20 text-green-400 border border-green-500/30 font-heading font-bold text-lg px-3 py-1">
+                          120 Credits
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <p className="text-sm text-muted-foreground mb-4">{t('availableOptions')}</p>
+                      <OptionsGrid options={lkwOptions} language={language} t={t} />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="tuning">
+                  <Card className="bg-card border-border">
+                    <CardHeader className="border-b border-border pb-4">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
+                          <Lightning weight="fill" className="w-5 h-5 text-primary" />
+                          {t('tuning')}
+                        </CardTitle>
+                        <Badge className="bg-primary/20 text-primary border border-primary/30 font-heading font-bold text-lg px-3 py-1">
+                          150 Credits
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <p className="text-sm text-muted-foreground mb-4">{t('availableOptions')}</p>
+                      <OptionsGrid options={lkwOptions} language={language} t={t} />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="options">
+                  <Card className="bg-card border-border">
+                    <CardHeader className="border-b border-border pb-4">
+                      <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
+                        <Plus weight="fill" className="w-5 h-5 text-primary" />
+                        {t('allOptions')}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                        {lkwOptions.map(opt => ({ ...opt, credits: opt.included ? 55 : opt.credits, included: false })).map((option) => (
+                          <div 
+                            key={option.id}
+                            className="p-3 rounded-sm border bg-secondary border-border hover:border-white/20 transition-colors"
+                          >
+                            <div className="flex flex-col items-center text-center">
+                              <div className="w-10 h-10 rounded-sm bg-secondary flex items-center justify-center mb-2">
+                                <OptionIcon iconType={option.icon} className="w-5 h-5 text-muted-foreground" />
+                              </div>
+                              <p className="text-sm font-semibold text-foreground">{option.name[language]}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">{option.description[language]}</p>
+                              <Badge className="mt-2 bg-primary/20 text-primary border border-primary/30 font-mono text-xs">
+                                {option.credits}
+                              </Badge>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </div>
+            </Tabs>
           </TabsContent>
         </Tabs>
 
