@@ -34,12 +34,163 @@ import {
   Link,
   Car,
   Engine,
-  GasPump,
   Calendar,
   Tag
 } from '@phosphor-icons/react';
 import { Progress } from '../components/ui/progress';
 import { cn } from '../lib/utils';
+
+// Vehicle database: Hersteller -> Baureihe -> Modell -> Motor
+const vehicleData = {
+  'Audi': {
+    'A1': {
+      '8X - 2010': ['1.0 TFSI - 95 PS', '1.4 TFSI - 125 PS', '1.4 TDI - 90 PS', '1.6 TDI - 105 PS', '1.8 TFSI - 192 PS', '2.0 TDI - 143 PS'],
+      'GB - 2018': ['1.0 TFSI - 116 PS', '1.5 TFSI - 150 PS', '2.0 TDI - 116 PS', '2.0 TFSI - 207 PS'],
+    },
+    'A3': {
+      '8P - 2003': ['1.6 TDI - 105 PS', '1.8 TFSI - 160 PS', '2.0 TDI - 140 PS', '2.0 TDI - 170 PS', '2.0 TFSI - 200 PS', '3.2 V6 - 250 PS'],
+      '8V - 2012': ['1.0 TFSI - 116 PS', '1.4 TFSI - 125 PS', '1.4 TFSI - 150 PS', '1.6 TDI - 110 PS', '2.0 TDI - 150 PS', '2.0 TDI - 184 PS', '2.0 TFSI - 190 PS', '2.0 TFSI - 310 PS (RS3)'],
+      '8Y - 2020': ['1.0 TFSI - 110 PS', '1.5 TFSI - 150 PS', '2.0 TDI - 150 PS', '2.0 TFSI - 310 PS (RS3)', '2.5 TFSI - 400 PS (RS3)'],
+    },
+    'A4': {
+      'B7 - 2004': ['1.8 T - 163 PS', '2.0 TDI - 140 PS', '2.0 TDI - 170 PS', '2.0 TFSI - 200 PS', '3.0 TDI - 204 PS', '4.2 FSI - 344 PS (RS4)'],
+      'B8 - 2008': ['1.8 TFSI - 120 PS', '1.8 TFSI - 160 PS', '2.0 TDI - 143 PS', '2.0 TDI - 177 PS', '2.0 TFSI - 211 PS', '3.0 TDI - 245 PS', '3.2 FSI - 265 PS'],
+      'B9 - 2015': ['1.4 TFSI - 150 PS', '2.0 TDI - 150 PS', '2.0 TDI - 190 PS', '2.0 TFSI - 190 PS', '2.0 TFSI - 252 PS', '3.0 TDI - 218 PS', '3.0 TDI - 272 PS', '2.9 TFSI - 450 PS (RS4)'],
+    },
+    'A5': {
+      '8T - 2007': ['2.0 TDI - 143 PS', '2.0 TDI - 177 PS', '2.0 TFSI - 211 PS', '3.0 TDI - 204 PS', '3.0 TDI - 245 PS', '3.2 FSI - 265 PS', '4.2 FSI - 450 PS (RS5)'],
+      'F5 - 2016': ['2.0 TDI - 150 PS', '2.0 TDI - 190 PS', '2.0 TFSI - 190 PS', '2.0 TFSI - 252 PS', '3.0 TDI - 218 PS', '3.0 TDI - 286 PS', '2.9 TFSI - 450 PS (RS5)'],
+    },
+    'A6': {
+      'C6 - 2004': ['2.0 TDI - 140 PS', '2.7 TDI - 180 PS', '3.0 TDI - 225 PS', '3.0 TDI - 233 PS', '2.0 TFSI - 170 PS', '4.2 FSI - 350 PS', '5.0 V10 - 580 PS (RS6)'],
+      'C7 - 2011': ['2.0 TDI - 177 PS', '2.0 TFSI - 180 PS', '3.0 TDI - 204 PS', '3.0 TDI EU6 - 218 PS', '3.0 TDI - 272 PS', '3.0 TDI - 326 PS', '3.0 TFSI - 310 PS', '4.0 TFSI - 560 PS (RS6)'],
+      'C8 - 2018': ['2.0 TDI - 163 PS', '2.0 TDI - 204 PS', '3.0 TDI - 231 PS', '3.0 TDI - 286 PS', '2.0 TFSI - 245 PS', '3.0 TFSI - 340 PS', '4.0 TFSI - 600 PS (RS6)'],
+    },
+    'Q5': {
+      '8R - 2008': ['2.0 TDI - 143 PS', '2.0 TDI - 170 PS', '2.0 TDI - 177 PS', '2.0 TFSI - 180 PS', '2.0 TFSI - 211 PS', '3.0 TDI - 240 PS', '3.0 TDI - 258 PS'],
+      'FY - 2017': ['2.0 TDI - 150 PS', '2.0 TDI - 190 PS', '2.0 TFSI - 190 PS', '2.0 TFSI - 252 PS', '3.0 TDI - 286 PS', '2.9 TFSI - 381 PS (SQ5)'],
+    },
+    'Q7': {
+      '4L - 2006': ['3.0 TDI - 204 PS', '3.0 TDI - 233 PS', '3.0 TDI - 240 PS', '4.2 TDI - 326 PS', '4.2 FSI - 350 PS', '6.0 TDI V12 - 500 PS'],
+      '4M - 2015': ['3.0 TDI - 218 PS', '3.0 TDI - 272 PS', '2.0 TFSI - 252 PS', '3.0 TFSI - 340 PS', '4.0 TDI - 435 PS (SQ7)'],
+    },
+  },
+  'BMW': {
+    '1er': {
+      'E87 - 2004': ['116i - 115 PS', '118d - 143 PS', '120d - 163 PS', '120d - 177 PS', '123d - 204 PS', '130i - 265 PS'],
+      'F20 - 2011': ['114d - 95 PS', '116d - 116 PS', '118d - 143 PS', '118d - 150 PS', '120d - 184 PS', '120d - 190 PS', '125d - 218 PS', '125i - 218 PS', 'M135i - 326 PS'],
+      'F40 - 2019': ['116d - 116 PS', '118d - 150 PS', '118i - 140 PS', '120d - 190 PS', '128ti - 265 PS', 'M135i - 306 PS'],
+    },
+    '3er': {
+      'E90 - 2005': ['318d - 143 PS', '320d - 163 PS', '320d - 177 PS', '325d - 197 PS', '330d - 231 PS', '330d - 245 PS', '335d - 286 PS', '320i - 150 PS', '325i - 218 PS', '335i - 306 PS'],
+      'F30 - 2012': ['316d - 116 PS', '318d - 143 PS', '318d - 150 PS', '320d - 163 PS', '320d - 184 PS', '320d - 190 PS', '325d - 218 PS', '330d - 258 PS', '335d - 313 PS', '320i - 184 PS', '328i - 245 PS', '335i - 306 PS', '340i - 326 PS'],
+      'G20 - 2019': ['318d - 150 PS', '320d - 190 PS', '330d - 286 PS', '330e - 292 PS', '320i - 184 PS', '330i - 258 PS', 'M340i - 374 PS', 'M3 - 480 PS', 'M3 Competition - 510 PS'],
+    },
+    '5er': {
+      'E60 - 2003': ['520d - 163 PS', '520d - 177 PS', '525d - 197 PS', '530d - 218 PS', '530d - 231 PS', '530d - 245 PS', '535d - 272 PS', '535d - 286 PS', '525i - 218 PS', '530i - 258 PS', '550i - 367 PS', 'M5 - 507 PS'],
+      'F10 - 2010': ['518d - 143 PS', '520d - 184 PS', '520d - 190 PS', '525d - 218 PS', '530d - 258 PS', '535d - 313 PS', '520i - 184 PS', '528i - 245 PS', '535i - 306 PS', '550i - 449 PS', 'M5 - 560 PS'],
+      'G30 - 2017': ['518d - 150 PS', '520d - 190 PS', '530d - 265 PS', '530d - 286 PS', '540d - 320 PS', '520i - 184 PS', '530i - 252 PS', '540i - 340 PS', 'M550i - 462 PS', 'M5 - 600 PS'],
+    },
+    'X3': {
+      'F25 - 2010': ['sDrive18d - 143 PS', 'xDrive20d - 184 PS', 'xDrive20d - 190 PS', 'xDrive30d - 258 PS', 'xDrive35d - 313 PS', 'xDrive20i - 184 PS', 'xDrive28i - 245 PS', 'xDrive35i - 306 PS'],
+      'G01 - 2017': ['xDrive20d - 190 PS', 'xDrive30d - 265 PS', 'xDrive20i - 184 PS', 'xDrive30i - 252 PS', 'M40i - 360 PS', 'M Competition - 510 PS'],
+    },
+    'X5': {
+      'E70 - 2006': ['xDrive30d - 235 PS', 'xDrive30d - 245 PS', 'xDrive40d - 306 PS', 'xDrive50i - 407 PS', 'M50d - 381 PS', 'M - 555 PS'],
+      'F15 - 2013': ['sDrive25d - 218 PS', 'xDrive25d - 218 PS', 'xDrive30d - 258 PS', 'xDrive40d - 313 PS', 'M50d - 381 PS', 'xDrive35i - 306 PS', 'xDrive50i - 449 PS', 'M - 575 PS'],
+      'G05 - 2018': ['xDrive25d - 231 PS', 'xDrive30d - 265 PS', 'xDrive40d - 340 PS', 'M50d - 400 PS', 'xDrive40i - 340 PS', 'M50i - 530 PS', 'M Competition - 625 PS'],
+    },
+  },
+  'VW': {
+    'Golf': {
+      'Golf 6 - 2008': ['1.2 TSI - 105 PS', '1.4 TSI - 122 PS', '1.4 TSI - 160 PS', '1.6 TDI - 105 PS', '2.0 TDI - 110 PS', '2.0 TDI - 140 PS', '2.0 TDI - 170 PS', '2.0 TSI GTI - 210 PS', '2.0 TSI R - 270 PS'],
+      'Golf 7 - 2012': ['1.0 TSI - 110 PS', '1.2 TSI - 105 PS', '1.4 TSI - 125 PS', '1.4 TSI - 150 PS', '1.6 TDI - 110 PS', '2.0 TDI - 150 PS', '2.0 TDI - 184 PS', '2.0 TSI GTI - 230 PS', '2.0 TSI GTI TCR - 290 PS', '2.0 TSI R - 300 PS', '2.0 TSI R - 310 PS'],
+      'Golf 8 - 2019': ['1.0 TSI - 110 PS', '1.5 TSI - 130 PS', '1.5 TSI - 150 PS', '2.0 TDI - 115 PS', '2.0 TDI - 150 PS', '2.0 TSI GTI - 245 PS', '2.0 TSI GTI Clubsport - 300 PS', '2.0 TSI R - 320 PS'],
+    },
+    'Passat': {
+      'B7 - 2010': ['1.4 TSI - 122 PS', '1.8 TSI - 160 PS', '2.0 TDI - 140 PS', '2.0 TDI - 170 PS', '2.0 TSI - 210 PS'],
+      'B8 - 2014': ['1.4 TSI - 125 PS', '1.4 TSI - 150 PS', '1.6 TDI - 120 PS', '2.0 TDI - 150 PS', '2.0 TDI - 190 PS', '2.0 TDI - 240 PS (Bi-TDI)', '2.0 TSI - 190 PS', '2.0 TSI - 272 PS'],
+    },
+    'Tiguan': {
+      'AD - 2016': ['1.4 TSI - 125 PS', '1.4 TSI - 150 PS', '2.0 TDI - 115 PS', '2.0 TDI - 150 PS', '2.0 TDI - 190 PS', '2.0 TDI - 240 PS', '2.0 TSI - 180 PS', '2.0 TSI - 190 PS', '2.0 TSI - 230 PS', '2.0 TSI R - 320 PS'],
+    },
+    'T-Roc': {
+      'A11 - 2017': ['1.0 TSI - 110 PS', '1.5 TSI - 150 PS', '2.0 TDI - 115 PS', '2.0 TDI - 150 PS', '2.0 TSI - 190 PS', '2.0 TSI R - 300 PS'],
+    },
+    'Touareg': {
+      'CR - 2018': ['3.0 TDI - 231 PS', '3.0 TDI - 286 PS', '3.0 TSI - 340 PS', '4.0 TDI - 422 PS'],
+    },
+  },
+  'Mercedes': {
+    'A-Klasse': {
+      'W176 - 2012': ['A160 CDI - 90 PS', 'A180 CDI - 109 PS', 'A200 CDI - 136 PS', 'A220 CDI - 177 PS', 'A180 - 122 PS', 'A200 - 156 PS', 'A250 - 211 PS', 'A45 AMG - 360 PS', 'A45 AMG - 381 PS'],
+      'W177 - 2018': ['A160d - 95 PS', 'A180d - 116 PS', 'A200d - 150 PS', 'A220d - 190 PS', 'A180 - 136 PS', 'A200 - 163 PS', 'A250 - 224 PS', 'A35 AMG - 306 PS', 'A45 AMG - 387 PS', 'A45 S AMG - 421 PS'],
+    },
+    'C-Klasse': {
+      'W204 - 2007': ['C180 CDI - 120 PS', 'C200 CDI - 136 PS', 'C220 CDI - 170 PS', 'C250 CDI - 204 PS', 'C350 CDI - 265 PS', 'C180 - 156 PS', 'C200 - 184 PS', 'C250 - 204 PS', 'C350 - 306 PS', 'C63 AMG - 457 PS'],
+      'W205 - 2014': ['C180d - 116 PS', 'C200d - 160 PS', 'C220d - 170 PS', 'C250d - 204 PS', 'C300d - 245 PS', 'C180 - 156 PS', 'C200 - 184 PS', 'C300 - 245 PS', 'C43 AMG - 367 PS', 'C43 AMG - 390 PS', 'C63 AMG - 476 PS', 'C63 S AMG - 510 PS'],
+      'W206 - 2021': ['C200d - 163 PS', 'C220d - 200 PS', 'C300d - 265 PS', 'C200 - 204 PS', 'C300 - 258 PS', 'C43 AMG - 408 PS', 'C63 S AMG E - 680 PS'],
+    },
+    'E-Klasse': {
+      'W212 - 2009': ['E200 CDI - 136 PS', 'E220 CDI - 170 PS', 'E250 CDI - 204 PS', 'E300 CDI - 231 PS', 'E350 CDI - 265 PS', 'E200 - 184 PS', 'E300 - 252 PS', 'E400 - 333 PS', 'E63 AMG - 557 PS', 'E63 S AMG - 585 PS'],
+      'W213 - 2016': ['E200d - 150 PS', 'E220d - 194 PS', 'E300d - 245 PS', 'E350d - 286 PS', 'E400d - 340 PS', 'E200 - 184 PS', 'E300 - 245 PS', 'E450 - 367 PS', 'E53 AMG - 435 PS', 'E63 AMG - 571 PS', 'E63 S AMG - 612 PS'],
+    },
+    'GLC': {
+      'X253 - 2015': ['GLC 200d - 163 PS', 'GLC 220d - 170 PS', 'GLC 250d - 204 PS', 'GLC 300d - 245 PS', 'GLC 200 - 184 PS', 'GLC 300 - 245 PS', 'GLC 43 AMG - 367 PS', 'GLC 63 AMG - 476 PS', 'GLC 63 S AMG - 510 PS'],
+    },
+  },
+  'Seat': {
+    'Leon': {
+      '5F - 2012': ['1.0 TSI - 110 PS', '1.2 TSI - 110 PS', '1.4 TSI - 150 PS', '1.6 TDI - 110 PS', '2.0 TDI - 150 PS', '2.0 TDI - 184 PS', '2.0 TSI Cupra - 280 PS', '2.0 TSI Cupra - 290 PS', '2.0 TSI Cupra R - 310 PS'],
+      'KL - 2020': ['1.0 TSI - 110 PS', '1.5 TSI - 130 PS', '1.5 TSI - 150 PS', '2.0 TDI - 115 PS', '2.0 TDI - 150 PS'],
+    },
+    'Ateca': {
+      'KH - 2016': ['1.0 TSI - 110 PS', '1.5 TSI - 150 PS', '2.0 TDI - 115 PS', '2.0 TDI - 150 PS', '2.0 TDI - 190 PS', '2.0 TSI - 190 PS', '2.0 TSI Cupra - 300 PS'],
+    },
+  },
+  'Skoda': {
+    'Octavia': {
+      '5E - 2012': ['1.0 TSI - 110 PS', '1.2 TSI - 110 PS', '1.4 TSI - 150 PS', '1.6 TDI - 110 PS', '2.0 TDI - 150 PS', '2.0 TDI - 184 PS', '2.0 TSI RS - 230 PS', '2.0 TSI RS - 245 PS'],
+      'NX - 2020': ['1.0 TSI - 110 PS', '1.5 TSI - 150 PS', '2.0 TDI - 115 PS', '2.0 TDI - 150 PS', '2.0 TDI - 200 PS', '2.0 TSI RS - 245 PS'],
+    },
+    'Superb': {
+      '3V - 2015': ['1.4 TSI - 150 PS', '1.5 TSI - 150 PS', '2.0 TDI - 150 PS', '2.0 TDI - 190 PS', '2.0 TSI - 272 PS', '2.0 TSI - 280 PS'],
+    },
+  },
+  'Opel': {
+    'Astra': {
+      'J - 2009': ['1.4 Turbo - 120 PS', '1.4 Turbo - 140 PS', '1.6 CDTI - 110 PS', '1.6 CDTI - 136 PS', '2.0 CDTI - 165 PS', '2.0 Turbo OPC - 280 PS'],
+      'K - 2015': ['1.0 Turbo - 105 PS', '1.2 Turbo - 130 PS', '1.4 Turbo - 150 PS', '1.6 CDTI - 110 PS', '1.6 CDTI - 136 PS', '1.6 CDTI - 160 PS', '1.6 Turbo - 200 PS'],
+    },
+    'Insignia': {
+      'B - 2017': ['1.5 Turbo - 140 PS', '1.5 Turbo - 165 PS', '2.0 CDTI - 170 PS', '2.0 CDTI - 210 PS', '2.0 Turbo - 260 PS', '2.0 Turbo GSi - 230 PS'],
+    },
+  },
+  'Ford': {
+    'Focus': {
+      'MK3 - 2011': ['1.0 EcoBoost - 100 PS', '1.0 EcoBoost - 125 PS', '1.5 EcoBoost - 150 PS', '1.5 TDCi - 95 PS', '1.5 TDCi - 120 PS', '2.0 TDCi - 150 PS', '2.3 EcoBoost RS - 350 PS', '2.3 EcoBoost ST - 280 PS'],
+      'MK4 - 2018': ['1.0 EcoBoost - 100 PS', '1.0 EcoBoost - 125 PS', '1.0 EcoBoost - 155 PS', '1.5 EcoBlue - 120 PS', '1.5 EcoBoost - 150 PS', '1.5 EcoBoost - 182 PS', '2.0 EcoBlue - 150 PS', '2.3 EcoBoost ST - 280 PS'],
+    },
+    'Kuga': {
+      'MK3 - 2019': ['1.5 EcoBlue - 120 PS', '1.5 EcoBoost - 150 PS', '2.0 EcoBlue - 150 PS', '2.0 EcoBlue - 190 PS', '2.5 PHEV - 225 PS'],
+    },
+  },
+  'Porsche': {
+    'Cayenne': {
+      '92A - 2010': ['Diesel - 245 PS', 'S Diesel - 382 PS', 'S - 400 PS', 'S - 420 PS', 'GTS - 440 PS', 'Turbo - 500 PS', 'Turbo S - 570 PS'],
+      'E3 - 2017': ['3.0 V6 - 340 PS', 'S 2.9 V6 - 440 PS', 'GTS 4.0 V8 - 460 PS', 'Turbo 4.0 V8 - 550 PS', 'Turbo S E-Hybrid - 680 PS'],
+    },
+    'Macan': {
+      '95B - 2014': ['2.0 TFSI - 237 PS', '2.0 TFSI - 252 PS', 'S 3.0 V6 - 340 PS', 'S 3.0 V6 - 354 PS', 'GTS 2.9 V6 - 380 PS', 'Turbo 3.6 V6 - 400 PS'],
+    },
+    '911': {
+      '991 - 2011': ['Carrera 3.4 - 350 PS', 'Carrera S 3.8 - 400 PS', 'Carrera 3.0T - 370 PS', 'Carrera S 3.0T - 420 PS', 'GTS 3.0T - 450 PS', 'Turbo 3.8T - 540 PS', 'Turbo S 3.8T - 580 PS', 'GT3 4.0 - 500 PS'],
+      '992 - 2019': ['Carrera 3.0T - 385 PS', 'Carrera S 3.0T - 450 PS', 'GTS 3.0T - 480 PS', 'Turbo 3.7T - 580 PS', 'Turbo S 3.7T - 650 PS', 'GT3 4.0 - 510 PS'],
+    },
+  },
+};
+
+const allManufacturers = Object.keys(vehicleData).sort();
 
 const readingDevices = [
   { group: 'Autotuner', logo: '/logos/autotuner.png', options: ['Tool'] },
@@ -87,11 +238,9 @@ export default function FileWizard() {
     comment: '',
     // Step 2 - Fahrzeug
     manufacturer: '',
-    model: '',
-    year: '',
+    series: '',
+    vehicleModel: '',
     engine: '',
-    ecu: '',
-    gearbox: '',
   });
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -177,17 +326,13 @@ export default function FileWizard() {
         uploadedFile: 'HOCHGELADENE DATEI',
         parsedAs: 'Erkannt als',
         manufacturer: 'HERSTELLER',
-        manufacturerPlaceholder: 'z.B. BMW, VW, Audi...',
-        model: 'MODELL',
-        modelPlaceholder: 'z.B. 320d, Golf 7, A4...',
-        year: 'BAUJAHR',
-        yearPlaceholder: 'z.B. 2019',
+        manufacturerPlaceholder: 'Hersteller wählen...',
+        series: 'BAUREIHE',
+        seriesPlaceholder: 'Baureihe wählen...',
+        vehicleModel: 'MODELL',
+        vehicleModelPlaceholder: 'Modell wählen...',
         engine: 'MOTOR',
-        enginePlaceholder: 'z.B. 2.0 TDI, N47, OM654...',
-        ecu: 'STEUERGERÄT (ECU)',
-        ecuPlaceholder: 'z.B. EDC17C50, MED17.1...',
-        gearbox: 'GETRIEBE',
-        gearboxPlaceholder: 'z.B. Automatik, Manuell, DSG...',
+        enginePlaceholder: 'Motor wählen...',
         nextStep3: 'Weiter zu Schritt 3',
       },
       en: {
@@ -214,17 +359,13 @@ export default function FileWizard() {
         uploadedFile: 'UPLOADED FILE',
         parsedAs: 'Detected as',
         manufacturer: 'MANUFACTURER',
-        manufacturerPlaceholder: 'e.g. BMW, VW, Audi...',
-        model: 'MODEL',
-        modelPlaceholder: 'e.g. 320d, Golf 7, A4...',
-        year: 'YEAR',
-        yearPlaceholder: 'e.g. 2019',
+        manufacturerPlaceholder: 'Select manufacturer...',
+        series: 'SERIES',
+        seriesPlaceholder: 'Select series...',
+        vehicleModel: 'MODEL',
+        vehicleModelPlaceholder: 'Select model...',
         engine: 'ENGINE',
-        enginePlaceholder: 'e.g. 2.0 TDI, N47, OM654...',
-        ecu: 'ECU',
-        ecuPlaceholder: 'e.g. EDC17C50, MED17.1...',
-        gearbox: 'GEARBOX',
-        gearboxPlaceholder: 'e.g. Automatic, Manual, DSG...',
+        enginePlaceholder: 'Select engine...',
         nextStep3: 'Continue to Step 3',
       },
     };
@@ -634,7 +775,7 @@ export default function FileWizard() {
                   <FileIcon weight="bold" className="w-3.5 h-3.5" />
                   {t('uploadedFile')}
                 </label>
-                <div className="flex items-center gap-3 bg-secondary/50 border border-border rounded-sm px-4 py-3 mb-4">
+                <div className="flex items-center gap-3 bg-secondary/50 border border-border rounded-sm px-4 py-3">
                   <FileIcon weight="fill" className="w-5 h-5 text-primary flex-shrink-0" />
                   <div className="min-w-0">
                     <p className="text-sm font-mono text-foreground truncate">{parsedFilename.original}</p>
@@ -645,163 +786,149 @@ export default function FileWizard() {
                     )}
                   </div>
                 </div>
-                {/* Parsed details badges */}
-                <div className="flex flex-wrap gap-3">
-                  {parsedFilename.parts.manufacturer && (
-                    <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-sm px-4 py-2">
-                      <Car weight="bold" className="w-4 h-4 text-primary" />
-                      <div>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('manufacturer')}</p>
-                        <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.manufacturer}</p>
-                      </div>
-                    </div>
-                  )}
-                  {parsedFilename.parts.model && (
-                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2">
-                      <Tag weight="bold" className="w-4 h-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('model')}</p>
-                        <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.model}</p>
-                      </div>
-                    </div>
-                  )}
-                  {parsedFilename.parts.engine && (
-                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2">
-                      <Engine weight="bold" className="w-4 h-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('engine')}</p>
-                        <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.engine}</p>
-                      </div>
-                    </div>
-                  )}
-                  {parsedFilename.parts.ecu && (
-                    <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-sm px-4 py-2">
-                      <GasPump weight="bold" className="w-4 h-4 text-primary" />
-                      <div>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('ecu')}</p>
-                        <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.ecu}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Vehicle Form */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="bg-card border-border" data-testid="vehicle-form-left">
-              <CardContent className="p-6 space-y-6">
-                {/* Hersteller */}
+          {/* Cascade Vehicle Selection */}
+          <Card className="bg-card border-border" data-testid="vehicle-cascade-card">
+            <CardContent className="p-6 space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* 1. Hersteller */}
                 <div className="space-y-2.5">
                   <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
                     <Car weight="bold" className="w-3.5 h-3.5" />
                     {t('manufacturer')}
                   </label>
-                  <input
-                    type="text"
+                  <Select
                     value={formData.manufacturer}
-                    onChange={(e) => setFormData(prev => ({ ...prev, manufacturer: e.target.value }))}
-                    placeholder={t('manufacturerPlaceholder')}
-                    className="w-full h-12 bg-secondary/50 border border-border rounded-sm px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                    data-testid="input-manufacturer"
-                  />
+                    onValueChange={(val) => setFormData(prev => ({ ...prev, manufacturer: val, series: '', vehicleModel: '', engine: '' }))}
+                  >
+                    <SelectTrigger className="w-full h-12 bg-secondary/50 border-border text-sm" data-testid="select-manufacturer">
+                      <SelectValue placeholder={t('manufacturerPlaceholder')} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                      {allManufacturers.map((m) => (
+                        <SelectItem key={m} value={m}>{m}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                {/* Modell */}
+                {/* 2. Baureihe */}
                 <div className="space-y-2.5">
                   <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
                     <Tag weight="bold" className="w-3.5 h-3.5" />
-                    {t('model')}
+                    {t('series')}
                   </label>
-                  <input
-                    type="text"
-                    value={formData.model}
-                    onChange={(e) => setFormData(prev => ({ ...prev, model: e.target.value }))}
-                    placeholder={t('modelPlaceholder')}
-                    className="w-full h-12 bg-secondary/50 border border-border rounded-sm px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                    data-testid="input-model"
-                  />
+                  <Select
+                    value={formData.series}
+                    onValueChange={(val) => setFormData(prev => ({ ...prev, series: val, vehicleModel: '', engine: '' }))}
+                    disabled={!formData.manufacturer}
+                  >
+                    <SelectTrigger className="w-full h-12 bg-secondary/50 border-border text-sm" data-testid="select-series">
+                      <SelectValue placeholder={formData.manufacturer ? t('seriesPlaceholder') : '—'} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                      {formData.manufacturer && vehicleData[formData.manufacturer] &&
+                        Object.keys(vehicleData[formData.manufacturer]).map((s) => (
+                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                        ))
+                      }
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                {/* Baujahr */}
+                {/* 3. Modell */}
                 <div className="space-y-2.5">
                   <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
                     <Calendar weight="bold" className="w-3.5 h-3.5" />
-                    {t('year')}
+                    {t('vehicleModel')}
                   </label>
-                  <input
-                    type="text"
-                    value={formData.year}
-                    onChange={(e) => setFormData(prev => ({ ...prev, year: e.target.value }))}
-                    placeholder={t('yearPlaceholder')}
-                    className="w-full h-12 bg-secondary/50 border border-border rounded-sm px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                    data-testid="input-year"
-                  />
+                  <Select
+                    value={formData.vehicleModel}
+                    onValueChange={(val) => setFormData(prev => ({ ...prev, vehicleModel: val, engine: '' }))}
+                    disabled={!formData.series}
+                  >
+                    <SelectTrigger className="w-full h-12 bg-secondary/50 border-border text-sm" data-testid="select-model">
+                      <SelectValue placeholder={formData.series ? t('vehicleModelPlaceholder') : '—'} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                      {formData.manufacturer && formData.series && vehicleData[formData.manufacturer]?.[formData.series] &&
+                        Object.keys(vehicleData[formData.manufacturer][formData.series]).map((m) => (
+                          <SelectItem key={m} value={m}>{m}</SelectItem>
+                        ))
+                      }
+                    </SelectContent>
+                  </Select>
                 </div>
-              </CardContent>
-            </Card>
 
-            <Card className="bg-card border-border" data-testid="vehicle-form-right">
-              <CardContent className="p-6 space-y-6">
-                {/* Motor */}
+                {/* 4. Motor */}
                 <div className="space-y-2.5">
                   <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
                     <Engine weight="bold" className="w-3.5 h-3.5" />
                     {t('engine')}
                   </label>
-                  <input
-                    type="text"
-                    value={formData.engine}
-                    onChange={(e) => setFormData(prev => ({ ...prev, engine: e.target.value }))}
-                    placeholder={t('enginePlaceholder')}
-                    className="w-full h-12 bg-secondary/50 border border-border rounded-sm px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                    data-testid="input-engine"
-                  />
-                </div>
-
-                {/* ECU / Steuergerät */}
-                <div className="space-y-2.5">
-                  <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
-                    <GasPump weight="bold" className="w-3.5 h-3.5" />
-                    {t('ecu')}
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.ecu}
-                    onChange={(e) => setFormData(prev => ({ ...prev, ecu: e.target.value }))}
-                    placeholder={t('ecuPlaceholder')}
-                    className="w-full h-12 bg-secondary/50 border border-border rounded-sm px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                    data-testid="input-ecu"
-                  />
-                </div>
-
-                {/* Getriebe */}
-                <div className="space-y-2.5">
-                  <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
-                    <Sliders weight="bold" className="w-3.5 h-3.5" />
-                    {t('gearbox')}
-                  </label>
                   <Select
-                    value={formData.gearbox}
-                    onValueChange={(val) => setFormData(prev => ({ ...prev, gearbox: val }))}
+                    value={formData.engine}
+                    onValueChange={(val) => setFormData(prev => ({ ...prev, engine: val }))}
+                    disabled={!formData.vehicleModel}
                   >
-                    <SelectTrigger className="w-full h-12 bg-secondary/50 border-border text-sm" data-testid="select-gearbox">
-                      <SelectValue placeholder={t('gearboxPlaceholder')} />
+                    <SelectTrigger className="w-full h-12 bg-secondary/50 border-border text-sm" data-testid="select-engine">
+                      <SelectValue placeholder={formData.vehicleModel ? t('enginePlaceholder') : '—'} />
                     </SelectTrigger>
                     <SelectContent className="bg-card border-border">
-                      <SelectItem value="Manuell">Manuell</SelectItem>
-                      <SelectItem value="Automatik">Automatik</SelectItem>
-                      <SelectItem value="DSG">DSG</SelectItem>
-                      <SelectItem value="CVT">CVT</SelectItem>
-                      <SelectItem value="PDK">PDK</SelectItem>
-                      <SelectItem value="SMG">SMG</SelectItem>
+                      {formData.manufacturer && formData.series && formData.vehicleModel &&
+                        vehicleData[formData.manufacturer]?.[formData.series]?.[formData.vehicleModel]?.map((e) => (
+                          <SelectItem key={e} value={e}>{e}</SelectItem>
+                        ))
+                      }
                     </SelectContent>
                   </Select>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+
+              {/* Selected summary badges */}
+              {formData.manufacturer && (
+                <div className="flex flex-wrap gap-3 pt-2 border-t border-border">
+                  <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-sm px-4 py-2">
+                    <Car weight="bold" className="w-4 h-4 text-primary" />
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('manufacturer')}</p>
+                      <p className="text-sm font-semibold text-foreground">{formData.manufacturer}</p>
+                    </div>
+                  </div>
+                  {formData.series && (
+                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2">
+                      <Tag weight="bold" className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('series')}</p>
+                        <p className="text-sm font-semibold text-foreground">{formData.series}</p>
+                      </div>
+                    </div>
+                  )}
+                  {formData.vehicleModel && (
+                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2">
+                      <Calendar weight="bold" className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('vehicleModel')}</p>
+                        <p className="text-sm font-semibold text-foreground">{formData.vehicleModel}</p>
+                      </div>
+                    </div>
+                  )}
+                  {formData.engine && (
+                    <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-sm px-4 py-2">
+                      <Engine weight="bold" className="w-4 h-4 text-primary" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('engine')}</p>
+                        <p className="text-sm font-semibold text-foreground">{formData.engine}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Step 2 Navigation */}
           <div className="flex items-center justify-between">
