@@ -16,6 +16,7 @@ import Invoices from "./pages/Invoices";
 import Tickets from "./pages/Tickets";
 import TicketDetail from "./pages/TicketDetail";
 import PriceList from "./pages/PriceList";
+import NewOrderCombined from "./pages/NewOrderCombined";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/file-wizard" element={<FileWizard />} />
+            <Route path="/new-order" element={<NewOrderCombined />} />
             <Route path="/configurator" element={<Configurator />} />
             <Route path="/credits" element={<Credits />} />
             <Route path="/orders" element={<OrdersNew />} />

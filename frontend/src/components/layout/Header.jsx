@@ -43,7 +43,7 @@ export const Header = () => {
         {/* New Order Button */}
         <Button
           className="btn-gradient text-white font-semibold"
-          onClick={() => navigate('/file-wizard')}
+          onClick={() => navigate('/new-order')}
           data-testid="header-new-order-btn"
         >
           <FilePlus weight="bold" className="w-4 h-4 mr-2" />
