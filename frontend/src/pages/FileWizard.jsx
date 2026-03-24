@@ -53,7 +53,7 @@ import {
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
 import { cn } from '../lib/utils';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 // Vehicle database: Hersteller -> Baureihe -> Modell -> Motor
 const vehicleData = {
@@ -330,53 +330,77 @@ const gearboxStages = [
 // Manufacturers that support gearbox tuning
 const gearboxManufacturers = ['VW', 'Audi', 'Seat', 'Cupra', 'Skoda', 'BMW'];
 
-// Generate mock performance data from engine string
+// Generate mock dyno curve data from engine string
 function getPerformanceData(engine) {
   if (!engine) return null;
-  // Extract PS from engine string like "2.0 TDI - 190 PS" or "M135i - 306 PS"
   const psMatch = engine.match(/(\d{2,4})\s*PS/);
   if (!psMatch) return null;
   const originalPs = parseInt(psMatch[1]);
   
-  // Detect diesel vs petrol for torque estimation
   const isDiesel = /TDI|CDI|CDTI|HDI|CRDi|EcoBlue|TDCi|d\b/i.test(engine);
   const torqueMultiplier = isDiesel ? 2.0 : 1.35;
   const originalNm = Math.round(originalPs * torqueMultiplier);
   
-  // Stage 1: +20-30% PS, +25-35% Nm
   const s1PsGain = isDiesel ? 0.25 : 0.22;
   const s1NmGain = isDiesel ? 0.30 : 0.25;
-  const stage1Ps = Math.round(originalPs * (1 + s1PsGain));
-  const stage1Nm = Math.round(originalNm * (1 + s1NmGain));
-  
-  // Stage 2: +35-50% PS, +40-55% Nm  
   const s2PsGain = isDiesel ? 0.40 : 0.35;
   const s2NmGain = isDiesel ? 0.45 : 0.38;
+  const stage1Ps = Math.round(originalPs * (1 + s1PsGain));
+  const stage1Nm = Math.round(originalNm * (1 + s1NmGain));
   const stage2Ps = Math.round(originalPs * (1 + s2PsGain));
   const stage2Nm = Math.round(originalNm * (1 + s2NmGain));
   
+  // Generate RPM-based dyno curve
+  const maxRpm = isDiesel ? 5200 : 7200;
+  const peakPsRpm = isDiesel ? 3800 : 5800;
+  const peakNmRpm = isDiesel ? 2000 : 3500;
+  const steps = 20;
+  
+  const curve = (rpm, peak, peakRpm, riseSharp) => {
+    const x = rpm / peakRpm;
+    if (x <= 1) {
+      return peak * (1 - Math.pow(1 - x, riseSharp));
+    }
+    const falloff = (rpm - peakRpm) / (maxRpm - peakRpm);
+    return peak * (1 - 0.25 * Math.pow(falloff, 1.5));
+  };
+  
+  const curveData = [];
+  for (let i = 0; i <= steps; i++) {
+    const rpm = Math.round(800 + (maxRpm - 800) * (i / steps));
+    const rpmLabel = rpm >= 1000 ? `${(rpm/1000).toFixed(1)}k` : String(rpm);
+    curveData.push({
+      rpm,
+      rpmLabel,
+      seriePs: Math.round(curve(rpm, originalPs, peakPsRpm, 1.8)),
+      stage1Ps: Math.round(curve(rpm, stage1Ps, peakPsRpm * 0.97, 1.8)),
+      stage2Ps: Math.round(curve(rpm, stage2Ps, peakPsRpm * 0.95, 1.8)),
+      serieNm: Math.round(curve(rpm, originalNm, peakNmRpm, 2.2)),
+      stage1Nm: Math.round(curve(rpm, stage1Nm, peakNmRpm * 0.95, 2.2)),
+      stage2Nm: Math.round(curve(rpm, stage2Nm, peakNmRpm * 0.92, 2.2)),
+    });
+  }
+  
   return {
-    originalPs, originalNm,
-    stage1Ps, stage1Nm,
-    stage2Ps, stage2Nm,
-    isDiesel,
-    psGainS1: stage1Ps - originalPs,
-    psGainS2: stage2Ps - originalPs,
-    nmGainS1: stage1Nm - originalNm,
-    nmGainS2: stage2Nm - originalNm,
+    originalPs, originalNm, stage1Ps, stage1Nm, stage2Ps, stage2Nm, isDiesel, curveData,
+    psGainS1: stage1Ps - originalPs, psGainS2: stage2Ps - originalPs,
+    nmGainS1: stage1Nm - originalNm, nmGainS2: stage2Nm - originalNm,
   };
 }
 
-// Custom tooltip for performance chart
-const PerfTooltip = ({ active, payload, label }) => {
+// Custom tooltip for dyno chart
+const DynoTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
+  const rpm = payload[0]?.payload?.rpm;
   return (
-    <div className="bg-card border border-border rounded-sm px-3 py-2 shadow-lg">
-      <p className="text-xs font-semibold text-foreground mb-1">{label}</p>
+    <div className="bg-[#1a1a1a] border border-border rounded-sm px-3 py-2.5 shadow-xl min-w-[140px]">
+      <p className="text-[11px] font-bold text-muted-foreground mb-1.5">{rpm?.toLocaleString()} RPM</p>
       {payload.map((entry, i) => (
-        <p key={i} className="text-xs" style={{ color: entry.fill }}>
-          {entry.name}: <span className="font-bold">{entry.value}</span>
-        </p>
+        <div key={i} className="flex items-center gap-2 text-[11px] leading-relaxed">
+          <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: entry.stroke || entry.color }} />
+          <span className="text-muted-foreground">{entry.name}:</span>
+          <span className="font-bold text-foreground ml-auto">{entry.value}</span>
+        </div>
       ))}
     </div>
   );
@@ -419,6 +443,8 @@ export default function FileWizard() {
   const [selectedStage, setSelectedStage] = useState('');
   const [selectedGearboxStage, setSelectedGearboxStage] = useState('');
   const [selectedOptions, setSelectedOptions] = useState([]);
+  const [showPs, setShowPs] = useState(true);
+  const [showNm, setShowNm] = useState(true);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef(null);
@@ -1424,81 +1450,116 @@ export default function FileWizard() {
           {/* Performance Data & Tuning Options (when engine selected) */}
           {formData.engine && perfData && (
             <>
-              {/* Performance Chart */}
+              {/* Dyno Curve Chart */}
               <Card className="bg-card border-border" data-testid="performance-data-card">
                 <CardContent className="p-6">
-                  <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase mb-5">
-                    <Lightning weight="bold" className="w-3.5 h-3.5" />
-                    {t('performanceTitle')}
-                  </label>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* PS Chart */}
-                    <div>
-                      <p className="text-xs font-semibold text-muted-foreground tracking-wider uppercase mb-3">{t('power')} (PS)</p>
-                      <div className="h-[200px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            data={[
-                              { name: t('originalPower'), PS: perfData.originalPs },
-                              { name: t('stage1Power'), PS: perfData.stage1Ps },
-                              { name: t('stage2Power'), PS: perfData.stage2Ps },
-                            ]}
-                            margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
-                            barCategoryGap="25%"
-                          >
-                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                            <XAxis dataKey="name" tick={{ fill: '#888', fontSize: 12 }} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} tickLine={false} />
-                            <YAxis tick={{ fill: '#888', fontSize: 11 }} axisLine={false} tickLine={false} domain={[0, 'auto']} />
-                            <Tooltip content={<PerfTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
-                            <Bar dataKey="PS" name={t('power')} radius={[3, 3, 0, 0]} maxBarSize={60}>
-                              <Cell fill="#555" />
-                              <Cell fill="#8B2635" />
-                              <Cell fill="#c0392b" />
-                            </Bar>
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-
-                    {/* Nm Chart */}
-                    <div>
-                      <p className="text-xs font-semibold text-muted-foreground tracking-wider uppercase mb-3">{t('torque')} (Nm)</p>
-                      <div className="h-[200px]">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart
-                            data={[
-                              { name: t('originalPower'), Nm: perfData.originalNm },
-                              { name: t('stage1Power'), Nm: perfData.stage1Nm },
-                              { name: t('stage2Power'), Nm: perfData.stage2Nm },
-                            ]}
-                            margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
-                            barCategoryGap="25%"
-                          >
-                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                            <XAxis dataKey="name" tick={{ fill: '#888', fontSize: 12 }} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} tickLine={false} />
-                            <YAxis tick={{ fill: '#888', fontSize: 11 }} axisLine={false} tickLine={false} domain={[0, 'auto']} />
-                            <Tooltip content={<PerfTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
-                            <Bar dataKey="Nm" name={t('torque')} radius={[3, 3, 0, 0]} maxBarSize={60}>
-                              <Cell fill="#555" />
-                              <Cell fill="#2563eb" />
-                              <Cell fill="#3b82f6" />
-                            </Bar>
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
+                  <div className="flex items-center justify-between mb-5">
+                    <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
+                      <Lightning weight="bold" className="w-3.5 h-3.5" />
+                      {t('performanceTitle')}
+                    </label>
+                    {/* PS / Nm Toggles */}
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowPs(p => !p)}
+                        data-testid="toggle-ps"
+                        className={cn(
+                          "flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-bold border transition-all",
+                          showPs
+                            ? "bg-[#8B2635]/15 border-[#8B2635]/50 text-[#e74c3c]"
+                            : "bg-secondary/50 border-border text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        <span className={cn("w-2 h-2 rounded-full", showPs ? "bg-[#e74c3c]" : "bg-muted-foreground/40")} />
+                        PS
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowNm(p => !p)}
+                        data-testid="toggle-nm"
+                        className={cn(
+                          "flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-bold border transition-all",
+                          showNm
+                            ? "bg-blue-500/15 border-blue-500/50 text-blue-400"
+                            : "bg-secondary/50 border-border text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        <span className={cn("w-2 h-2 rounded-full", showNm ? "bg-blue-400" : "bg-muted-foreground/40")} />
+                        Nm
+                      </button>
                     </div>
                   </div>
 
-                  {/* Stage comparison table */}
+                  {/* Combined Dyno Chart */}
+                  <div className="h-[280px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={perfData.curveData} margin={{ top: 5, right: 10, left: -5, bottom: 5 }}>
+                        <defs>
+                          <linearGradient id="gradSeriePs" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#666" stopOpacity={0.3} />
+                            <stop offset="100%" stopColor="#666" stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="gradS1Ps" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#8B2635" stopOpacity={0.3} />
+                            <stop offset="100%" stopColor="#8B2635" stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="gradS2Ps" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#e74c3c" stopOpacity={0.25} />
+                            <stop offset="100%" stopColor="#e74c3c" stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="gradSerieNm" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#555" stopOpacity={0.2} />
+                            <stop offset="100%" stopColor="#555" stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="gradS1Nm" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#2563eb" stopOpacity={0.2} />
+                            <stop offset="100%" stopColor="#2563eb" stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="gradS2Nm" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.15} />
+                            <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                        <XAxis dataKey="rpmLabel" tick={{ fill: '#666', fontSize: 11 }} axisLine={{ stroke: 'rgba(255,255,255,0.08)' }} tickLine={false} />
+                        <YAxis tick={{ fill: '#666', fontSize: 11 }} axisLine={false} tickLine={false} />
+                        <Tooltip content={<DynoTooltip />} />
+                        {/* PS curves */}
+                        {showPs && <Area type="monotone" dataKey="seriePs" name={`${t('originalPower')} PS`} stroke="#666" strokeWidth={2} fill="url(#gradSeriePs)" strokeDasharray="6 3" dot={false} />}
+                        {showPs && <Area type="monotone" dataKey="stage1Ps" name="Stage 1 PS" stroke="#8B2635" strokeWidth={2.5} fill="url(#gradS1Ps)" dot={false} />}
+                        {showPs && <Area type="monotone" dataKey="stage2Ps" name="Stage 2 PS" stroke="#e74c3c" strokeWidth={2.5} fill="url(#gradS2Ps)" dot={false} />}
+                        {/* Nm curves */}
+                        {showNm && <Area type="monotone" dataKey="serieNm" name={`${t('originalPower')} Nm`} stroke="#555" strokeWidth={2} fill="url(#gradSerieNm)" strokeDasharray="6 3" dot={false} />}
+                        {showNm && <Area type="monotone" dataKey="stage1Nm" name="Stage 1 Nm" stroke="#2563eb" strokeWidth={2.5} fill="url(#gradS1Nm)" dot={false} />}
+                        {showNm && <Area type="monotone" dataKey="stage2Nm" name="Stage 2 Nm" stroke="#3b82f6" strokeWidth={2.5} fill="url(#gradS2Nm)" dot={false} />}
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Legend */}
+                  <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-4">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="w-5 h-0.5 bg-[#666] inline-block" style={{ borderTop: '2px dashed #666' }} />
+                      {t('originalPower')}
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="w-5 h-0.5 bg-[#8B2635] inline-block rounded" />
+                      Stage 1 {showPs && <span className="text-[#e74c3c]">PS</span>}{showPs && showNm && ' / '}{showNm && <span className="text-blue-500">Nm</span>}
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="w-5 h-0.5 bg-[#e74c3c] inline-block rounded" />
+                      Stage 2 {showPs && <span className="text-[#e74c3c]">PS</span>}{showPs && showNm && ' / '}{showNm && <span className="text-blue-400">Nm</span>}
+                    </div>
+                  </div>
+
+                  {/* Stage comparison cards */}
                   <div className="grid grid-cols-3 gap-3 mt-5">
-                    {/* Original */}
                     <div className="bg-secondary/60 border border-border rounded-sm p-3 text-center">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">{t('originalPower')}</p>
                       <p className="text-xl font-bold text-foreground font-heading">{perfData.originalPs} <span className="text-xs text-muted-foreground font-normal">PS</span></p>
                       <p className="text-sm text-muted-foreground">{perfData.originalNm} <span className="text-xs">Nm</span></p>
                     </div>
-                    {/* Stage 1 */}
                     <div className="bg-primary/8 border border-primary/30 rounded-sm p-3 text-center">
                       <p className="text-[10px] text-primary uppercase tracking-wider mb-2">{t('stage1Power')}</p>
                       <p className="text-xl font-bold text-foreground font-heading">{perfData.stage1Ps} <span className="text-xs text-muted-foreground font-normal">PS</span></p>
@@ -1508,7 +1569,6 @@ export default function FileWizard() {
                         <Badge className="bg-blue-500/15 text-blue-400 border-blue-500/30 text-[10px] font-bold">+{perfData.nmGainS1} Nm</Badge>
                       </div>
                     </div>
-                    {/* Stage 2 */}
                     <div className="bg-primary/8 border border-primary/30 rounded-sm p-3 text-center">
                       <p className="text-[10px] text-primary uppercase tracking-wider mb-2">{t('stage2Power')}</p>
                       <p className="text-xl font-bold text-foreground font-heading">{perfData.stage2Ps} <span className="text-xs text-muted-foreground font-normal">PS</span></p>
