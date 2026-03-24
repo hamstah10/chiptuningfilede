@@ -7,7 +7,9 @@ import { Textarea } from '../components/ui/textarea';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
@@ -30,22 +32,12 @@ import { Progress } from '../components/ui/progress';
 import { cn } from '../lib/utils';
 
 const readingDevices = [
-  'Autotuner',
-  'CMD Flash',
-  'KESS V2',
-  'KESS V3',
-  'KTAG',
-  'Flex',
-  'New Genius',
-  'BitEdit',
-  'Alientech',
-  'Trasdata',
-  'DimSport',
-  'Magic Motorsport',
-  'PCM Flash',
-  'MMCFlash',
-  'ByteShooter',
-  'Sonstiges',
+  { group: 'Autotuner', options: ['Tool'] },
+  { group: 'Alientech', options: ['Kess3'] },
+  { group: 'Magic Motorsport', options: ['Flex'] },
+  { group: null, options: ['Autoflasher'] },
+  { group: null, options: ['CMD Flash'] },
+  { group: 'Dimsport', options: ['NewGenius'] },
 ];
 
 const ALLOWED_EXTENSIONS = ['.bin', '.ori', '.mod', '.ecu', '.hex', '.s19', '.bkp'];
@@ -253,11 +245,26 @@ export default function FileWizard() {
                     <SelectValue placeholder={t('selectDevice')} />
                   </SelectTrigger>
                   <SelectContent className="bg-card border-border">
-                    {readingDevices.map((device) => (
-                      <SelectItem key={device} value={device}>
-                        {device}
-                      </SelectItem>
-                    ))}
+                    {readingDevices.map((entry, idx) =>
+                      entry.group ? (
+                        <SelectGroup key={idx}>
+                          <SelectLabel className="text-muted-foreground font-semibold text-xs uppercase tracking-wider">
+                            {entry.group}
+                          </SelectLabel>
+                          {entry.options.map((opt) => (
+                            <SelectItem key={opt} value={`${entry.group} - ${opt}`}>
+                              {opt}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      ) : (
+                        entry.options.map((opt) => (
+                          <SelectItem key={opt} value={opt}>
+                            {opt}
+                          </SelectItem>
+                        ))
+                      )
+                    )}
                   </SelectContent>
                 </Select>
               </div>
