@@ -242,7 +242,25 @@ export default function FileWizard() {
                     className="w-full h-12 bg-secondary/50 border-border text-sm"
                     data-testid="reading-device-select"
                   >
-                    <SelectValue placeholder={t('selectDevice')} />
+                    <SelectValue placeholder={t('selectDevice')}>
+                      {formData.readingDevice && (() => {
+                        const selected = readingDevices.find((e) =>
+                          e.group
+                            ? e.options.some((o) => `${e.group} - ${o}` === formData.readingDevice)
+                            : e.options.includes(formData.readingDevice)
+                        );
+                        const logo = selected?.logo;
+                        const label = formData.readingDevice.includes(' - ')
+                          ? formData.readingDevice.split(' - ')[1]
+                          : formData.readingDevice;
+                        return (
+                          <span className="flex items-center gap-2.5">
+                            {logo && <img src={logo} alt="" className="h-4 w-16 object-contain object-left" />}
+                            {label}
+                          </span>
+                        );
+                      })()}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="bg-card border-border">
                     {readingDevices.map((entry, idx) =>
@@ -250,10 +268,11 @@ export default function FileWizard() {
                         <SelectGroup key={idx}>
                           {idx > 0 && <div className="h-px bg-border mx-2 my-1.5" />}
                           <SelectLabel className="flex items-center gap-2.5 text-muted-foreground font-semibold text-xs uppercase tracking-wider py-2">
-                            {entry.logo && (
+                            {entry.logo ? (
                               <img src={entry.logo} alt={entry.group} className="h-4 w-16 object-contain object-left" />
+                            ) : (
+                              entry.group
                             )}
-                            {entry.group}
                           </SelectLabel>
                           {entry.options.map((opt) => (
                             <SelectItem key={opt} value={`${entry.group} - ${opt}`}>
@@ -267,10 +286,11 @@ export default function FileWizard() {
                           {entry.options.map((opt) => (
                             <SelectItem key={opt} value={opt}>
                               <span className="flex items-center gap-2.5">
-                                {entry.logo && (
+                                {entry.logo ? (
                                   <img src={entry.logo} alt="" className="h-4 w-16 object-contain object-left" />
+                                ) : (
+                                  opt
                                 )}
-                                {opt}
                               </span>
                             </SelectItem>
                           ))}
