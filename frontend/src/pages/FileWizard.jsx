@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card, CardContent } from '../components/ui/card';
@@ -634,7 +634,7 @@ export default function FileWizard() {
                   <FileIcon weight="bold" className="w-3.5 h-3.5" />
                   {t('uploadedFile')}
                 </label>
-                <div className="flex items-center gap-3 bg-secondary/50 border border-border rounded-sm px-4 py-3">
+                <div className="flex items-center gap-3 bg-secondary/50 border border-border rounded-sm px-4 py-3 mb-4">
                   <FileIcon weight="fill" className="w-5 h-5 text-primary flex-shrink-0" />
                   <div className="min-w-0">
                     <p className="text-sm font-mono text-foreground truncate">{parsedFilename.original}</p>
@@ -644,6 +644,45 @@ export default function FileWizard() {
                       </p>
                     )}
                   </div>
+                </div>
+                {/* Parsed details badges */}
+                <div className="flex flex-wrap gap-3">
+                  {parsedFilename.parts.manufacturer && (
+                    <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-sm px-4 py-2">
+                      <Car weight="bold" className="w-4 h-4 text-primary" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('manufacturer')}</p>
+                        <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.manufacturer}</p>
+                      </div>
+                    </div>
+                  )}
+                  {parsedFilename.parts.model && (
+                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2">
+                      <Tag weight="bold" className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('model')}</p>
+                        <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.model}</p>
+                      </div>
+                    </div>
+                  )}
+                  {parsedFilename.parts.engine && (
+                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2">
+                      <Engine weight="bold" className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('engine')}</p>
+                        <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.engine}</p>
+                      </div>
+                    </div>
+                  )}
+                  {parsedFilename.parts.ecu && (
+                    <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-sm px-4 py-2">
+                      <GasPump weight="bold" className="w-4 h-4 text-primary" />
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('ecu')}</p>
+                        <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.ecu}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
