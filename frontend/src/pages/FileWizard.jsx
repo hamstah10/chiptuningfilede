@@ -253,10 +253,9 @@ export default function FileWizard() {
     if (uploadedFiles.length === 0) return null;
     const name = uploadedFiles[0].name;
     const nameWithoutExt = name.replace(/\.[^/.]+$/, '');
-    // Try common separators: underscore, dash, space, dots (but not extension dot)
-    const parts = nameWithoutExt.split(/[_\-\s.]+/).filter(Boolean);
+    // Split by underscore, dash, space — keep parenthesized groups together
+    const parts = nameWithoutExt.split(/[_\-\s]+/).filter(Boolean);
     
-    // Known manufacturer names for matching
     const manufacturers = ['BMW', 'VW', 'Volkswagen', 'Audi', 'Mercedes', 'Benz', 'Porsche', 'Seat', 'Skoda', 'Opel', 'Ford', 'Toyota', 'Honda', 'Renault', 'Peugeot', 'Citroen', 'Fiat', 'Alfa', 'Hyundai', 'Kia', 'Volvo', 'Jaguar', 'Land', 'Range', 'Mini', 'Mazda', 'Nissan', 'Subaru', 'Mitsubishi', 'Suzuki', 'Dacia', 'Chevrolet', 'Dodge', 'Jeep', 'Cupra', 'DS', 'MAN', 'DAF', 'Scania', 'Iveco'];
     
     let parsed = { manufacturer: '', series: '', model: '', engine: '', ecu: '', rest: [] };
@@ -270,24 +269,35 @@ export default function FileWizard() {
       parsed.manufacturer = remaining.splice(mfIdx, 1)[0];
     }
     
-    // 2. Find ECU (Bosch EDC17, MED17, PCR2, Siemens, Delphi, Continental etc.)
+    // 2. Find ECU (Bosch, EDC17, MED17, Siemens, Delphi, Continental etc.)
     const ecuStartPattern = /^(EDC|MED|PCR|MD1|MG1|SID|DCM|MEDC|Bosch|Siemens|Delphi|Continental|Marelli)/i;
     const ecuIdx = remaining.findIndex(p => ecuStartPattern.test(p));
     if (ecuIdx !== -1) {
-      // Take from ECU start to end (ECU names are often multi-part: "Bosch EDC17CP54 OBD VR")
       parsed.ecu = remaining.splice(ecuIdx).join(' ');
     }
     
-    // 3. Find engine parts (displacement + type like TDI, TSI, TFSI, CDI etc.)
-    // Engine tokens: displacement (2.0, 3.0), type (TDI, TSI, TFSI...), norm (EU6, EU5), power (190PS, 218PS)
+    // 3. Find year (4-digit number 1990-2030)
+    let year = '';
+    const yearIdx = remaining.findIndex(p => /^(19|20)\d{2}$/.test(p));
+    if (yearIdx !== -1) {
+      year = remaining.splice(yearIdx, 1)[0];
+    }
+    
+    // 4. Find generation code in parentheses like (F5), (C7) or plain like F30, B8
+    let genCode = '';
+    const parenIdx = remaining.findIndex(p => /^\(.*\)$/.test(p));
+    if (parenIdx !== -1) {
+      genCode = remaining.splice(parenIdx, 1)[0].replace(/[()]/g, '');
+    }
+    
+    // 5. Engine tokens: displacement, fuel type, norms, power
     const engineTokens = [];
     const enginePatterns = [
-      /^\d+\.?\d*(L|l)?$/,                        // displacement: 2.0, 3.0, 2.0L
-      /^(TDI|TSI|TFSI|CDI|HDI|JTD|CDTI|CRDi|CRDI|FSI|BlueHDI|EcoBoost|EcoBlue|dCi|JTDM|Turbo|Bi)$/i,
-      /^(EU\d|Euro\d)$/i,                         // emission norm: EU6, Euro5
-      /^\d+\s?PS$/i,                              // power: 190PS, 218 PS
-      /^\d+\s?HP$/i,                              // power english
-      /^\d+\s?kW$/i,                              // power kW
+      /^\d+\.?\d*$/, // displacement: 2.0, 3.0
+      /^(TDI|TSI|TFSI|CDI|HDI|JTD|CDTI|CRDi|CRDI|FSI|BlueHDI|EcoBoost|EcoBlue|dCi|JTDM|Turbo|Bi|CR|CRTD|BiTDI|BiTurbo)$/i,
+      /^(EU\d|Euro\d)$/i, // emission norm
+      /^\d{2,4}$/,  // power number (190, 218)
+      /^(PS|hp|kW|bhp|pk)$/i, // power unit
       /^(N\d{2}|M\d{2,3}|EA\d{3}|OM\d{3}|B\d{2}|S\d{2})$/i, // engine codes
     ];
     
@@ -302,12 +312,28 @@ export default function FileWizard() {
       parsed.engine = engineTokens.join(' ');
     }
     
-    // 4. Remaining: first = series (A6, Golf, 3er), second = model (C7, B8, F30)
+    // 6. First remaining = series (A5, A6, Golf, 3er etc.)
     if (remaining.length > 0) parsed.series = remaining.shift();
-    if (remaining.length > 0) parsed.model = remaining.shift();
+    
+    // 7. If no genCode yet, check if next remaining looks like a gen code (B8, C7, F30, etc.)
+    if (!genCode && remaining.length > 0) {
+      const genPattern = /^[A-Z]\d{1,2}$/i;
+      if (genPattern.test(remaining[0])) {
+        genCode = remaining.shift();
+      }
+    }
+    
+    // 8. Build model from year + genCode
+    if (year && genCode) {
+      parsed.model = `${genCode} - ${year}`;
+    } else if (genCode) {
+      parsed.model = genCode;
+    } else if (year) {
+      parsed.model = year;
+    }
+    
     parsed.rest = remaining;
     
-    // Build readable name
     const readableParts = [parsed.manufacturer, parsed.series, parsed.model, parsed.engine, parsed.ecu, ...parsed.rest].filter(Boolean);
     
     return {
@@ -449,11 +475,23 @@ export default function FileWizard() {
       matchedSeries = seriesKeys.find(s => s.toLowerCase() === series.toLowerCase()) || '';
       
       if (matchedSeries && vehicleData[matchedMfr][matchedSeries]) {
-        // Match model fuzzy (e.g. "B8" matches "B8 - 2015" or "C7" matches "C7 - 2011")
+        // Match model fuzzy: parsed.model could be "F5 - 2016", DB has "F5 - 2016"
         const modelKeys = Object.keys(vehicleData[matchedMfr][matchedSeries]);
         matchedModel = modelKeys.find(m => {
-          const mLower = m.toLowerCase();
-          return mLower.startsWith(model.toLowerCase()) || mLower.includes(model.toLowerCase());
+          const mLower = m.toLowerCase().replace(/\s/g, '');
+          const parsedModel = model.toLowerCase().replace(/\s/g, '');
+          // Extract gen code and year from both
+          const getGenYear = (str) => {
+            const yearM = str.match(/(19|20)\d{2}/);
+            const codeM = str.match(/([a-z]\d{1,2})/i);
+            return { year: yearM?.[0] || '', code: codeM?.[1]?.toLowerCase() || '' };
+          };
+          const db = getGenYear(m);
+          const parsed2 = getGenYear(model);
+          // Match if gen code matches (or year matches)
+          if (db.code && parsed2.code && db.code === parsed2.code) return true;
+          if (db.year && parsed2.year && db.year === parsed2.year && db.code === parsed2.code) return true;
+          return mLower.includes(parsedModel) || parsedModel.includes(mLower);
         }) || '';
         
         if (matchedModel) {
@@ -467,8 +505,8 @@ export default function FileWizard() {
             // Extract fuel type (TDI, TSI, etc.)
             const fuelMatch = engine.match(/(TDI|TSI|TFSI|CDI|HDI|FSI|EcoBoost|EcoBlue|CDTI|CRDi|Turbo)/i);
             const fuel = fuelMatch ? fuelMatch[1] : '';
-            // Extract power (190PS, 218PS)
-            const powerMatch = engine.match(/(\d{2,4})\s?PS/i);
+            // Extract power (190PS, 218PS, 190 hp, 190hp)
+            const powerMatch = engine.match(/(\d{2,4})\s?(PS|hp|kW|bhp|pk)/i);
             const power = powerMatch ? powerMatch[1] : '';
             
             // Score all engines and pick the best match
