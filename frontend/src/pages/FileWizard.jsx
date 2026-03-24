@@ -651,6 +651,58 @@ export default function FileWizard() {
     }));
   }, [parsedFilename]);
 
+  // Compute which parsed badges have a match in the database
+  const matchStatus = useMemo(() => {
+    if (!parsedFilename) return {};
+    const { manufacturer, series, model, engine, ecu } = parsedFilename.parts;
+    const status = { manufacturer: false, series: false, model: false, engine: false, ecu: false };
+    
+    const matchedMfr = allManufacturers.find(m => m.toLowerCase() === manufacturer.toLowerCase());
+    if (matchedMfr) {
+      status.manufacturer = true;
+      const seriesKeys = Object.keys(vehicleData[matchedMfr] || {});
+      const matchedSeries = seriesKeys.find(s => s.toLowerCase() === series.toLowerCase());
+      if (matchedSeries) {
+        status.series = true;
+        const modelKeys = Object.keys(vehicleData[matchedMfr][matchedSeries] || {});
+        const getGenYear = (str) => {
+          const codeM = str.match(/([a-z]\d{1,2})/i);
+          return codeM?.[1]?.toLowerCase() || '';
+        };
+        const parsedCode = getGenYear(model);
+        const matchedModel = modelKeys.find(m => parsedCode && getGenYear(m) === parsedCode);
+        if (matchedModel) {
+          status.model = true;
+          const engines = vehicleData[matchedMfr][matchedSeries][matchedModel] || [];
+          const dispMatch = engine.match(/(\d)[\s.]?(\d)/);
+          const displacement = dispMatch ? `${dispMatch[1]}.${dispMatch[2]}` : '';
+          const fuelMatch = engine.match(/(TDI|TSI|TFSI|CDI|HDI|FSI|EcoBoost|EcoBlue|CDTI|CRDi|Turbo)/i);
+          const fuel = fuelMatch ? fuelMatch[1]?.toLowerCase() : '';
+          const powerMatch = engine.match(/(\d{2,4})\s?(PS|hp|kW|bhp|pk)/i);
+          const power = powerMatch ? powerMatch[1] : '';
+          const hasEngineMatch = engines.some(e => {
+            const el = e.toLowerCase();
+            let score = 0;
+            if (displacement && el.includes(displacement)) score++;
+            if (fuel && el.includes(fuel)) score++;
+            if (power && el.includes(power)) score++;
+            return score >= 2;
+          });
+          if (hasEngineMatch) status.engine = true;
+        }
+      }
+      // ECU match
+      if (ecu) {
+        const ecuOptions = getEcuOptions(matchedMfr, engine);
+        const ecuCode = ecu.split(' ').find(p => /^(EDC|MED|PCR|MD1|MG1|SID|DCM|Simos)/i.test(p));
+        if (ecuCode && ecuOptions.some(e => e.toLowerCase().includes(ecuCode.toLowerCase()))) {
+          status.ecu = true;
+        }
+      }
+    }
+    return status;
+  }, [parsedFilename]);
+
   const wizardSteps = [
     { id: 1, icon: Upload, label: language === 'de' ? 'File & Lesegerät' : 'File & Device' },
     { id: 2, icon: CarProfile, label: language === 'de' ? 'Fahrzeug' : 'Vehicle' },
@@ -1037,9 +1089,18 @@ export default function FileWizard() {
                 </div>
                 {/* Parsed badges + Übernehmen button */}
                 <div className="flex flex-wrap items-center gap-3">
+                  {/* Übernehmen Button (links) */}
+                  <Button
+                    onClick={handleApplyParsed}
+                    className="btn-gradient text-white font-semibold px-5 py-2 h-auto"
+                    data-testid="apply-parsed-btn"
+                  >
+                    <ArrowRight weight="bold" className="w-4 h-4 mr-1.5" />
+                    {t('applyParsed')}
+                  </Button>
                   {parsedFilename.parts.manufacturer && (
-                    <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-sm px-4 py-2">
-                      <Car weight="bold" className="w-4 h-4 text-primary" />
+                    <div className={cn("flex items-center gap-2 rounded-sm px-4 py-2", matchStatus.manufacturer ? "bg-green-500/10 border border-green-500/40" : "bg-secondary/80 border border-border")}>
+                      <Car weight="bold" className={cn("w-4 h-4", matchStatus.manufacturer ? "text-green-500" : "text-muted-foreground")} />
                       <div>
                         <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('manufacturer')}</p>
                         <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.manufacturer}</p>
@@ -1047,8 +1108,8 @@ export default function FileWizard() {
                     </div>
                   )}
                   {parsedFilename.parts.series && (
-                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2">
-                      <Tag weight="bold" className="w-4 h-4 text-muted-foreground" />
+                    <div className={cn("flex items-center gap-2 rounded-sm px-4 py-2", matchStatus.series ? "bg-green-500/10 border border-green-500/40" : "bg-secondary/80 border border-border")}>
+                      <Tag weight="bold" className={cn("w-4 h-4", matchStatus.series ? "text-green-500" : "text-muted-foreground")} />
                       <div>
                         <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('series')}</p>
                         <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.series}</p>
@@ -1056,8 +1117,8 @@ export default function FileWizard() {
                     </div>
                   )}
                   {parsedFilename.parts.model && (
-                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2">
-                      <Calendar weight="bold" className="w-4 h-4 text-muted-foreground" />
+                    <div className={cn("flex items-center gap-2 rounded-sm px-4 py-2", matchStatus.model ? "bg-green-500/10 border border-green-500/40" : "bg-secondary/80 border border-border")}>
+                      <Calendar weight="bold" className={cn("w-4 h-4", matchStatus.model ? "text-green-500" : "text-muted-foreground")} />
                       <div>
                         <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('vehicleModel')}</p>
                         <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.model}</p>
@@ -1065,8 +1126,8 @@ export default function FileWizard() {
                     </div>
                   )}
                   {parsedFilename.parts.engine && (
-                    <div className="flex items-center gap-2 bg-secondary/80 border border-border rounded-sm px-4 py-2">
-                      <Engine weight="bold" className="w-4 h-4 text-muted-foreground" />
+                    <div className={cn("flex items-center gap-2 rounded-sm px-4 py-2", matchStatus.engine ? "bg-green-500/10 border border-green-500/40" : "bg-secondary/80 border border-border")}>
+                      <Engine weight="bold" className={cn("w-4 h-4", matchStatus.engine ? "text-green-500" : "text-muted-foreground")} />
                       <div>
                         <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('engine')}</p>
                         <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.engine}</p>
@@ -1074,8 +1135,8 @@ export default function FileWizard() {
                     </div>
                   )}
                   {parsedFilename.parts.ecu && (
-                    <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-sm px-4 py-2">
-                      <GasPump weight="bold" className="w-4 h-4 text-primary" />
+                    <div className={cn("flex items-center gap-2 rounded-sm px-4 py-2", matchStatus.ecu ? "bg-green-500/10 border border-green-500/40" : "bg-secondary/80 border border-border")}>
+                      <GasPump weight="bold" className={cn("w-4 h-4", matchStatus.ecu ? "text-green-500" : "text-muted-foreground")} />
                       <div>
                         <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{t('ecu')}</p>
                         <p className="text-sm font-semibold text-foreground">{parsedFilename.parts.ecu}</p>
@@ -1100,15 +1161,6 @@ export default function FileWizard() {
                       </div>
                     </div>
                   )}
-                  {/* Übernehmen Button */}
-                  <Button
-                    onClick={handleApplyParsed}
-                    className="btn-gradient text-white font-semibold px-5 py-2 h-auto ml-auto"
-                    data-testid="apply-parsed-btn"
-                  >
-                    <ArrowRight weight="bold" className="w-4 h-4 mr-1.5" />
-                    {t('applyParsed')}
-                  </Button>
                 </div>
               </CardContent>
             </Card>
