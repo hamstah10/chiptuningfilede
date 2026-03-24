@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card, CardContent } from '../components/ui/card';
@@ -22,6 +22,7 @@ import {
   CloudArrowUp,
   CloudArrowDown,
   ArrowRight,
+  ArrowLeft,
   X,
   File as FileIcon,
   Upload,
@@ -30,7 +31,12 @@ import {
   CarProfile,
   HardDrives,
   Crown,
-  Link
+  Link,
+  Car,
+  Engine,
+  GasPump,
+  Calendar,
+  Tag
 } from '@phosphor-icons/react';
 import { Progress } from '../components/ui/progress';
 import { cn } from '../lib/utils';
@@ -79,10 +85,71 @@ export default function FileWizard() {
     masterSlave: 'Master',
     priority: 'Normal',
     comment: '',
+    // Step 2 - Fahrzeug
+    manufacturer: '',
+    model: '',
+    year: '',
+    engine: '',
+    ecu: '',
+    gearbox: '',
   });
+  const [currentStep, setCurrentStep] = useState(1);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Parse filename into readable parts
+  const parsedFilename = useMemo(() => {
+    if (uploadedFiles.length === 0) return null;
+    const name = uploadedFiles[0].name;
+    const nameWithoutExt = name.replace(/\.[^/.]+$/, '');
+    // Try common separators: underscore, dash, space
+    const parts = nameWithoutExt.split(/[_\-\s]+/).filter(Boolean);
+    
+    // Known manufacturer names for matching
+    const manufacturers = ['BMW', 'VW', 'Volkswagen', 'Audi', 'Mercedes', 'Benz', 'Porsche', 'Seat', 'Skoda', 'Opel', 'Ford', 'Toyota', 'Honda', 'Renault', 'Peugeot', 'Citroen', 'Fiat', 'Alfa', 'Hyundai', 'Kia', 'Volvo', 'Jaguar', 'Land', 'Range', 'Mini', 'Mazda', 'Nissan', 'Subaru', 'Mitsubishi', 'Suzuki', 'Dacia', 'Chevrolet', 'Dodge', 'Jeep', 'Cupra', 'DS', 'MAN', 'DAF', 'Scania', 'Iveco', 'Mercedes-Benz'];
+    
+    let parsed = { manufacturer: '', model: '', engine: '', ecu: '', rest: [] };
+    let remaining = [...parts];
+    
+    // Try to find manufacturer
+    if (remaining.length > 0) {
+      const mfIdx = remaining.findIndex(p => 
+        manufacturers.some(m => m.toLowerCase() === p.toLowerCase())
+      );
+      if (mfIdx !== -1) {
+        parsed.manufacturer = remaining[mfIdx];
+        remaining.splice(mfIdx, 1);
+      }
+    }
+    
+    // Try to find ECU (common patterns: EDC17, MED17, PCR2, Bosch, Siemens, Delphi, Continental)
+    const ecuPattern = /^(EDC|MED|PCR|MD1|MG1|SID|DCM|MEDC|Bosch|Siemens|Delphi|Continental|Marelli)/i;
+    const ecuIdx = remaining.findIndex(p => ecuPattern.test(p));
+    if (ecuIdx !== -1) {
+      parsed.ecu = remaining.splice(ecuIdx, remaining.length - ecuIdx).join(' ');
+    }
+    
+    // Try to find engine (patterns with L, TDI, TSI, TFSI, CDI, d, i, etc.)
+    const enginePattern = /(\d+\.?\d*\s*(L|l|TDI|TSI|TFSI|CDI|HDI|JTD|CDTI|CRDi|T|d|i|V\d))|^(N\d{2}|M\d{2}|EA\d{3}|OM\d{3}|CUNA|CBBB|CFGB)/i;
+    const engIdx = remaining.findIndex(p => enginePattern.test(p));
+    if (engIdx !== -1) {
+      parsed.engine = remaining.splice(engIdx, 1)[0];
+    }
+    
+    // First remaining = model, rest = extra info
+    if (remaining.length > 0) parsed.model = remaining.shift();
+    parsed.rest = remaining;
+    
+    // Build readable name
+    const readableParts = [parsed.manufacturer, parsed.model, parsed.engine, parsed.ecu, ...parsed.rest].filter(Boolean);
+    
+    return {
+      original: name,
+      readable: readableParts.join(' '),
+      parts: parsed,
+    };
+  }, [uploadedFiles]);
 
   const t = (key) => {
     const texts = {
@@ -102,8 +169,26 @@ export default function FileWizard() {
         orClick: 'oder klicken zum Auswählen',
         addressesMore: 'Adressen und mehr',
         nextStep: 'Weiter zu Schritt 2',
+        prevStep: 'Zurück',
         fileAdded: 'Datei hinzugefügt',
         removeFile: 'Entfernen',
+        // Step 2
+        step2Title: 'Fahrzeugauswahl',
+        uploadedFile: 'HOCHGELADENE DATEI',
+        parsedAs: 'Erkannt als',
+        manufacturer: 'HERSTELLER',
+        manufacturerPlaceholder: 'z.B. BMW, VW, Audi...',
+        model: 'MODELL',
+        modelPlaceholder: 'z.B. 320d, Golf 7, A4...',
+        year: 'BAUJAHR',
+        yearPlaceholder: 'z.B. 2019',
+        engine: 'MOTOR',
+        enginePlaceholder: 'z.B. 2.0 TDI, N47, OM654...',
+        ecu: 'STEUERGERÄT (ECU)',
+        ecuPlaceholder: 'z.B. EDC17C50, MED17.1...',
+        gearbox: 'GETRIEBE',
+        gearboxPlaceholder: 'z.B. Automatik, Manuell, DSG...',
+        nextStep3: 'Weiter zu Schritt 3',
       },
       en: {
         pageTitle: 'New Order',
@@ -121,8 +206,26 @@ export default function FileWizard() {
         orClick: 'or click to select',
         addressesMore: 'Addresses and more',
         nextStep: 'Continue to Step 2',
+        prevStep: 'Back',
         fileAdded: 'File added',
         removeFile: 'Remove',
+        // Step 2
+        step2Title: 'Vehicle Selection',
+        uploadedFile: 'UPLOADED FILE',
+        parsedAs: 'Detected as',
+        manufacturer: 'MANUFACTURER',
+        manufacturerPlaceholder: 'e.g. BMW, VW, Audi...',
+        model: 'MODEL',
+        modelPlaceholder: 'e.g. 320d, Golf 7, A4...',
+        year: 'YEAR',
+        yearPlaceholder: 'e.g. 2019',
+        engine: 'ENGINE',
+        enginePlaceholder: 'e.g. 2.0 TDI, N47, OM654...',
+        ecu: 'ECU',
+        ecuPlaceholder: 'e.g. EDC17C50, MED17.1...',
+        gearbox: 'GEARBOX',
+        gearboxPlaceholder: 'e.g. Automatic, Manual, DSG...',
+        nextStep3: 'Continue to Step 3',
       },
     };
     return texts[language]?.[key] || texts.de[key] || key;
@@ -158,7 +261,6 @@ export default function FileWizard() {
     setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const currentStep = 1;
   const wizardSteps = [
     { id: 1, icon: Upload, label: language === 'de' ? 'File & Lesegerät' : 'File & Device' },
     { id: 2, icon: CarProfile, label: language === 'de' ? 'Fahrzeug' : 'Vehicle' },
@@ -220,16 +322,17 @@ export default function FileWizard() {
         <div className="flex items-end justify-between">
           <div>
             <h1 className="font-heading text-2xl font-bold text-foreground tracking-tight">
-              {t('stepTitle')}
+              {currentStep === 1 ? t('stepTitle') : t('step2Title')}
             </h1>
             <div className="w-10 h-1 bg-green-500 rounded-full mt-2" />
           </div>
           <span className="text-primary font-heading font-bold text-sm tracking-widest" data-testid="step-indicator">
-            {t('step')} 01
+            {t('step')} {String(currentStep).padStart(2, '0')}
           </span>
         </div>
 
-        {/* Main Content: 2 Columns */}
+        {/* ====== STEP 1: File & Lesegerät ====== */}
+        {currentStep === 1 && (<>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Column - Form Fields */}
           <Card className="bg-card border-border" data-testid="wizard-form-card">
@@ -508,16 +611,180 @@ export default function FileWizard() {
           </CardContent>
         </Card>
 
-        {/* Navigation */}
+        {/* Step 1 Navigation */}
         <div className="flex justify-end">
           <Button
             className="btn-gradient text-white font-semibold px-8 py-3 h-auto"
             data-testid="wizard-next-btn"
+            onClick={() => setCurrentStep(2)}
           >
             {t('nextStep')}
             <ArrowRight weight="bold" className="w-4 h-4 ml-2" />
           </Button>
         </div>
+        </>)}
+
+        {/* ====== STEP 2: Fahrzeugauswahl ====== */}
+        {currentStep === 2 && (<>
+          {/* Filename Display */}
+          {parsedFilename && (
+            <Card className="bg-card border-border" data-testid="filename-display-card">
+              <CardContent className="p-5">
+                <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase mb-3">
+                  <FileIcon weight="bold" className="w-3.5 h-3.5" />
+                  {t('uploadedFile')}
+                </label>
+                <div className="flex items-center gap-3 bg-secondary/50 border border-border rounded-sm px-4 py-3">
+                  <FileIcon weight="fill" className="w-5 h-5 text-primary flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-mono text-foreground truncate">{parsedFilename.original}</p>
+                    {parsedFilename.readable && (
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {t('parsedAs')}: <span className="text-foreground font-medium">{parsedFilename.readable}</span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Vehicle Form */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="bg-card border-border" data-testid="vehicle-form-left">
+              <CardContent className="p-6 space-y-6">
+                {/* Hersteller */}
+                <div className="space-y-2.5">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
+                    <Car weight="bold" className="w-3.5 h-3.5" />
+                    {t('manufacturer')}
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.manufacturer}
+                    onChange={(e) => setFormData(prev => ({ ...prev, manufacturer: e.target.value }))}
+                    placeholder={t('manufacturerPlaceholder')}
+                    className="w-full h-12 bg-secondary/50 border border-border rounded-sm px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                    data-testid="input-manufacturer"
+                  />
+                </div>
+
+                {/* Modell */}
+                <div className="space-y-2.5">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
+                    <Tag weight="bold" className="w-3.5 h-3.5" />
+                    {t('model')}
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.model}
+                    onChange={(e) => setFormData(prev => ({ ...prev, model: e.target.value }))}
+                    placeholder={t('modelPlaceholder')}
+                    className="w-full h-12 bg-secondary/50 border border-border rounded-sm px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                    data-testid="input-model"
+                  />
+                </div>
+
+                {/* Baujahr */}
+                <div className="space-y-2.5">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
+                    <Calendar weight="bold" className="w-3.5 h-3.5" />
+                    {t('year')}
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.year}
+                    onChange={(e) => setFormData(prev => ({ ...prev, year: e.target.value }))}
+                    placeholder={t('yearPlaceholder')}
+                    className="w-full h-12 bg-secondary/50 border border-border rounded-sm px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                    data-testid="input-year"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card border-border" data-testid="vehicle-form-right">
+              <CardContent className="p-6 space-y-6">
+                {/* Motor */}
+                <div className="space-y-2.5">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
+                    <Engine weight="bold" className="w-3.5 h-3.5" />
+                    {t('engine')}
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.engine}
+                    onChange={(e) => setFormData(prev => ({ ...prev, engine: e.target.value }))}
+                    placeholder={t('enginePlaceholder')}
+                    className="w-full h-12 bg-secondary/50 border border-border rounded-sm px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                    data-testid="input-engine"
+                  />
+                </div>
+
+                {/* ECU / Steuergerät */}
+                <div className="space-y-2.5">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
+                    <GasPump weight="bold" className="w-3.5 h-3.5" />
+                    {t('ecu')}
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.ecu}
+                    onChange={(e) => setFormData(prev => ({ ...prev, ecu: e.target.value }))}
+                    placeholder={t('ecuPlaceholder')}
+                    className="w-full h-12 bg-secondary/50 border border-border rounded-sm px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                    data-testid="input-ecu"
+                  />
+                </div>
+
+                {/* Getriebe */}
+                <div className="space-y-2.5">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase">
+                    <Sliders weight="bold" className="w-3.5 h-3.5" />
+                    {t('gearbox')}
+                  </label>
+                  <Select
+                    value={formData.gearbox}
+                    onValueChange={(val) => setFormData(prev => ({ ...prev, gearbox: val }))}
+                  >
+                    <SelectTrigger className="w-full h-12 bg-secondary/50 border-border text-sm" data-testid="select-gearbox">
+                      <SelectValue placeholder={t('gearboxPlaceholder')} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border-border">
+                      <SelectItem value="Manuell">Manuell</SelectItem>
+                      <SelectItem value="Automatik">Automatik</SelectItem>
+                      <SelectItem value="DSG">DSG</SelectItem>
+                      <SelectItem value="CVT">CVT</SelectItem>
+                      <SelectItem value="PDK">PDK</SelectItem>
+                      <SelectItem value="SMG">SMG</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Step 2 Navigation */}
+          <div className="flex items-center justify-between">
+            <Button
+              variant="outline"
+              className="border-border hover:bg-secondary font-semibold px-6 py-3 h-auto"
+              onClick={() => setCurrentStep(1)}
+              data-testid="wizard-prev-btn"
+            >
+              <ArrowLeft weight="bold" className="w-4 h-4 mr-2" />
+              {t('prevStep')}
+            </Button>
+            <Button
+              className="btn-gradient text-white font-semibold px-8 py-3 h-auto"
+              data-testid="wizard-next-btn-step2"
+            >
+              {t('nextStep3')}
+              <ArrowRight weight="bold" className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
+        </>)}
+
       </div>
     </DashboardLayout>
   );
