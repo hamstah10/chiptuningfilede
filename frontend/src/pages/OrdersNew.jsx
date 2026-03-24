@@ -308,7 +308,7 @@ export default function OrdersNew() {
 
   return (
     <DashboardLayout title={t('pageTitle')}>
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-[1400px]">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4" data-testid="orders-stats">
           <Card className="bg-card border-border">
