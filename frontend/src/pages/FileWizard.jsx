@@ -44,7 +44,7 @@ const readingDevices = [
   { group: 'Dimsport', logo: '/logos/dimsport.png', options: ['NewGenius'] },
 ];
 
-const ALLOWED_EXTENSIONS = ['.bin', '.ori', '.mod', '.ecu', '.hex', '.s19', '.bkp'];
+const ALLOWED_EXTENSIONS = ['.bin', '.ori', '.mod', '.ecu', '.hex', '.s19', '.bkp', '.slave'];
 
 function ToggleOption({ label, selected, onClick, extra, testId, icon, IconComponent }) {
   return (
