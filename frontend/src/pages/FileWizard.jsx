@@ -36,8 +36,21 @@ import {
   Engine,
   Calendar,
   Tag,
-  GasPump
+  GasPump,
+  Lightning,
+  Leaf,
+  Gear,
+  Drop,
+  Fan,
+  Gauge,
+  Warning,
+  Power,
+  Fire,
+  RocketLaunch,
+  Prohibit,
+  Thermometer
 } from '@phosphor-icons/react';
+import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
 import { cn } from '../lib/utils';
 
@@ -297,6 +310,31 @@ function ToggleOption({ label, selected, onClick, extra, testId, icon, IconCompo
   );
 }
 
+// Tuning stages
+const tuningStages = [
+  { id: 'stage1', name: { de: 'Stage 1', en: 'Stage 1' }, credits: 100, Icon: Lightning, color: 'primary', desc: { de: 'Optimierte Kennfelder', en: 'Optimized maps' } },
+  { id: 'stage2', name: { de: 'Stage 2', en: 'Stage 2' }, credits: 150, Icon: Fire, color: 'orange', desc: { de: 'Maximale Performance', en: 'Maximum performance' } },
+  { id: 'eco', name: { de: 'Eco', en: 'Eco' }, credits: 100, Icon: Leaf, color: 'green', desc: { de: 'Verbrauch optimiert', en: 'Fuel optimized' } },
+  { id: 'gearbox', name: { de: 'Getriebe', en: 'Gearbox' }, credits: 120, Icon: Gear, color: 'blue', desc: { de: 'Schaltoptimierung', en: 'Shift optimization' } },
+  { id: 'optionsOnly', name: { de: 'Nur Optionen', en: 'Options Only' }, credits: 0, Icon: Sliders, color: 'muted', desc: { de: 'Einzelne Optionen wählen', en: 'Select individual options' } },
+];
+
+// Tuning options
+const tuningOptions = [
+  { id: 'dpf', name: { de: 'DPF-Off', en: 'DPF-Off' }, credits: 0, included: true, Icon: Drop, desc: { de: 'Partikelfilter', en: 'Particle Filter' } },
+  { id: 'egr', name: { de: 'EGR-Off', en: 'EGR-Off' }, credits: 0, included: true, Icon: Fan, desc: { de: 'AGR Ventil', en: 'EGR Valve' } },
+  { id: 'adblue', name: { de: 'AdBlue-Off', en: 'AdBlue-Off' }, credits: 0, included: true, Icon: Drop, desc: { de: 'SCR System', en: 'SCR System' } },
+  { id: 'vmax', name: { de: 'Vmax-Off', en: 'Vmax-Off' }, credits: 0, included: true, Icon: Gauge, desc: { de: 'Geschwindigkeit', en: 'Speed Limiter' } },
+  { id: 'dtc', name: { de: 'DTC-Off', en: 'DTC-Off' }, credits: 25, included: false, Icon: Warning, desc: { de: 'Fehlercode', en: 'Error Code' } },
+  { id: 'startstop', name: { de: 'Start-Stop-Off', en: 'Start-Stop-Off' }, credits: 20, included: false, Icon: Power, desc: { de: 'Start-Stop', en: 'Start-Stop' } },
+  { id: 'pops', name: { de: 'Pops & Bangs', en: 'Pops & Bangs' }, credits: 45, included: false, Icon: Fire, desc: { de: 'Auspuff Knallen', en: 'Exhaust Crackle' } },
+  { id: 'launch', name: { de: 'Launch Control', en: 'Launch Control' }, credits: 55, included: false, Icon: RocketLaunch, desc: { de: 'Rennstart', en: 'Race Start' } },
+  { id: 'swirl', name: { de: 'Swirl Flaps-Off', en: 'Swirl Flaps-Off' }, credits: 30, included: false, Icon: Fan, desc: { de: 'Drallklappen', en: 'Swirl Flaps' } },
+  { id: 'cat', name: { de: 'Kat-Off', en: 'Cat-Off' }, credits: 35, included: false, Icon: Prohibit, desc: { de: 'Katalysator', en: 'Catalyst' } },
+  { id: 'o2', name: { de: 'O2-Off', en: 'O2-Off' }, credits: 25, included: false, Icon: Thermometer, desc: { de: 'Lambdasonde', en: 'O2 Sensor' } },
+  { id: 'hotstart', name: { de: 'Hot Start Fix', en: 'Hot Start Fix' }, credits: 30, included: false, Icon: Thermometer, desc: { de: 'Heißstart', en: 'Hot Start' } },
+];
+
 export default function FileWizard() {
   const { language } = useLanguage();
 
@@ -315,6 +353,8 @@ export default function FileWizard() {
     ecu: '',
   });
   const [currentStep, setCurrentStep] = useState(1);
+  const [selectedStage, setSelectedStage] = useState('');
+  const [selectedOptions, setSelectedOptions] = useState([]);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef(null);
@@ -471,6 +511,10 @@ export default function FileWizard() {
         // Step 3
         step3Title: 'Optionen',
         selectedVehicle: 'AUSGEWÄHLTES FAHRZEUG',
+        selectTuning: 'TUNING WÄHLEN',
+        additionalOptions: 'ZUSÄTZLICHE OPTIONEN',
+        includedInStage: 'Inklusive',
+        totalCredits: 'GESAMT',
         nextStep4: 'Weiter zur Übersicht',
       },
       en: {
@@ -513,6 +557,10 @@ export default function FileWizard() {
         // Step 3
         step3Title: 'Options',
         selectedVehicle: 'SELECTED VEHICLE',
+        selectTuning: 'SELECT TUNING',
+        additionalOptions: 'ADDITIONAL OPTIONS',
+        includedInStage: 'Included',
+        totalCredits: 'TOTAL',
         nextStep4: 'Continue to Review',
       },
     };
@@ -1362,6 +1410,127 @@ export default function FileWizard() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Tuning Stages */}
+          <div>
+            <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase mb-4">
+              <Lightning weight="bold" className="w-3.5 h-3.5" />
+              {t('selectTuning')}
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              {tuningStages.map((stage) => {
+                const Icon = stage.Icon;
+                const isSelected = selectedStage === stage.id;
+                const colorMap = {
+                  primary: { bg: 'bg-primary/10 border-primary', icon: 'text-primary', badge: 'bg-primary text-white' },
+                  orange: { bg: 'bg-orange-500/10 border-orange-500', icon: 'text-orange-500', badge: 'bg-orange-500 text-white' },
+                  green: { bg: 'bg-green-500/10 border-green-500', icon: 'text-green-500', badge: 'bg-green-500 text-white' },
+                  blue: { bg: 'bg-blue-500/10 border-blue-500', icon: 'text-blue-500', badge: 'bg-blue-500 text-white' },
+                  muted: { bg: 'bg-secondary border-muted-foreground/50', icon: 'text-muted-foreground', badge: 'bg-muted-foreground text-white' },
+                };
+                const colors = isSelected ? colorMap[stage.color] : { bg: 'bg-card border-border hover:border-muted-foreground/50', icon: 'text-muted-foreground', badge: 'bg-secondary text-muted-foreground' };
+                return (
+                  <button
+                    key={stage.id}
+                    type="button"
+                    onClick={() => setSelectedStage(isSelected ? '' : stage.id)}
+                    data-testid={`stage-${stage.id}`}
+                    className={cn(
+                      "relative flex flex-col items-center gap-3 p-5 rounded-sm border-2 transition-all duration-200 cursor-pointer group",
+                      colors.bg
+                    )}
+                  >
+                    {isSelected && (
+                      <div className="absolute top-2 right-2">
+                        <CheckCircle weight="fill" className="w-5 h-5 text-green-500" />
+                      </div>
+                    )}
+                    <div className={cn("w-12 h-12 rounded-sm flex items-center justify-center bg-background/50", isSelected && "bg-background/80")}>
+                      <Icon weight={isSelected ? "fill" : "regular"} className={cn("w-7 h-7 transition-colors", colors.icon)} />
+                    </div>
+                    <span className="text-sm font-bold text-foreground">{stage.name[language] || stage.name.de}</span>
+                    <p className="text-[11px] text-muted-foreground leading-tight">{stage.desc[language] || stage.desc.de}</p>
+                    {stage.credits > 0 && (
+                      <span className={cn("text-xs font-bold px-3 py-1 rounded-full", colors.badge)}>
+                        {stage.credits} Credits
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Additional Options */}
+          <div>
+            <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase mb-4">
+              <Sliders weight="bold" className="w-3.5 h-3.5" />
+              {t('additionalOptions')}
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              {tuningOptions.map((opt) => {
+                const Icon = opt.Icon;
+                const isSelected = selectedOptions.includes(opt.id);
+                const isIncluded = opt.included && selectedStage && selectedStage !== 'optionsOnly';
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedOptions(prev =>
+                        prev.includes(opt.id) ? prev.filter(id => id !== opt.id) : [...prev, opt.id]
+                      );
+                    }}
+                    data-testid={`option-${opt.id}`}
+                    className={cn(
+                      "relative flex flex-col items-center gap-2 p-4 rounded-sm border transition-all duration-200 cursor-pointer",
+                      isSelected || isIncluded
+                        ? "bg-primary/8 border-primary/40 ring-1 ring-primary/20"
+                        : "bg-card border-border hover:border-muted-foreground/40"
+                    )}
+                  >
+                    {(isSelected || isIncluded) && (
+                      <div className="absolute top-1.5 right-1.5">
+                        <CheckCircle weight="fill" className="w-4 h-4 text-green-500" />
+                      </div>
+                    )}
+                    <Icon weight={isSelected || isIncluded ? "fill" : "regular"} className={cn("w-6 h-6 transition-colors", isSelected || isIncluded ? "text-primary" : "text-muted-foreground")} />
+                    <span className="text-xs font-bold text-foreground text-center leading-tight">{opt.name[language] || opt.name.de}</span>
+                    <span className="text-[10px] text-muted-foreground">{opt.desc[language] || opt.desc.de}</span>
+                    {isIncluded ? (
+                      <span className="text-[10px] font-semibold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">{t('includedInStage')}</span>
+                    ) : opt.credits > 0 ? (
+                      <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{opt.credits} Credits</span>
+                    ) : (
+                      <span className="text-[10px] font-semibold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">0 Credits</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Credits Total */}
+          {(selectedStage || selectedOptions.length > 0) && (
+            <Card className="bg-card border-primary/30" data-testid="credits-total-card">
+              <CardContent className="p-4 flex items-center justify-between">
+                <span className="text-xs font-semibold text-muted-foreground tracking-widest uppercase">{t('totalCredits')}</span>
+                <span className="text-2xl font-bold text-primary">
+                  {(() => {
+                    const stageCredits = tuningStages.find(s => s.id === selectedStage)?.credits || 0;
+                    const optCredits = selectedOptions.reduce((sum, id) => {
+                      const opt = tuningOptions.find(o => o.id === id);
+                      if (!opt) return sum;
+                      if (opt.included && selectedStage && selectedStage !== 'optionsOnly') return sum;
+                      return sum + opt.credits;
+                    }, 0);
+                    return stageCredits + optCredits;
+                  })()}{' '}
+                  <span className="text-sm font-medium text-muted-foreground">Credits</span>
+                </span>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Step 3 Navigation */}
           <div className="flex items-center justify-between">
