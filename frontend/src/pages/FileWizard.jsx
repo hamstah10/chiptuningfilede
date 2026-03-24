@@ -906,7 +906,7 @@ export default function FileWizard() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-[1400px] space-y-6">
         {/* Step Progress Indicator */}
         <Card className="bg-card border-border" data-testid="wizard-progress-card">
           <CardContent className="p-6">

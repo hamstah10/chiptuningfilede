@@ -294,7 +294,7 @@ export default function Configurator() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 max-w-6xl">
+      <div className="space-y-6 max-w-[1400px]">
         {/* Header */}
         <div>
           <h1 className="font-heading font-bold text-2xl tracking-tight text-foreground flex items-center gap-3">
