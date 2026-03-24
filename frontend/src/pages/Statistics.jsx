@@ -149,7 +149,7 @@ export default function Statistics() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 max-w-[1400px]">
+      <div className="space-y-6">
         {/* Header */}
         <div>
           <h1 className="font-heading text-2xl font-bold text-foreground tracking-tight flex items-center gap-3">
