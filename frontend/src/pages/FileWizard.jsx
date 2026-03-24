@@ -20,8 +20,13 @@ import {
   CloudArrowUp,
   ArrowRight,
   X,
-  File as FileIcon
+  File as FileIcon,
+  Upload,
+  Sliders,
+  CheckCircle,
+  CarProfile
 } from '@phosphor-icons/react';
+import { Progress } from '../components/ui/progress';
 import { cn } from '../lib/utils';
 
 const readingDevices = [
@@ -155,9 +160,64 @@ export default function FileWizard() {
     setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const currentStep = 1;
+  const wizardSteps = [
+    { id: 1, icon: Upload, label: language === 'de' ? 'File & Lesegerät' : 'File & Device' },
+    { id: 2, icon: CarProfile, label: language === 'de' ? 'Fahrzeug' : 'Vehicle' },
+    { id: 3, icon: Sliders, label: language === 'de' ? 'Optionen' : 'Options' },
+    { id: 4, icon: CheckCircle, label: language === 'de' ? 'Übersicht' : 'Review' },
+  ];
+  const progress = (currentStep / wizardSteps.length) * 100;
+
   return (
     <DashboardLayout>
       <div className="max-w-6xl mx-auto space-y-6">
+        {/* Step Progress Indicator */}
+        <Card className="bg-card border-border" data-testid="wizard-progress-card">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              {wizardSteps.map((step, index) => {
+                const Icon = step.icon;
+                const isActive = currentStep === step.id;
+                const isCompleted = currentStep > step.id;
+                return (
+                  <div key={step.id} className="flex items-center">
+                    <div className="flex flex-col items-center">
+                      <div
+                        className={cn(
+                          "w-12 h-12 rounded-sm flex items-center justify-center transition-colors duration-200",
+                          isActive && "bg-primary text-white",
+                          isCompleted && "bg-green-500/20 text-green-400 border border-green-500/30",
+                          !isActive && !isCompleted && "bg-secondary text-muted-foreground"
+                        )}
+                      >
+                        {isCompleted ? (
+                          <CheckCircle weight="fill" className="w-6 h-6" />
+                        ) : (
+                          <Icon weight={isActive ? "fill" : "regular"} className="w-6 h-6" />
+                        )}
+                      </div>
+                      <span className={cn(
+                        "text-xs mt-2 font-medium",
+                        isActive ? "text-foreground" : "text-muted-foreground"
+                      )}>
+                        {step.label}
+                      </span>
+                    </div>
+                    {index < wizardSteps.length - 1 && (
+                      <div className={cn(
+                        "h-0.5 w-16 md:w-24 mx-2",
+                        isCompleted ? "bg-green-500/50" : "bg-border"
+                      )} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <Progress value={progress} className="h-1" />
+          </CardContent>
+        </Card>
+
         {/* Header */}
         <div className="flex items-end justify-between">
           <div>
