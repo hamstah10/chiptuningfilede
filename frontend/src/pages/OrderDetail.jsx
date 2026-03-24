@@ -1,4 +1,3 @@
-import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
@@ -8,24 +7,11 @@ import { Badge } from '../components/ui/badge';
 import {
   ArrowLeft, CarProfile, CheckCircle, Download, FileArrowUp, FileArrowDown,
   CurrencyCircleDollar, Wrench, Note, Copy, Info, Package,
-  CircleNotch, Upload, Cpu, MagnifyingGlass, Lightning,
-  Headset, Clock, Pulse, Robot, UserCircle, Warning, Coins,
+  Upload, Cpu, MagnifyingGlass, Lightning,
+  Headset, Clock, Pulse, Warning, XCircle,
 } from '@phosphor-icons/react';
 import { cn } from '../lib/utils';
 import { mockOrders } from './OrdersNew';
-
-// Live tracking phases
-const PHASE = {
-  RECEIVING: 'receiving',
-  WINOLS_CHECK: 'winols_check',
-  WINOLS_SCANNING: 'winols_scanning',
-  MATCH_FOUND: 'match_found',
-  NO_MATCH: 'no_match',
-  AUTO_CREATING: 'auto_creating',
-  SUPPORT_QUEUE: 'support_queue',
-  DONE_AUTO: 'done_auto',
-  DONE_SUPPORT: 'done_support',
-};
 
 const t_data = {
   de: {
@@ -75,7 +61,13 @@ const t_data = {
     auto_info: 'WinOLS hat eine passende Konfiguration gefunden. Das File wird automatisch generiert.',
     support_info: 'Diese Konfiguration muss manuell erstellt werden. Unser Support-Team wurde benachrichtigt.',
     support_time: 'Gesch\u00E4tzte Bearbeitungszeit: 30-60 Minuten',
+    support_handling: 'Wird vom Support bearbeitet',
     download_ready: 'Dein modifiziertes File ist bereit!',
+    step_received: 'Datei empfangen',
+    step_check_db: 'Check Database',
+    step_no_match: 'Kein Match gefunden',
+    step_manual: 'Manuelle Bearbeitung',
+    step_support_notified: 'Support benachrichtigt',
   },
   en: {
     backToOrders: 'Back to Orders',
@@ -124,187 +116,99 @@ const t_data = {
     auto_info: 'WinOLS found a matching configuration. The file is being auto-generated.',
     support_info: 'This configuration needs manual creation. Our support team has been notified.',
     support_time: 'Estimated processing time: 30-60 minutes',
+    support_handling: 'Being handled by support',
     download_ready: 'Your modified file is ready!',
+    step_received: 'File received',
+    step_check_db: 'Check Database',
+    step_no_match: 'No match found',
+    step_manual: 'Manual processing',
+    step_support_notified: 'Support notified',
   },
 };
 
-// ─── Live Tracking View (for pending/processing orders) ─────────────
-function LiveTrackingView({ order, t }) {
-  const [phase, setPhase] = useState(PHASE.RECEIVING);
-  const [isAutoPath, setIsAutoPath] = useState(null);
-  const [progress, setProgress] = useState(0);
-
-  const advancePhase = useCallback(() => {
-    setPhase(prev => {
-      switch (prev) {
-        case PHASE.RECEIVING: return PHASE.WINOLS_CHECK;
-        case PHASE.WINOLS_CHECK: return PHASE.WINOLS_SCANNING;
-        case PHASE.WINOLS_SCANNING: {
-          const auto = Math.random() > 0.35;
-          setIsAutoPath(auto);
-          return auto ? PHASE.MATCH_FOUND : PHASE.NO_MATCH;
-        }
-        case PHASE.MATCH_FOUND: return PHASE.AUTO_CREATING;
-        case PHASE.AUTO_CREATING: return PHASE.DONE_AUTO;
-        case PHASE.NO_MATCH: return PHASE.SUPPORT_QUEUE;
-        case PHASE.SUPPORT_QUEUE: return PHASE.DONE_SUPPORT;
-        default: return prev;
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    const timers = [
-      setTimeout(() => advancePhase(), 1800),
-      setTimeout(() => advancePhase(), 3500),
-      setTimeout(() => advancePhase(), 6000),
-      setTimeout(() => advancePhase(), 8500),
-      setTimeout(() => advancePhase(), 11000),
-      setTimeout(() => advancePhase(), 14000),
-    ];
-    return () => timers.forEach(clearTimeout);
-  }, [advancePhase]);
-
-  useEffect(() => {
-    const pp = {
-      [PHASE.RECEIVING]: 8, [PHASE.WINOLS_CHECK]: 20, [PHASE.WINOLS_SCANNING]: 45,
-      [PHASE.MATCH_FOUND]: 60, [PHASE.NO_MATCH]: 60, [PHASE.AUTO_CREATING]: 80,
-      [PHASE.SUPPORT_QUEUE]: 75, [PHASE.DONE_AUTO]: 100, [PHASE.DONE_SUPPORT]: 100,
-    };
-    setProgress(pp[phase] || 0);
-  }, [phase]);
-
-  const isDone = phase === PHASE.DONE_AUTO || phase === PHASE.DONE_SUPPORT;
-
-  const getSteps = () => {
-    const steps = [
-      { id: 'receive', label: phase === PHASE.RECEIVING ? t('ph_receiving') : t('ph_receiving_done'), icon: Upload, done: phase !== PHASE.RECEIVING, active: phase === PHASE.RECEIVING },
-      { id: 'winols', label: phase === PHASE.WINOLS_CHECK ? t('ph_winols') : phase === PHASE.WINOLS_SCANNING ? t('ph_scanning') : 'WinOLS Pr\u00FCfung', icon: Cpu, done: [PHASE.MATCH_FOUND, PHASE.NO_MATCH, PHASE.AUTO_CREATING, PHASE.SUPPORT_QUEUE, PHASE.DONE_AUTO, PHASE.DONE_SUPPORT].includes(phase), active: phase === PHASE.WINOLS_CHECK || phase === PHASE.WINOLS_SCANNING },
-    ];
-    if (isAutoPath === true || (isAutoPath === null && ![PHASE.RECEIVING, PHASE.WINOLS_CHECK, PHASE.WINOLS_SCANNING].includes(phase))) {
-      steps.push(
-        { id: 'match', label: t('ph_match'), icon: MagnifyingGlass, done: [PHASE.AUTO_CREATING, PHASE.DONE_AUTO].includes(phase), active: phase === PHASE.MATCH_FOUND, success: true },
-        { id: 'auto', label: t('ph_auto'), icon: Robot, done: phase === PHASE.DONE_AUTO, active: phase === PHASE.AUTO_CREATING },
-        { id: 'done', label: t('ph_done_auto'), icon: FileArrowDown, done: phase === PHASE.DONE_AUTO, active: false, final: true },
-      );
-    }
-    if (isAutoPath === false) {
-      steps.push(
-        { id: 'nomatch', label: t('ph_no_match'), icon: Warning, done: [PHASE.SUPPORT_QUEUE, PHASE.DONE_SUPPORT].includes(phase), active: phase === PHASE.NO_MATCH, warning: true },
-        { id: 'support', label: t('ph_support'), icon: Headset, done: phase === PHASE.DONE_SUPPORT, active: phase === PHASE.SUPPORT_QUEUE },
-        { id: 'done', label: t('ph_done_support'), icon: UserCircle, done: phase === PHASE.DONE_SUPPORT, active: false, final: true },
-      );
-    }
-    if (isAutoPath === null && [PHASE.RECEIVING, PHASE.WINOLS_CHECK, PHASE.WINOLS_SCANNING].includes(phase)) {
-      steps.push({ id: 'pending', label: '...', icon: Clock, done: false, active: false, pending: true });
-    }
-    return steps;
-  };
-
-  const steps = getSteps();
+// ─── Horizontal Status Stepper (static, for pending/processing orders) ──
+function StatusStepper({ order, t }) {
+  // Steps for horizontal display
+  const steps = [
+    { id: 'received', label: t('step_received'), icon: Upload, status: 'done' },
+    { id: 'check', label: t('step_check_db'), icon: Cpu, status: 'done' },
+    { id: 'nomatch', label: t('step_no_match'), icon: XCircle, status: 'error' },
+    { id: 'manual', label: t('step_manual'), sub: t('step_support_notified'), icon: Headset, status: 'active' },
+  ];
 
   return (
-    <div className="space-y-4">
-      {/* Progress bar */}
-      <div className="relative h-2 bg-secondary/60 rounded-full overflow-hidden" data-testid="live-progress">
-        <div className={cn("h-full rounded-full transition-all duration-1000 ease-out", isDone ? "bg-green-500" : "bg-primary")} style={{ width: `${progress}%` }} />
-        {!isDone && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse" />}
-      </div>
-
-      {/* Timeline */}
-      <Card className="bg-card border-border" data-testid="live-status-card">
+    <div className="space-y-6">
+      {/* Horizontal stepper */}
+      <Card className="bg-card border-border" data-testid="status-stepper">
         <CardContent className="p-6">
           <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase mb-6">
             <Pulse weight="bold" className="w-3.5 h-3.5" />
-            {t('liveStatus')}
-            {!isDone && <span className="ml-2 w-2 h-2 rounded-full bg-green-500 animate-pulse" />}
+            {t('orderStatus')}
           </label>
 
-          <div className="space-y-0">
+          <div className="flex items-start" data-testid="stepper-row">
             {steps.map((step, idx) => {
               const Icon = step.icon;
               const isLast = idx === steps.length - 1;
               return (
-                <div key={step.id} className="relative" data-testid={`step-${step.id}`}>
-                  {!isLast && (
-                    <div className={cn("absolute left-[19px] top-[44px] w-[2px] h-[32px]", step.done ? "bg-green-500/60" : "bg-border")} />
-                  )}
-                  <div className={cn(
-                    "flex items-center gap-4 py-3 px-4 rounded-sm transition-all duration-500",
-                    step.active && "bg-primary/8 border border-primary/30",
-                    step.done && !step.final && "opacity-80",
-                    step.done && step.final && "bg-green-500/8 border border-green-500/30",
-                    step.pending && "opacity-40",
-                  )}>
+                <div key={step.id} className="flex items-start flex-1 min-w-0" data-testid={`stepper-${step.id}`}>
+                  {/* Step circle + label */}
+                  <div className="flex flex-col items-center text-center flex-1">
                     <div className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all duration-500",
-                      step.done ? "bg-green-500/15 border-green-500" :
-                      step.active ? "bg-primary/15 border-primary" :
-                      step.warning ? "bg-yellow-500/15 border-yellow-500" :
-                      "bg-secondary/50 border-border"
+                      "w-10 h-10 rounded-full flex items-center justify-center border-2 mb-2 transition-all",
+                      step.status === 'done' && "bg-green-500/15 border-green-500",
+                      step.status === 'error' && "bg-red-500/15 border-red-500",
+                      step.status === 'active' && "bg-yellow-500/15 border-yellow-500",
                     )}>
-                      {step.done ? (
-                        <CheckCircle weight="fill" className="w-5 h-5 text-green-500" />
-                      ) : step.active ? (
-                        <CircleNotch weight="bold" className="w-5 h-5 text-primary animate-spin" />
-                      ) : (
-                        <Icon weight={step.pending ? "light" : "regular"} className={cn("w-5 h-5", step.warning ? "text-yellow-500" : "text-muted-foreground")} />
-                      )}
+                      {step.status === 'done' && <CheckCircle weight="fill" className="w-5 h-5 text-green-500" />}
+                      {step.status === 'error' && <Icon weight="fill" className="w-5 h-5 text-red-400" />}
+                      {step.status === 'active' && <Icon weight="fill" className="w-5 h-5 text-yellow-400" />}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={cn(
-                        "text-sm font-semibold transition-all duration-500",
-                        step.done ? "text-green-400" : step.active ? "text-foreground" : step.warning ? "text-yellow-400" : "text-muted-foreground"
-                      )}>
-                        {step.label}
-                      </p>
-                      {step.active && !step.pending && (
-                        <div className="flex gap-0.5 mt-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
-                          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
-                          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
-                        </div>
-                      )}
-                    </div>
-                    {step.done && <Badge className="bg-green-500/15 text-green-400 border-green-500/30 text-[10px]">OK</Badge>}
-                    {step.active && <Badge className="bg-primary/15 text-primary border-primary/30 text-[10px] animate-pulse">LIVE</Badge>}
+                    <p className={cn(
+                      "text-xs font-semibold leading-tight",
+                      step.status === 'done' && "text-green-400",
+                      step.status === 'error' && "text-red-400",
+                      step.status === 'active' && "text-foreground",
+                    )}>
+                      {step.label}
+                    </p>
+                    {step.sub && (
+                      <p className="text-[10px] text-yellow-400 font-medium mt-0.5">{step.sub}</p>
+                    )}
                   </div>
+
+                  {/* Connector line */}
+                  {!isLast && (
+                    <div className="flex items-center pt-5 -mx-1">
+                      <div className={cn(
+                        "h-[2px] w-8 md:w-12 lg:w-16",
+                        idx < 1 ? "bg-green-500/60" :
+                        idx === 1 ? "bg-red-500/40" :
+                        "bg-border"
+                      )} />
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
+        </CardContent>
+      </Card>
 
-          {/* Result boxes */}
-          {phase === PHASE.DONE_AUTO && (
-            <div className="mt-6 p-5 bg-green-500/8 border border-green-500/30 rounded-sm" data-testid="result-auto">
-              <div className="flex items-start gap-3">
-                <Robot weight="fill" className="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-bold text-green-400">{t('download_ready')}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{t('auto_info')}</p>
-                  <Button className="mt-4 bg-green-600 hover:bg-green-700 text-white font-bold" data-testid="download-btn">
-                    <Download weight="bold" className="w-4 h-4 mr-2" />
-                    {t('downloadFile')}
-                  </Button>
-                </div>
-              </div>
+      {/* Support info panel */}
+      <Card className="bg-blue-500/5 border-blue-500/20" data-testid="support-panel">
+        <CardContent className="p-5">
+          <div className="flex items-start gap-3">
+            <Headset weight="fill" className="w-6 h-6 text-blue-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-bold text-blue-400">{t('support_handling')}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('support_info')}</p>
+              <p className="text-xs text-yellow-400 font-semibold mt-2 flex items-center gap-1.5">
+                <Clock weight="fill" className="w-3.5 h-3.5" />
+                {t('support_time')}
+              </p>
             </div>
-          )}
-          {phase === PHASE.DONE_SUPPORT && (
-            <div className="mt-6 p-5 bg-blue-500/8 border border-blue-500/30 rounded-sm" data-testid="result-support">
-              <div className="flex items-start gap-3">
-                <Headset weight="fill" className="w-6 h-6 text-blue-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-bold text-blue-400">{t('ph_done_support')}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{t('support_info')}</p>
-                  <p className="text-xs text-yellow-400 font-semibold mt-2 flex items-center gap-1.5">
-                    <Clock weight="fill" className="w-3.5 h-3.5" />
-                    {t('support_time')}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -494,8 +398,8 @@ export default function OrderDetail() {
         {isInProgress ? (
           /* ── In Progress: Live Tracking (like OrderLive) ── */
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
-            {/* LEFT: Live Status */}
-            <LiveTrackingView order={order} t={t} />
+            {/* LEFT: Static Status Stepper */}
+            <StatusStepper order={order} t={t} />
 
             {/* RIGHT: Order Summary Cards */}
             <div className="space-y-4">
