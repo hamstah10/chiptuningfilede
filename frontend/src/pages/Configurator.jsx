@@ -34,6 +34,8 @@ import {
   CheckCircle,
   Cpu,
   Wrench,
+  ArrowLeft,
+  CaretRight,
 } from '@phosphor-icons/react';
 import { cn } from '../lib/utils';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -262,6 +264,7 @@ export default function Configurator() {
   const [engine, setEngine] = useState('');
   const [showPs, setShowPs] = useState(true);
   const [showNm, setShowNm] = useState(true);
+  const [slideDir, setSlideDir] = useState('right'); // animation direction
 
   const manufacturers = vehicleType === 'pkw' ? Object.keys(vehicleData).sort() : [];
   const seriesOptions = manufacturer && vehicleData[manufacturer] ? Object.keys(vehicleData[manufacturer]).sort() : [];
@@ -271,11 +274,22 @@ export default function Configurator() {
   const perfData = useMemo(() => getPerformanceData(engine), [engine]);
   const supportsGearbox = gearboxManufacturers.includes(manufacturer);
 
+  // Current selection step derived from state
+  const selectionStep = !manufacturer ? 'manufacturer' : !series ? 'series' : !model ? 'model' : !engine ? 'engine' : 'done';
+
   const resetFrom = (level) => {
     if (level <= 1) { setManufacturer(''); setSeries(''); setModel(''); setEngine(''); }
     if (level === 2) { setSeries(''); setModel(''); setEngine(''); }
     if (level === 3) { setModel(''); setEngine(''); }
     if (level === 4) { setEngine(''); }
+  };
+
+  const goBack = () => {
+    setSlideDir('left');
+    if (engine) setEngine('');
+    else if (model) setModel('');
+    else if (series) setSeries('');
+    else if (manufacturer) setManufacturer('');
   };
 
   return (
@@ -323,67 +337,162 @@ export default function Configurator() {
           </CardContent>
         </Card>
 
-        {/* Step 2: Vehicle Selection (only for PKW with data) */}
-        {vehicleType && (
-          <Card className="bg-card border-border" data-testid="vehicle-select-card">
+        {/* Vehicle Selection - Card Slider */}
+        {vehicleType && vehicleType === 'pkw' && selectionStep !== 'done' && (
+          <Card className="bg-card border-border overflow-hidden" data-testid="vehicle-select-card">
             <CardContent className="p-5">
-              <label className="flex items-center gap-2 text-xs font-semibold text-muted-foreground tracking-widest uppercase mb-4">
-                <Engine weight="bold" className="w-3.5 h-3.5" />
-                {t('manufacturer')} / {t('series')} / {t('model')} / {t('engine')}
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Manufacturer */}
-                <div>
-                  <label className="text-[11px] text-muted-foreground mb-1.5 block">{t('manufacturer')}</label>
-                  <Select value={manufacturer} onValueChange={(v) => { setManufacturer(v); resetFrom(2); }} disabled={vehicleType !== 'pkw'}>
-                    <SelectTrigger className="bg-secondary border-border" data-testid="cfg-manufacturer">
-                      <SelectValue placeholder={t('selectPlaceholder')} />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-border">
-                      {manufacturers.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                {/* Series */}
-                <div>
-                  <label className="text-[11px] text-muted-foreground mb-1.5 block">{t('series')}</label>
-                  <Select value={series} onValueChange={(v) => { setSeries(v); resetFrom(3); }} disabled={!manufacturer}>
-                    <SelectTrigger className="bg-secondary border-border" data-testid="cfg-series">
-                      <SelectValue placeholder={t('selectPlaceholder')} />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-border">
-                      {seriesOptions.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                {/* Model */}
-                <div>
-                  <label className="text-[11px] text-muted-foreground mb-1.5 block">{t('model')}</label>
-                  <Select value={model} onValueChange={(v) => { setModel(v); resetFrom(4); }} disabled={!series}>
-                    <SelectTrigger className="bg-secondary border-border" data-testid="cfg-model">
-                      <SelectValue placeholder={t('selectPlaceholder')} />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-border">
-                      {modelOptions.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                {/* Engine */}
-                <div>
-                  <label className="text-[11px] text-muted-foreground mb-1.5 block">{t('engine')}</label>
-                  <Select value={engine} onValueChange={setEngine} disabled={!model}>
-                    <SelectTrigger className="bg-secondary border-border" data-testid="cfg-engine">
-                      <SelectValue placeholder={t('selectPlaceholder')} />
-                    </SelectTrigger>
-                    <SelectContent className="bg-card border-border">
-                      {engineOptions.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
+              {/* Breadcrumb */}
+              <div className="flex items-center gap-1.5 mb-5 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => { setSlideDir('left'); resetFrom(1); }}
+                  className={cn("text-xs font-semibold transition-colors", manufacturer ? "text-primary hover:text-primary/80 cursor-pointer" : "text-foreground")}
+                  data-testid="crumb-manufacturer"
+                >
+                  {t('manufacturer')}
+                </button>
+                {manufacturer && (
+                  <>
+                    <CaretRight weight="bold" className="w-3 h-3 text-muted-foreground" />
+                    <button
+                      type="button"
+                      onClick={() => { setSlideDir('left'); resetFrom(2); }}
+                      className={cn("text-xs font-semibold transition-colors", series ? "text-primary hover:text-primary/80 cursor-pointer" : "text-foreground")}
+                      data-testid="crumb-series"
+                    >
+                      {manufacturer}{series ? '' : ` — ${t('series')}`}
+                    </button>
+                  </>
+                )}
+                {series && (
+                  <>
+                    <CaretRight weight="bold" className="w-3 h-3 text-muted-foreground" />
+                    <button
+                      type="button"
+                      onClick={() => { setSlideDir('left'); resetFrom(3); }}
+                      className={cn("text-xs font-semibold transition-colors", model ? "text-primary hover:text-primary/80 cursor-pointer" : "text-foreground")}
+                      data-testid="crumb-model"
+                    >
+                      {series}{model ? '' : ` — ${t('model')}`}
+                    </button>
+                  </>
+                )}
+                {model && (
+                  <>
+                    <CaretRight weight="bold" className="w-3 h-3 text-muted-foreground" />
+                    <span className="text-xs font-semibold text-foreground">{model} — {t('engine')}</span>
+                  </>
+                )}
               </div>
-              {vehicleType !== 'pkw' && (
-                <p className="text-sm text-muted-foreground mt-4 italic">{language === 'de' ? 'Daten f\u00fcr diesen Fahrzeugtyp werden bald verf\u00fcgbar sein.' : 'Data for this vehicle type will be available soon.'}</p>
+
+              {/* Back button */}
+              {manufacturer && (
+                <button
+                  type="button"
+                  onClick={goBack}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-4"
+                  data-testid="cfg-back-btn"
+                >
+                  <ArrowLeft weight="bold" className="w-3.5 h-3.5" />
+                  {language === 'de' ? 'Zurück' : 'Back'}
+                </button>
               )}
+
+              {/* Card Grid with animation */}
+              <div key={selectionStep} className="animate-in fade-in slide-in-from-right-4 duration-300">
+                {/* Manufacturer Cards */}
+                {selectionStep === 'manufacturer' && (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+                    {manufacturers.map(m => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => { setSlideDir('right'); setManufacturer(m); }}
+                        data-testid={`cfg-mfr-${m}`}
+                        className="group flex flex-col items-center gap-3 p-5 rounded-sm border-2 border-border bg-secondary/30 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer"
+                      >
+                        <CarProfile weight="regular" className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
+                        <span className="text-sm font-bold text-foreground">{m}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Series Cards */}
+                {selectionStep === 'series' && (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+                    {seriesOptions.map(s => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => { setSlideDir('right'); setSeries(s); }}
+                        data-testid={`cfg-ser-${s}`}
+                        className="group flex flex-col items-center gap-3 p-5 rounded-sm border-2 border-border bg-secondary/30 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer"
+                      >
+                        <span className="text-base font-bold text-foreground group-hover:text-primary transition-colors">{s}</span>
+                        <span className="text-[10px] text-muted-foreground">{manufacturer}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Model Cards */}
+                {selectionStep === 'model' && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {modelOptions.map(m => {
+                      const yearMatch = m.match(/(\d{4})/);
+                      const code = m.replace(/\s*-\s*\d{4}/, '').trim();
+                      return (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => { setSlideDir('right'); setModel(m); }}
+                          data-testid={`cfg-mod-${m}`}
+                          className="group flex flex-col items-center gap-2 p-5 rounded-sm border-2 border-border bg-secondary/30 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer"
+                        >
+                          <span className="text-base font-bold text-foreground group-hover:text-primary transition-colors">{code}</span>
+                          {yearMatch && <span className="text-xs text-muted-foreground">{language === 'de' ? 'ab' : 'from'} {yearMatch[1]}</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Engine Cards */}
+                {selectionStep === 'engine' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {engineOptions.map(e => {
+                      const psMatch = e.match(/(\d{2,4})\s*PS/);
+                      const isDiesel = /TDI|CDI|CDTI|HDI|CRDi|EcoBlue|TDCi/i.test(e);
+                      return (
+                        <button
+                          key={e}
+                          type="button"
+                          onClick={() => { setSlideDir('right'); setEngine(e); }}
+                          data-testid={`cfg-eng-${e.replace(/\s+/g, '-')}`}
+                          className="group flex items-center gap-4 p-4 rounded-sm border-2 border-border bg-secondary/30 hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer text-left"
+                        >
+                          <div className={cn("w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0", isDiesel ? "bg-blue-500/15" : "bg-primary/15")}>
+                            <Engine weight="fill" className={cn("w-5 h-5", isDiesel ? "text-blue-400" : "text-primary")} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">{e}</p>
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{isDiesel ? 'Diesel' : 'Benzin'}{psMatch ? ` — ${psMatch[1]} PS` : ''}</p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {vehicleType && vehicleType !== 'pkw' && (
+          <Card className="bg-card border-border">
+            <CardContent className="p-5">
+              <p className="text-sm text-muted-foreground italic">{language === 'de' ? 'Daten f\u00fcr diesen Fahrzeugtyp werden bald verf\u00fcgbar sein.' : 'Data for this vehicle type will be available soon.'}</p>
             </CardContent>
           </Card>
         )}
