@@ -19,6 +19,7 @@ import PriceList from "./pages/PriceList";
 import NewOrderCombined from "./pages/NewOrderCombined";
 import OrderLive from "./pages/OrderLive";
 import EmailTemplates from "./pages/EmailTemplates";
+import Statistics from "./pages/Statistics";
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/order-live" element={<OrderLive />} />
             <Route path="/email-templates" element={<EmailTemplates />} />
+            <Route path="/statistics" element={<Statistics />} />
           </Routes>
         </BrowserRouter>
         <Toaster />

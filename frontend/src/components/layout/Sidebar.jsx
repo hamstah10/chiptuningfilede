@@ -16,7 +16,8 @@ import {
   CurrencyCircleDollar,
   ListBullets,
   ShoppingCart,
-  EnvelopeSimple
+  EnvelopeSimple,
+  ChartBar
 } from '@phosphor-icons/react';
 import { cn } from '../../lib/utils';
 
@@ -43,6 +44,7 @@ export const Sidebar = () => {
       tickets: 'Tickets',
       profile: 'Profil',
       emailTemplates: 'E-Mail Templates',
+      statistics: 'Statistiken',
       logout: 'Abmelden',
     },
     en: {
@@ -58,6 +60,7 @@ export const Sidebar = () => {
       tickets: 'Tickets',
       profile: 'Profile',
       emailTemplates: 'Email Templates',
+      statistics: 'Statistics',
       logout: 'Logout',
     }
   };
@@ -151,11 +154,12 @@ export const Sidebar = () => {
           label={t('tuningFile')}
           isOpen={tuningOpen}
           onToggle={() => setTuningOpen(!tuningOpen)}
-          activePaths={['/file-wizard', '/orders', '/price-list']}
+          activePaths={['/file-wizard', '/orders', '/price-list', '/statistics']}
         >
           <NavItem path="/file-wizard" icon={FileArrowUp} label={t('newOrder')} indent />
           <NavItem path="/orders" icon={ClockCounterClockwise} label={t('allOrders')} indent />
           <NavItem path="/price-list" icon={ListBullets} label={t('priceList')} indent />
+          <NavItem path="/statistics" icon={ChartBar} label={t('statistics')} indent />
         </MenuGroup>
 
         <Separator />
