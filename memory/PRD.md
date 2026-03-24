@@ -21,7 +21,6 @@ Build a dashboard for Tuningfiles portal for Chiptuningfile.de (tuning files dea
 - [x] Dashboard overview with stats (credits, orders, files, spent)
 - [x] Recent activity feed & Quick actions panel
 - [x] Chiptuning Configurator with vehicle/tuning selection
-- [x] Credits page with balance and packages
 - [x] Orders history table
 - [x] Profile page with tabs (personal, company, API)
 - [x] Language toggle (DE/EN)
@@ -29,11 +28,35 @@ Build a dashboard for Tuningfiles portal for Chiptuningfile.de (tuning files dea
 - [x] Phosphor icons, Exo 2 + IBM Plex Sans fonts
 - [x] Price List page (PKW/LKW tabs, stages, gearbox, options)
 
+### Credits Kaufen Page (Mar 2026)
+- [x] 10 credit packages (10-5000 Credits) with exact pricing from production
+- [x] 3-column card grid with badges (BESTSELLER, AM BELIEBTESTEN, TOP DEAL)
+- [x] Purchase sidebar (right) with package selection, price breakdown, buy button
+- [x] Old price display (crossed out) for 1000 Credits package
+- [x] Per-file pricing for 2000+ credit packages
+- [x] Benefits info card
+
 ### New Order Combined (Feb 2026)
 - [x] Combined Step 2+3 wizard: 2-column layout (left: stage buttons, right: performance data)
 - [x] Dyno chart, options grid, gearbox stages, credits total
 - [x] Step 3 review with cost summary
-- [x] Sidebar + Header navigation linked to /new-order
+- [x] Submit → redirects to Live Order Tracking
+
+### Order Live Tracking (Mar 2026)
+- [x] Real-time animated status timeline after order submission
+- [x] Phases: Datei empfangen → WinOLS Prüfung → Match/No Match → Auto/Support → Done
+- [x] Two paths: AUTO (WinOLS match → auto-created → download) or SUPPORT (manual handling)
+- [x] Global progress bar animation (red → green)
+- [x] Order summary sidebar (vehicle, tuning, file info)
+- [x] Download button on auto-completion, support info on manual path
+- [x] Connected to both FileWizard and NewOrderCombined submit buttons
+
+### E-Mail Templates (Mar 2026)
+- [x] 6 templates: Auftragsbestätigung, File fertig, Support-Übernahme, Credits gekauft, Rechnung, Willkommen
+- [x] Preview mode (rendered HTML in iframe) and HTML Code mode (raw code)
+- [x] Copy-to-clipboard functionality
+- [x] Design matches portal (red/black/grey, #8B2635)
+- [x] Sidebar menu item "E-Mail Templates"
 
 ### Configurator (Feb 2026)
 - [x] Vehicle type selector (PKW, LKW, Motorrad, Agrar, Jetski, Andere)
@@ -41,11 +64,11 @@ Build a dashboard for Tuningfiles portal for Chiptuningfile.de (tuning files dea
 - [x] ECU display, Dyno chart, Performance bars, Tuning stages, Gearbox stages, Options grid
 
 ### File Wizard (Feb 2026)
-- [x] Step 1: File Upload & Lesegerät (tool selection, method/type toggles, master/slave, priority)
-- [x] Step 2: Fahrzeugauswahl (regex filename parsing, cascading dropdowns, fuzzy matching, "Übernehmen" button)
-- [x] Step 2: Leistungsdaten-Anzeige mit Recharts-Charts (PS + Nm Balkendiagramm, Stage 1/2 Vergleich, Tuning-Optionen Vorschau)
-- [x] Step 3: Optionen (tuning stage cards, additional options grid, gearbox-specific sub-stages with warning note, credit calculation)
-- [x] Step 4: Übersicht (Review-Seite mit Zusammenfassung aller Steps, Kostenaufstellung, Bearbeiten-Links, Absenden-Button)
+- [x] Step 1: File Upload & Lesegerät
+- [x] Step 2: Fahrzeugauswahl with cascading dropdowns
+- [x] Step 2: Leistungsdaten with Recharts charts
+- [x] Step 3: Optionen (tuning stages, options, gearbox, credit calculation)
+- [x] Step 4: Übersicht (review + submit → order-live)
 
 ### Backend
 - Nothing yet (server.py exists but empty logic)
@@ -53,18 +76,18 @@ Build a dashboard for Tuningfiles portal for Chiptuningfile.de (tuning files dea
 ## Prioritized Backlog
 
 ### P0 (Critical - Next)
-- File Wizard Step 4 "Übersicht" (Review page)
 - Backend MongoDB CRUD (Users, Orders, Tickets, Invoices)
 - Frontend ↔ Backend integration (replace mocked data)
+- Symfony API Authentication Integration
 
 ### P1 (High)
-- Symfony API Authentication Integration
 - PayPal payment integration for credits
 - File upload/download to backend storage
+- Code deduplication (vehicleData/ecuData into shared lib/data.js)
 
 ### P2 (Medium)
 - Invoice PDF Generator
-- Real-time order status updates
+- Real-time order status updates (WebSocket)
 - Notifications system
 - FileWizard.jsx refactoring (split into components)
 
@@ -75,13 +98,27 @@ Build a dashboard for Tuningfiles portal for Chiptuningfile.de (tuning files dea
 │   ├── server.py              
 │   └── requirements.txt
 ├── frontend/
-│   ├── public/logos/          # Tuning tool brand logos
+│   ├── public/logos/
 │   └── src/
-│       ├── components/        # Shared UI components
-│       ├── pages/             # All page components
-│       │   ├── FileWizard.jsx # Multi-step wizard (1570+ lines)
-│       │   ├── PriceList.jsx  # Pricing reference
-│       │   └── ...            # Dashboard, Orders, Tickets, etc.
+│       ├── components/
+│       │   ├── layout/        # DashboardLayout, Sidebar, Header
+│       │   └── ui/            # Shadcn UI components
+│       ├── pages/
+│       │   ├── FileWizard.jsx
+│       │   ├── NewOrderCombined.jsx
+│       │   ├── OrderLive.jsx
+│       │   ├── Configurator.jsx
+│       │   ├── Credits.jsx
+│       │   ├── EmailTemplates.jsx
+│       │   ├── PriceList.jsx
+│       │   ├── Dashboard.jsx
+│       │   ├── OrdersNew.jsx
+│       │   ├── OrderDetail.jsx
+│       │   ├── Invoices.jsx
+│       │   ├── Tickets.jsx
+│       │   ├── TicketDetail.jsx
+│       │   └── Profile.jsx
+│       ├── context/
 │       └── index.css          
 ```
 
