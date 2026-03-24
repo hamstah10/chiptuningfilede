@@ -3,15 +3,6 @@ import { useLanguage } from '../context/LanguageContext';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../components/ui/table';
 import { 
   ListBullets,
   CarProfile,
@@ -28,11 +19,10 @@ import {
   Fire,
   RocketLaunch,
   Fan,
-  Exhaust,
   Thermometer,
   CheckCircle,
-  SpeedometerIcon
 } from '@phosphor-icons/react';
+import { cn } from '../lib/utils';
 
 // Tuning Options with prices and icons
 const tuningOptions = [
@@ -367,6 +357,25 @@ export default function PriceList() {
   const [pkwSubTab, setPkwSubTab] = useState('stage1');
   const [lkwSubTab, setLkwSubTab] = useState('eco');
 
+  const mainTabs = [
+    { id: 'pkw', Icon: CarProfile, label: t('pkw') },
+    { id: 'lkw', Icon: Truck, label: t('lkw') },
+  ];
+
+  const pkwSubTabs = [
+    { id: 'stage1', label: t('stage1') },
+    { id: 'stage2', label: t('stage2') },
+    { id: 'eco', label: t('eco') },
+    { id: 'gearbox', label: t('gearbox') },
+    { id: 'options', label: t('optionsSingle') },
+  ];
+
+  const lkwSubTabs = [
+    { id: 'eco', label: t('eco') },
+    { id: 'tuning', label: t('tuning') },
+    { id: 'options', label: t('optionsSingle') },
+  ];
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -378,208 +387,133 @@ export default function PriceList() {
           </h1>
         </div>
 
-        {/* Main Category Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="bg-secondary border border-border p-1 w-full justify-start">
-            <TabsTrigger 
-              value="pkw" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-foreground flex items-center gap-2 px-6"
-            >
-              <CarProfile weight="bold" className="w-5 h-5" />
-              {t('pkw')}
-            </TabsTrigger>
-            <TabsTrigger 
-              value="lkw" 
-              className="data-[state=active]:bg-primary data-[state=active]:text-foreground flex items-center gap-2 px-6"
-            >
-              <Truck weight="bold" className="w-5 h-5" />
-              {t('lkw')}
-            </TabsTrigger>
-          </TabsList>
+        {/* Main Category Tabs (horizontal) */}
+        <div className="flex gap-2" data-testid="main-tabs">
+          {mainTabs.map(tab => {
+            const Icon = tab.Icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                data-testid={`tab-${tab.id}`}
+                className={cn(
+                  "flex items-center gap-2.5 px-5 py-3 rounded-sm border-2 transition-all text-left",
+                  isActive ? "bg-primary/8 border-primary/40" : "bg-card border-border hover:border-muted-foreground/40"
+                )}
+              >
+                <Icon weight={isActive ? "fill" : "regular"} className={cn("w-5 h-5 flex-shrink-0", isActive ? "text-primary" : "text-muted-foreground")} />
+                <span className={cn("text-sm font-semibold", isActive ? "text-foreground" : "text-muted-foreground")}>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
 
-          {/* PKW Content */}
-          <TabsContent value="pkw" className="mt-6">
-            <Tabs value={pkwSubTab} onValueChange={setPkwSubTab}>
-              <TabsList className="bg-card border border-border p-1 flex-wrap h-auto gap-1">
-                <TabsTrigger 
-                  value="stage1" 
-                  className="data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
-                >
-                  {t('stage1')}
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="stage2" 
-                  className="data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
-                >
-                  {t('stage2')}
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="eco" 
-                  className="data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
-                >
-                  {t('eco')}
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="gearbox" 
-                  className="data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
-                >
-                  {t('gearbox')}
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="options" 
-                  className="data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
-                >
-                  {t('optionsSingle')}
-                </TabsTrigger>
-              </TabsList>
+        {/* Sub-Tabs (horizontal) */}
+        <div className="flex flex-wrap gap-2" data-testid="sub-tabs">
+          {(activeTab === 'pkw' ? pkwSubTabs : lkwSubTabs).map(sub => {
+            const currentSub = activeTab === 'pkw' ? pkwSubTab : lkwSubTab;
+            const isActive = currentSub === sub.id;
+            return (
+              <button
+                key={sub.id}
+                type="button"
+                onClick={() => activeTab === 'pkw' ? setPkwSubTab(sub.id) : setLkwSubTab(sub.id)}
+                data-testid={`subtab-${sub.id}`}
+                className={cn(
+                  "px-4 py-2 rounded-sm border-2 text-sm font-semibold transition-all",
+                  isActive ? "bg-primary/8 border-primary/40 text-foreground" : "bg-card border-border text-muted-foreground hover:border-muted-foreground/40"
+                )}
+              >
+                {sub.label}
+              </button>
+            );
+          })}
+        </div>
 
-              <div className="mt-6">
-                <TabsContent value="stage1">
-                  <StageCard 
-                    title={t('stage1')} 
-                    basePrice={100} 
-                    icon={Lightning}
-                    language={language}
-                    t={t}
-                  />
-                </TabsContent>
+        {/* Content */}
+        {activeTab === 'pkw' && (
+          <>
+            {pkwSubTab === 'stage1' && <StageCard title={t('stage1')} basePrice={100} icon={Lightning} language={language} t={t} />}
+            {pkwSubTab === 'stage2' && <StageCard title={t('stage2')} basePrice={100} icon={Lightning} language={language} t={t} />}
+            {pkwSubTab === 'eco' && <StageCard title={t('eco')} basePrice={100} icon={Leaf} language={language} t={t} />}
+            {pkwSubTab === 'gearbox' && <GearboxCard language={language} t={t} />}
+            {pkwSubTab === 'options' && <SingleOptionsCard language={language} t={t} />}
+          </>
+        )}
 
-                <TabsContent value="stage2">
-                  <StageCard 
-                    title={t('stage2')} 
-                    basePrice={100} 
-                    icon={Lightning}
-                    language={language}
-                    t={t}
-                  />
-                </TabsContent>
-
-                <TabsContent value="eco">
-                  <StageCard 
-                    title={t('eco')} 
-                    basePrice={100} 
-                    icon={Leaf}
-                    language={language}
-                    t={t}
-                  />
-                </TabsContent>
-
-                <TabsContent value="gearbox">
-                  <GearboxCard language={language} t={t} />
-                </TabsContent>
-
-                <TabsContent value="options">
-                  <SingleOptionsCard language={language} t={t} />
-                </TabsContent>
-              </div>
-            </Tabs>
-          </TabsContent>
-
-          {/* LKW Content */}
-          <TabsContent value="lkw" className="mt-6">
-            <Tabs value={lkwSubTab} onValueChange={setLkwSubTab}>
-              <TabsList className="bg-card border border-border p-1 flex-wrap h-auto gap-1">
-                <TabsTrigger 
-                  value="eco" 
-                  className="data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
-                >
-                  {t('eco')}
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="tuning" 
-                  className="data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
-                >
-                  {t('tuning')}
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="options" 
-                  className="data-[state=active]:bg-white/10 data-[state=active]:text-foreground"
-                >
-                  {t('optionsSingle')}
-                </TabsTrigger>
-              </TabsList>
-
-              <div className="mt-6">
-                <TabsContent value="eco">
-                  <Card className="bg-card border-border">
-                    <CardHeader className="border-b border-border pb-4">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
-                          <Leaf weight="fill" className="w-5 h-5 text-green-500" />
-                          {t('eco')}
-                        </CardTitle>
-                        <Badge className="bg-green-500/20 text-green-400 border border-green-500/30 font-heading font-bold text-lg px-3 py-1">
-                          120 Credits
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-4">
-                      <p className="text-sm text-muted-foreground mb-4">{t('availableOptions')}</p>
-                      <OptionsGrid options={lkwOptions} language={language} t={t} />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="tuning">
-                  <Card className="bg-card border-border">
-                    <CardHeader className="border-b border-border pb-4">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
-                          <Lightning weight="fill" className="w-5 h-5 text-primary" />
-                          {t('tuning')}
-                        </CardTitle>
-                        <Badge className="bg-primary/20 text-primary border border-primary/30 font-heading font-bold text-lg px-3 py-1">
-                          150 Credits
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-4">
-                      <p className="text-sm text-muted-foreground mb-4">{t('availableOptions')}</p>
-                      <OptionsGrid options={lkwOptions} language={language} t={t} />
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-
-                <TabsContent value="options">
-                  <Card className="bg-card border-border">
-                    <CardHeader className="border-b border-border pb-4">
-                      <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
-                        <Plus weight="fill" className="w-5 h-5 text-primary" />
-                        {t('allOptions')}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-4">
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                        {lkwOptions.map(opt => ({ ...opt, credits: opt.included ? 55 : opt.credits, included: false })).map((option) => (
-                          <div 
-                            key={option.id}
-                            className="p-3 rounded-sm border bg-secondary border-border hover:border-white/20 transition-colors"
-                          >
-                            <div className="flex flex-col items-center text-center">
-                              <div className="w-10 h-10 rounded-sm bg-secondary flex items-center justify-center mb-2">
-                                <OptionIcon iconType={option.icon} className="w-5 h-5 text-muted-foreground" />
-                              </div>
-                              <p className="text-sm font-semibold text-foreground">{option.name[language]}</p>
-                              <p className="text-xs text-muted-foreground mt-0.5">{option.description[language]}</p>
-                              <Badge className="mt-2 bg-primary/20 text-primary border border-primary/30 font-mono text-xs">
-                                {option.credits}
-                              </Badge>
-                            </div>
+        {activeTab === 'lkw' && (
+          <>
+            {lkwSubTab === 'eco' && (
+              <Card className="bg-card border-border">
+                <CardHeader className="border-b border-border pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
+                      <Leaf weight="fill" className="w-5 h-5 text-green-500" />
+                      {t('eco')}
+                    </CardTitle>
+                    <Badge className="bg-green-500/20 text-green-400 border border-green-500/30 font-heading font-bold text-lg px-3 py-1">
+                      120 Credits
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground mb-4">{t('availableOptions')}</p>
+                  <OptionsGrid options={lkwOptions} language={language} t={t} />
+                </CardContent>
+              </Card>
+            )}
+            {lkwSubTab === 'tuning' && (
+              <Card className="bg-card border-border">
+                <CardHeader className="border-b border-border pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
+                      <Lightning weight="fill" className="w-5 h-5 text-primary" />
+                      {t('tuning')}
+                    </CardTitle>
+                    <Badge className="bg-primary/20 text-primary border border-primary/30 font-heading font-bold text-lg px-3 py-1">
+                      150 Credits
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground mb-4">{t('availableOptions')}</p>
+                  <OptionsGrid options={lkwOptions} language={language} t={t} />
+                </CardContent>
+              </Card>
+            )}
+            {lkwSubTab === 'options' && (
+              <Card className="bg-card border-border">
+                <CardHeader className="border-b border-border pb-4">
+                  <CardTitle className="font-heading font-semibold text-lg flex items-center gap-2">
+                    <Plus weight="fill" className="w-5 h-5 text-primary" />
+                    {t('allOptions')}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                    {lkwOptions.map(opt => ({ ...opt, credits: opt.included ? 55 : opt.credits, included: false })).map((option) => (
+                      <div key={option.id} className="p-3 rounded-sm border bg-secondary border-border hover:border-white/20 transition-colors">
+                        <div className="flex flex-col items-center text-center">
+                          <div className="w-10 h-10 rounded-sm bg-secondary flex items-center justify-center mb-2">
+                            <OptionIcon iconType={option.icon} className="w-5 h-5 text-muted-foreground" />
                           </div>
-                        ))}
+                          <p className="text-sm font-semibold text-foreground">{option.name[language]}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{option.description[language]}</p>
+                          <Badge className="mt-2 bg-primary/20 text-primary border border-primary/30 font-mono text-xs">{option.credits}</Badge>
+                        </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              </div>
-            </Tabs>
-          </TabsContent>
-        </Tabs>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </>
+        )}
 
         {/* Note */}
-        <p className="text-sm text-muted-foreground text-center pt-4">
-          {t('note')}
-        </p>
+        <p className="text-sm text-muted-foreground text-center pt-4">{t('note')}</p>
       </div>
     </DashboardLayout>
   );
